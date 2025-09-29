@@ -1,10 +1,3 @@
-/*
-
-	TODO: разнести по файлам код, доделать вывод портов в таблицу, доделать вывод текста
-
-*/
-
-
 #include <fstream>
 #include <string>
 #include <vector>
@@ -28,7 +21,7 @@ struct Module
 
 struct Comment_block
 {
-    std::vector<std::string> comment;
+    std::vector<std::string> comment_block;
     std::string tag;
 };
 
@@ -164,6 +157,7 @@ public:
             {
                 size_t pos = line.find("//*");
                 std::string cleaned_line = trim(line.substr(pos + 3));
+
                 for (const auto& tag : tags)
                 {
                     if (line.find(tag) != std::string::npos)
@@ -171,6 +165,10 @@ public:
                         comment_block.tag = tag;
                         
                         size_t tag_pos = cleaned_line.find(tag);
+                        if (tag == "@port")
+                        {
+                            module.ports.back().description = trim(cleaned_line.substr(tag_pos + tag.length()));
+                        }
                         if (tag_pos != std::string::npos)
                         {
                             cleaned_line.erase(tag_pos, tag.length());
@@ -178,7 +176,9 @@ public:
                         break;
                     }
                 }
-                comment_block.comment.push_back(cleaned_line);
+                comment_block.comment_block.push_back(cleaned_line);
+                fileinfo.comments.push_back(comment_block);
+                comment_block = Comment_block();
             }
             else if (line.find("/**") != std::string::npos)
             {
@@ -197,8 +197,6 @@ public:
                             comment = trim(lines[i].substr(0, end_pos));
                         else
                             comment = "";
-                        if (!comment.empty())
-                            comment_block.comment.push_back(comment);
                         break;
                     }
                     for (const auto& tag : tags)
@@ -220,11 +218,13 @@ public:
                         ++i;
                         continue;
                     }
-                    comment_block.comment.push_back(comment);
                     ++i;
+                    comment_block.comment_block.push_back(comment);
+                    
                 }
+                fileinfo.comments.push_back(comment_block);
+                comment_block = Comment_block();
             }
-            fileinfo.comments.push_back(comment_block);
         }
         fileinfo.modules.push_back(module);
 		return fileinfo;
@@ -234,9 +234,17 @@ public:
     {
         // Комментарии
         html << "<h2>Comments</h2><ul>\n";
-        for (const auto& comment : fileinfo.comments)
+        for (const auto& cmt : fileinfo.comments)
         {
-            //html << "<li>" << comment << "</li>\n";
+            if (cmt.tag == "@brief" && !cmt.comment_block.empty())
+            {
+                html << "<li><b>Brief:</b><ul>\n";
+                for (const auto& line : cmt.comment_block)
+                {
+                    html << "<li class='brief'>" << line << "</li>\n";
+                }
+                html << "</ul></li>\n";
+            }
         }
         html << "</ul>\n";
 
@@ -250,7 +258,7 @@ public:
                 html << "<table border='1' cellspacing='0' cellpadding='4'>\n";
                 html << "<tr><th>Port name</th><th>Type</th><th>Width</th><th>Description</th></tr>\n";
                 for (const auto& port : module.ports)
-                    html << "<tr><td>" << port.name << "</td><td>" << port.type << "</td><td>" << port.width << "</td><td>" << port.description << "</td></tr>\n";
+                    html << "<tr><td>" << port.name << "</td><td>" << port.type << "</td><td>" << port.width << "</td><td>" << "<li class='param'>" << port.description << "</td></tr>\n";
                 html << "</table>\n";
             }
             else
@@ -282,9 +290,9 @@ int main()
         "h1 { font-size:22px; color:#2c3e50; border-bottom:2px solid #ccc; padding-bottom:5px; }"
         "h2 { font-size:20px; color:#34495e; margin-top:20px; }"
         "h3 { font-size:18px; color:#16a085; }"
-        ".brief { font-size:18px; font-weight:bold; color:#333; margin:10px 0; }"
+        ".brief { font-size:18px; font-weight:bold; color:#333; margin:10px 0; list-style-type: none; padding - left: 0;}"
         ".author { color:#555; margin:5px 0; }"
-        ".param { font-style:italic; margin-left:15px; }"
+        ".param { font-style:italic; margin-left:15px; list-style-type: none; padding - left: 0;}"
         "table { border-collapse:collapse; width:80%; margin-top:10px; background:white; }"
         "table, th, td { border:1px solid #ccc; }"
         "th { background:#f0f0f0; padding:6px; text-align:left; }"
