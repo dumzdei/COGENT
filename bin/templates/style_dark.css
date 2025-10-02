@@ -1,0 +1,91 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background: #1e1e1e;
+    color: #ddd;
+}
+
+h1 {
+    font-size: 22px;
+    color: #f39c12;
+    border-bottom: 2px solid #555;
+    padding-bottom: 5px;
+}
+
+h2 {
+    font-size: 20px;
+    color: #e67e22;
+    margin-top: 20px;
+}
+
+h3 {
+    font-size: 18px;
+    color: #16a085;
+}
+
+.brief {
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+    margin: 10px 0;
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.author {
+    color: #bbb;
+    margin: 5px 0;
+}
+
+.param {
+    font-style: italic;
+    margin-left: 15px;
+    list-style-type: none;
+    padding-left: 0;
+}
+
+details {
+    margin-bottom: 10px;
+    /*border: 1px solid #555;
+    border-radius: 5px;
+    background: #2c2c2c;
+    padding: 5px 10px;*/
+}
+
+summary {
+    cursor: pointer;
+    font-weight: bold;
+    color: #f39c12;
+}
+
+summary::marker {
+    content: "> ";
+    color: #f39c12;
+    font-weight: bold;
+    display: inline-block;
+    width: 1em;
+}
+
+details[open] summary::marker {
+    content: "v ";
+}
+
+table.auto {
+    table-layout: auto;
+    border-collapse: collapse;
+    margin-top: 5px;
+    background: #2c2c2c;
+}
+
+table.auto th, table.auto td {
+    border: 1px solid #555;
+    padding: 6px;
+}
+
+th {
+    background: #3a3a3a;
+}
+
+td {
+    background: #2c2c2c;
+}

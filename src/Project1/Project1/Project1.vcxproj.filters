@@ -15,14 +15,14 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="FileName.cpp">
-      <Filter>Файлы ресурсов</Filter>
+    <ClCompile Include="Exporter.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="Parser.cpp">
-      <Filter>Файлы ресурсов</Filter>
-    </ClCompile>
-    <ClCompile Include="Exporter.cpp">
-      <Filter>Файлы ресурсов</Filter>
+      <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -37,16 +37,16 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="style_dark.css">
+    <None Include="..\..\..\bin\templates\style_dark.css">
       <Filter>Файлы ресурсов</Filter>
     </None>
-    <None Include="template_light.htm">
+    <None Include="..\..\..\bin\templates\style_lite.css">
       <Filter>Файлы ресурсов</Filter>
     </None>
-    <None Include="style_light.css">
+    <None Include="..\..\..\bin\templates\template_dark.htm">
       <Filter>Файлы ресурсов</Filter>
     </None>
-    <None Include="template_dark.htm">
+    <None Include="..\..\..\bin\templates\template_lite.htm">
       <Filter>Файлы ресурсов</Filter>
     </None>
   </ItemGroup>

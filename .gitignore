@@ -1,0 +1,7 @@
+src/Project1/.vs/
+
+bin/*.html
+bin/*.htm
+
+src/Project1/x64/
+src/Project1/Project1/x64/
