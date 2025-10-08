@@ -2,6 +2,8 @@ src/Project1/.vs/
 
 bin/*.html
 bin/*.htm
+bin/*.pdb
+bin/*.exe
 
 src/Project1/x64/
 src/Project1/Project1/x64/
