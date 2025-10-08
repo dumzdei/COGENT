@@ -19,11 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CmdLine.cpp" />
     <ClCompile Include="Exporter.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Parser.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CmdLine.hpp" />
     <ClInclude Include="DataTypes.h" />
     <ClInclude Include="Exporter.h" />
     <ClInclude Include="Parser.h" />
