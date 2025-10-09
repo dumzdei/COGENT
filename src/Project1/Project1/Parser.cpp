@@ -9,7 +9,6 @@ bool Parser::loadFile(const std::string& filename)
     std::ifstream file(filename);
     if (!file.is_open()) return false;
 
-    std::string line;
     while (std::getline(file, line))
     {
         lines.push_back(line);
@@ -21,6 +20,7 @@ std::string Parser::trim(const std::string& str)
 {
     size_t first = str.find_first_not_of(" \t");
     if (first == std::string::npos) return "";
+
     size_t last = str.find_last_not_of(" \t");
     return str.substr(first, last - first + 1);
 }
@@ -32,27 +32,28 @@ std::vector<Port> Parser::PortParcer(const std::string& source_line)
     std::string line = source_line;
     line.erase(0, line.find_first_not_of(" \t"));
 
-    std::regex baseRegex(R"((input wire|output wire|output reg)\s*(\[[0-9]+:[0-9]+\])?)");
+    std::regex portRegex(R"(\b(input|output|inout)\b\s*(wire|reg|logic)?\s*(\[[^\]]+\])?)");
+
     std::smatch match;
 
-    if (std::regex_search(line, match, baseRegex))
+    if (std::regex_search(line, match, portRegex))
     {
         Port p;
-        p.type = match[1];
+        p.direction = match[1];
 
-        std::string widthStr = match[2];
-        if (!widthStr.empty())
-        {
-            int msb, lsb;
-            sscanf_s(widthStr.c_str(), "[%d:%d]", &msb, &lsb);
-            p.width = abs(msb - lsb) + 1;
-        }
+        if (match[2].matched)
+            p.type = match[2];
         else
-            p.width = 1;
+			p.type = "wire";
+
+        if (match[3].matched)
+            p.width = match[3];
+        else
+            p.width = "1";
 
         std::string rest = line.substr(match[0].length());
 
-        std::vector<std::string> commentVariants = { "//*", "/**", "//", "/*" };
+        
         size_t firstPos = std::string::npos;
 
         for (const auto& cmt : commentVariants)
@@ -65,6 +66,10 @@ std::vector<Port> Parser::PortParcer(const std::string& source_line)
                     firstPos = pos;
                 }
             }
+            if (cmt == "//*" && pos != std::string::npos)
+            {
+				p.description = trim(rest.substr(pos + 3));
+			}
         }
 
         if (firstPos != std::string::npos)
@@ -75,7 +80,7 @@ std::vector<Port> Parser::PortParcer(const std::string& source_line)
         std::string name;
         while (std::getline(ss, name, ','))
         {
-            name.erase(0, name.find_first_not_of(" \t"));
+			trim(name);
             name.erase(name.find_last_not_of(" \t;") + 1);
 
             if (!name.empty())
@@ -89,87 +94,134 @@ std::vector<Port> Parser::PortParcer(const std::string& source_line)
     return ports;
 }
 
+std::vector<Param> Parser::ParamParcer(const std::string& source_line)
+{
+    std::vector<Param> params;
+    
+    std::string line = trim(source_line);
+	size_t pos = line.find("parameter");
+	line = line.substr(pos + 9, line.length());
+
+    std::stringstream ss(line);
+    std::string hash;
+    while (std::getline(ss, hash, ','))
+    {
+        std::string name;
+        std::string value_str;
+        std::string description;
+        if (hash.find('=') != std::string::npos)
+        {
+            if (hash.find("/**") != std::string::npos && hash.find("**/") != std::string::npos)
+            {
+				description = trim(hash.substr(hash.find("/**") + 3, hash.find("**/") - (hash.find("/**") + 3)));
+            }
+            name = trim(hash.substr(0, hash.find('=')));
+			value_str = trim(hash.substr(hash.find('=') + 1, ',' | ')'));
+        }
+
+        if (!name.empty())
+        {
+            Param np;
+            np.name = name;
+			np.value = value_str;
+			np.description = description;
+            params.push_back(np);
+        }
+    }
+    return params;
+}
+
 FileInfo Parser::parse()
 {
     FileInfo fileinfo;
     Module module;
     Comment_block comment_block;
-    std::vector<std::string> tags = { "@brief" , "@port" };
+    std::vector<std::string> tags = { "@brief" };
+
+    bool module_area = false;
 
     for (size_t i = 0; i < lines.size(); ++i)
     {
         const std::string& line = lines[i];
-        if (line.find("input wire") != std::string::npos || line.find("output wire") != std::string::npos || line.find("output reg") != std::string::npos)
+
+		std::vector<Port> parsed_ports;
+		std::vector<Param> parsed_params;
+
+        if (module_area && (line.find("input") != std::string::npos || line.find("output") != std::string::npos || line.find("inout") != std::string::npos))
         {
-            std::vector<Port> parsed_ports = PortParcer(line);
-            for (const auto& p : parsed_ports)
-                module.ports.push_back(p);
+            parsed_ports = PortParcer(line);
         }
+
+        if (module_area && line.find("parameter") != std::string::npos)
+        {
+            parsed_params = ParamParcer(line);
+        }
+
+        else if (line.find("function") != std::string::npos || line.find("task") != std::string::npos)
+            module_area = false;
+
         else if (line.find("module") != std::string::npos && line.find("endmodule") == std::string::npos)
         {
+            module_area = true;
+
+            size_t end = line.length();
+            char c;
+
             size_t pos = line.find("module");
-            if (pos != std::string::npos)
+            pos += 6;  //length of "module"
+            
+            for (size_t i = pos; i < line.length(); i++)
             {
-                pos += 6;  //length of "module"
-                size_t end = line.find_first_of("(", pos);
-                module.name = trim(line.substr(pos, end - pos));
+                c = line[i];
+                if (c == '#' || c == '(' || c == ';')
+                {
+                    end = i;
+                    break;
+                }
             }
-            else
-                module.name = "No name ";
+
+            module.name = trim(line.substr(pos, end - pos));
+            
         }
         if (line.find("//*") != std::string::npos)
         {
             size_t pos = line.find("//*");
-            std::string cleaned_line = trim(line.substr(pos + 3));
+            std::string comment = trim(line.substr(pos + 3));
 
             for (const auto& tag : tags)
             {
                 if (line.find(tag) != std::string::npos)
                 {
                     comment_block.tag = tag;
+                    size_t tag_pos = comment.find(tag);
+                    
+                    comment.erase(tag_pos, tag.length());
 
-                    size_t tag_pos = cleaned_line.find(tag);
-                    if (tag == "@port")
-                    {
-                        module.ports.back().description = trim(cleaned_line.substr(tag_pos + tag.length()));
-                    }
-                    if (tag_pos != std::string::npos)
-                    {
-                        cleaned_line.erase(tag_pos, tag.length());
-                    }
                     break;
                 }
             }
-            comment_block.comment_block.push_back(cleaned_line);
+
+            comment_block.comment_block.push_back(comment);
             fileinfo.comments.push_back(comment_block);
             comment_block = Comment_block();
         }
         else if (line.find("/**") != std::string::npos)
         {
-            while (i < lines.size())
+            while (lines[i].find("**/") == std::string::npos)
             {
                 std::string comment = trim(lines[i]);
                 if (lines[i].find("/**") != std::string::npos)
                 {
-                    size_t start_pos = lines[i].find("/**");
-                    comment = trim(lines[i].substr(start_pos + 3));
+                    comment = trim(lines[i].substr(lines[i].find("/**") + 3));
                 }
-                else if (lines[i].find("**/") != std::string::npos)
-                {
-                    size_t end_pos = lines[i].find("**/");
-                    if (end_pos != std::string::npos && end_pos <= lines[i].size())
-                        comment = trim(lines[i].substr(0, end_pos));
-                    else
-                        comment = "";
-                    break;
-                }
+                
                 for (const auto& tag : tags)
                 {
                     if (comment.find(tag) != std::string::npos)
                     {
                         comment_block.tag = tag;
-
                         size_t tag_pos = comment.find(tag);
+
                         if (tag_pos != std::string::npos)
                         {
                             comment.erase(tag_pos, tag.length());
@@ -177,18 +229,18 @@ FileInfo Parser::parse()
                         break;
                     }
                 }
-                if (comment.empty())
-                {
-                    ++i;
-                    continue;
-                }
+				comment_block.comment_block.push_back(comment);
                 ++i;
-                comment_block.comment_block.push_back(comment);
-
             }
             fileinfo.comments.push_back(comment_block);
             comment_block = Comment_block();
         }
+
+        for (const auto& p : parsed_ports)
+            module.ports.push_back(p);
+
+		for (const auto& p : parsed_params)
+			module.params.push_back(p);
     }
     fileinfo.modules.push_back(module);
     return fileinfo;

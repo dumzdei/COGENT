@@ -5,15 +5,24 @@
 struct Port
 {
     std::string name;
+    std::string direction;
     std::string type;
     std::string description;
-    int width = 0;
+    std::string width;
+};
+
+struct Param
+{
+    std::string name;
+    std::string description;
+    std::string value;
 };
 
 struct Module
 {
     std::string name;
     std::vector<Port> ports;
+	std::vector<Param> params;
 };
 
 struct Comment_block

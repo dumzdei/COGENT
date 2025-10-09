@@ -2,7 +2,7 @@
 module sh_reg(
     input wire clk,
     input wire rst,
-    input wire input_signal,
+    input wire signal,
     output wire out0,
     output wire out1,
     output wire out2,
@@ -17,7 +17,7 @@ module sh_reg(
             reg_data <= 4'b0000;
         end
         else begin
-            reg_data <= {reg_data[2:0], input_signal};
+            reg_data <= {reg_data[2:0], signal};
         end
     end
 
