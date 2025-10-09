@@ -7,7 +7,7 @@ module paral_sh_reg #(
     input wire clk,
     input wire Sclk,
     input wire reset,
-    input wire input_signal,
+    input wire signal,
     output wire out0,
     output wire out1,
     output wire out2,
@@ -56,7 +56,7 @@ endfunction
     sh_reg S(
         .clk(clk),
         .rst(rst_sync2),
-        .input_signal(input_signal),
+        .signal(signal),
         .out0(out0),
         .out1(out1),
         .out2(out2),
