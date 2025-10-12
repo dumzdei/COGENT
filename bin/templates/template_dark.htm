@@ -1,14 +1,24 @@
-<html>
+<!DOCTYPE html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Report</title>
+    <title>Documentation Report</title>
     <link rel="stylesheet" href="templates/style_dark.css">
 </head>
 <body>
-    <h1>My Report</h1>
-
-    <h2>Modules</h2>
-    {{MODULES}}
-
+    <header>
+        <h1>{{TOP_MODULE}}</h1>
+    </header>
+    <div class="container">
+        <div class="sidebar">
+            <h2>Модули</h2>
+            <ul>
+                {{GROUPS}}
+            </ul>
+        </div>
+        <div class="content">
+            {{MODULES}}
+        </div>
+    </div>
 </body>
 </html>

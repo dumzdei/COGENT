@@ -1,9 +1,8 @@
-src/Project1/.vs/
+msvs2022/.vs/
+msvs2022/COGENT/
 
 bin/*.html
 bin/*.htm
 bin/*.pdb
 bin/*.exe
 
-src/Project1/x64/
-src/Project1/Project1/x64/

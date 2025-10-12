@@ -1,4 +1,10 @@
 `timescale 1 ns/1ps
+
+/** @top
+sigmo super mega module
+(antisigmo)
+**/
+
 module paral_sh_reg #(
     parameter WIDTH = 32,
     parameter IN_WIDTH = 4

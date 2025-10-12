@@ -21,16 +21,32 @@ int main(int argc, char* argv[])
 
 	if (!html.is_open())
 	{
-		std::cout << "\033[31m";
-		std::cerr << "Could not open report.htm for writing.\n";
-		std::cout << "\033[0m";
+		std::cerr << "\033[31m__err__\033[0m : Could not open report.htm for writing.\n";
 		return 2;
 	}
 	try
 	{
+		std::filesystem::path path = cmdLine.getPath();
+
+		if (!std::filesystem::exists(path))
+		{
+			std::cerr << "\033[31m__err__\033[0m : path \"" << path.string() << "\" does not exist.\n";
+			return 3;
+		}
+
+		if (!std::filesystem::is_directory(path))
+		{
+			std::cerr << "\033[31m__err__\033[0m : the specified path \"" << path.string() << "\" is not a directory.\n";
+			return 3;
+		}
+
 		for (const auto& entry : std::filesystem::directory_iterator(cmdLine.getPath()))
 		{
 			if (!entry.is_regular_file()) continue;
+
+			std::string ext = entry.path().extension().string();
+			if (ext != ".v" && ext != ".sv")
+				continue;
 
 			std::cout << "Processing file: " << entry.path() << "\n";
 
@@ -40,17 +56,13 @@ int main(int argc, char* argv[])
 			}
 			else
 			{
-				std::cout << "\033[33m";
-				std::cerr << "Failed to load file.\n";
-				std::cout << "\033[0m";
+				std::cerr << "\033[33m__wrn__\033[0m : Failed to load file.\n";
 			}
 		}
 	}
 	catch (const std::filesystem::filesystem_error& e)
 	{
-		std::cout << "\033[31m";
-		std::cerr << "Filesystem error: " << e.what() << "\n";
-		std::cout << "\033[0m";
+		std::cerr << "\033[31m__err__\033[0m : " << e.what() << std::endl;
 		return 3;
 	}
 
