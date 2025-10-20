@@ -1,2 +1,2 @@
-# Documentator-9000
+# COGENT
 A simple tool to generate documentation from HDL source file.

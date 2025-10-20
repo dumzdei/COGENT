@@ -6,3 +6,5 @@ bin/*.htm
 bin/*.pdb
 bin/*.exe
 
+build/*.d
+build/*.o

@@ -1,5 +1,5 @@
 #include "CmdLine.hpp"
-
+#include <cstring>
 #include <iostream>
 #include <iomanip>
 
