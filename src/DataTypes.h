@@ -18,21 +18,16 @@ struct Param
     std::string value;
 };
 
-struct Module
-{
-    std::string name;
-    std::vector<Port> ports;
-	std::vector<Param> params;
-};
-
 struct Comment_block
 {
     std::vector<std::string> comment_block;
     std::string tag;
 };
 
-struct FileInfo
+struct Module
 {
-    std::vector<Module> modules;
+    std::string name;
+    std::vector<Port> ports;
+	std::vector<Param> params;
     std::vector<Comment_block> comments;
 };

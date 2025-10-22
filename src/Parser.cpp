@@ -165,103 +165,113 @@ std::vector<Param> Parser::ParamParcer(const std::string& source_line)
     return params;
 }
 
-FileInfo Parser::parse()
+std::vector<Module> Parser::parse()
 {
-    FileInfo fileinfo;
     Module module;
+    std::vector<Module> modules;
     Comment_block comment_block;
-
+    std::vector<Port> parsed_ports;
+    std::vector<Param> parsed_params;
     bool module_area = false;
 
     for (size_t i = 0; i < lines.size(); ++i)
     {
         const std::string& line = lines[i];
 
-		std::vector<Port> parsed_ports;
-		std::vector<Param> parsed_params;
-
-        if (module_area && (line.find("input") != std::string::npos || line.find("output") != std::string::npos || line.find("inout") != std::string::npos))
+        // Обработка портов
+        if (module_area && (line.find("input") != std::string::npos ||
+            line.find("output") != std::string::npos ||
+            line.find("inout") != std::string::npos))
         {
-            parsed_ports = PortParcer(line);
+            auto ports = PortParcer(line);
+            module.ports.insert(module.ports.end(), ports.begin(), ports.end());
         }
-
-        if (module_area && line.find("parameter") != std::string::npos)
+        // Обработка параметров
+        else if (module_area && line.find("parameter") != std::string::npos)
         {
-            parsed_params = ParamParcer(line);
+            auto params = ParamParcer(line);
+            module.params.insert(module.params.end(), params.begin(), params.end());
         }
-
+        // Выход из области модуля при функции/таске
         else if (line.find("function") != std::string::npos || line.find("task") != std::string::npos)
+        {
             module_area = false;
-
+        }
+        // Начало модуля
         else if (line.find("module") != std::string::npos && line.find("endmodule") == std::string::npos)
         {
             module_area = true;
 
-            size_t end = line.length();
-            char c;
-
-            size_t pos = line.find("module");
-            pos += 6;  //length of "module"
-            
-            for (size_t i = pos; i < line.length(); i++)
-            {
-                c = line[i];
-                if (c == '#' || c == '(' || c == ';')
-                {
-                    end = i;
-                    break;
-                }
-            }
+            size_t pos = line.find("module") + 6;
+            size_t end = line.find_first_of("#(;");
 
             module.name = trim(line.substr(pos, end - pos));
         }
+        // Конец модуля
+        else if (line.find("endmodule") != std::string::npos)
+        {
+            if (!comment_block.comment_block.empty())
+                module.comments.push_back(comment_block);
+
+            modules.push_back(module);
+
+            // Сброс данных для следующего модуля
+            module = Module();
+            comment_block = Comment_block();
+            parsed_ports.clear();
+            parsed_params.clear();
+            module_area = false;
+        }
+
+        // Однострочные комментарии
         if (line.find("//*") != std::string::npos)
         {
             size_t pos = line.find("//*");
             std::string comment = trim(line.substr(pos + 3));
 
-			comment_block.tag = extractTag(comment);
+            comment_block.tag = extractTag(comment);
 
-			if (!comment.empty())
+            if (!comment.empty())
                 comment_block.comment_block.push_back(comment);
-
-            fileinfo.comments.push_back(comment_block);
-            comment_block = Comment_block();
         }
+        // Многострочные /** **/ комментарии
         else if (line.find("/**") != std::string::npos)
         {
-            while (lines[i].find("**/") == std::string::npos)
+            while (i < lines.size() && lines[i].find("**/") == std::string::npos)
             {
                 std::string comment = trim(lines[i]);
                 if (lines[i].find("/**") != std::string::npos)
-                {
                     comment = trim(lines[i].substr(lines[i].find("/**") + 3));
-                }
-                
+
                 std::string tag = extractTag(comment);
                 if (!tag.empty() && comment_block.tag.empty())
                     comment_block.tag = tag;
                 else if (!tag.empty())
                 {
-                    fileinfo.comments.push_back(comment_block);
+                    if (!comment_block.comment_block.empty())
+                        module.comments.push_back(comment_block);
+
                     comment_block = Comment_block();
                     comment_block.tag = tag;
                 }
 
                 if (!comment.empty())
                     comment_block.comment_block.push_back(comment);
+
                 ++i;
             }
-            fileinfo.comments.push_back(comment_block);
-            comment_block = Comment_block();
+            // Обязательно добавить последнюю строку с "**/"
+            if (i < lines.size())
+            {
+                std::string lastLine = trim(lines[i]);
+                size_t endPos = lastLine.find("**/");
+                if (endPos != std::string::npos)
+                    lastLine = trim(lastLine.substr(0, endPos));
+                if (!lastLine.empty())
+                    comment_block.comment_block.push_back(lastLine);
+            }
         }
-
-        for (const auto& p : parsed_ports)
-            module.ports.push_back(p);
-
-		for (const auto& p : parsed_params)
-			module.params.push_back(p);
     }
-    fileinfo.modules.push_back(module);
-    return fileinfo;
+
+    return modules;
 }

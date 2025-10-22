@@ -23,5 +23,5 @@ public:
     std::string extractTag(std::string& text);
     std::vector<Port> PortParcer(const std::string& source_line);
 	std::vector<Param> ParamParcer(const std::string& source_line);
-    FileInfo parse();
+    std::vector<Module> parse();
 };

@@ -2,73 +2,76 @@
 #include "Exporter.h"
 #include "CmdLine.hpp"
 #include <filesystem>
+#include <vector>
+#include <iostream>
+#include <fstream>
 
 int main(int argc, char* argv[])
 {
-	CmdLine cmdLine(argc, argv);
-	if (!cmdLine.ok())
-		return 1;
-	if (!cmdLine.canContinue())
-		return 0;
+    CmdLine cmdLine(argc, argv);
+    if (!cmdLine.ok())
+        return 1;
+    if (!cmdLine.canContinue())
+        return 0;
 
     Parser parser;
     Exporter exporter;
-	std::vector<FileInfo> files_info;
 
     std::ofstream html("report.htm");
+    std::ifstream temp_html("templates/template_" + cmdLine.getThemeName() + ".htm");
 
-	std::ifstream temp_html("templates/template_" + cmdLine.getThemeName() + ".htm");
+    if (!html.is_open())
+    {
+        std::cerr << "\033[31m__err__\033[0m : Could not open report.htm for writing.\n";
+        return 2;
+    }
 
-	if (!html.is_open())
-	{
-		std::cerr << "\033[31m__err__\033[0m : Could not open report.htm for writing.\n";
-		return 2;
-	}
-	try
-	{
-		std::filesystem::path path = cmdLine.getPath();
+    std::vector<Module> modules; // <-- теперь только модули
 
-		if (!std::filesystem::exists(path))
-		{
-			std::cerr << "\033[31m__err__\033[0m : path \"" << path.string() << "\" does not exist.\n";
-			return 3;
-		}
+    try
+    {
+        std::filesystem::path path = cmdLine.getPath();
 
-		if (!std::filesystem::is_directory(path))
-		{
-			std::cerr << "\033[31m__err__\033[0m : the specified path \"" << path.string() << "\" is not a directory.\n";
-			return 3;
-		}
+        if (!std::filesystem::exists(path))
+        {
+            std::cerr << "\033[31m__err__\033[0m : path \"" << path.string() << "\" does not exist.\n";
+            return 3;
+        }
 
-		for (const auto& entry : std::filesystem::directory_iterator(cmdLine.getPath()))
-		{
-			if (!entry.is_regular_file()) continue;
+        if (!std::filesystem::is_directory(path))
+        {
+            std::cerr << "\033[31m__err__\033[0m : the specified path \"" << path.string() << "\" is not a directory.\n";
+            return 3;
+        }
 
-			std::string ext = entry.path().extension().string();
-			if (ext != ".v" && ext != ".sv")
-				continue;
+        for (const auto& entry : std::filesystem::directory_iterator(path))
+        {
+            if (!entry.is_regular_file()) continue;
 
-			std::cout << "Processing file: " << entry.path() << "\n";
+            std::string ext = entry.path().extension().string();
+            if (ext != ".v" && ext != ".sv")
+                continue;
 
-			if (parser.loadFile(entry.path().string()))
-			{
-				files_info.push_back(parser.parse());
-			}
-			else
-			{
-				std::cerr << "\033[33m__wrn__\033[0m : Failed to load file.\n";
-			}
-		}
-	}
-	catch (const std::filesystem::filesystem_error& e)
-	{
-		std::cerr << "\033[31m__err__\033[0m : " << e.what() << std::endl;
-		return 3;
-	}
+            std::cout << "Processing file: " << entry.path() << "\n";
 
-    
-    exporter.Export_to_HTML(files_info, html, temp_html);
-	
+            if (parser.loadFile(entry.path().string()))
+            {
+                auto parsed_modules = parser.parse();   // parse возвращает std::vector<Module>
+                modules.insert(modules.end(), parsed_modules.begin(), parsed_modules.end());
+            }
+            else
+            {
+                std::cerr << "\033[33m__wrn__\033[0m : Failed to load file.\n";
+            }
+        }
+    }
+    catch (const std::filesystem::filesystem_error& e)
+    {
+        std::cerr << "\033[31m__err__\033[0m : " << e.what() << std::endl;
+        return 3;
+    }
+
+    exporter.Export_to_HTML(modules, html, temp_html);
 
     return 0;
 }
