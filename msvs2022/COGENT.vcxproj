@@ -132,16 +132,15 @@
     <ClCompile Include="..\src\Exporter.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\Parser.cpp" />
-    <ClCompile Include="..\src\Tree.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\CmdLine.hpp" />
     <ClInclude Include="..\src\DataTypes.h" />
     <ClInclude Include="..\src\Exporter.h" />
     <ClInclude Include="..\src\Parser.h" />
-    <ClInclude Include="..\src\Tree.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\bin\templates\script.js" />
     <None Include="..\bin\templates\style_dark.css" />
     <None Include="..\bin\templates\style_lite.css" />
     <None Include="..\bin\templates\template_dark.htm">
@@ -150,6 +149,7 @@
     <None Include="..\bin\templates\template_lite.htm">
       <DeploymentContent>true</DeploymentContent>
     </None>
+    <None Include="script.js" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

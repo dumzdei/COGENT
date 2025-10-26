@@ -178,7 +178,7 @@ std::vector<Module> Parser::parse()
     {
         const std::string& line = lines[i];
 
-        // Обработка портов
+
         if (module_area && (line.find("input") != std::string::npos ||
             line.find("output") != std::string::npos ||
             line.find("inout") != std::string::npos))
@@ -186,18 +186,18 @@ std::vector<Module> Parser::parse()
             auto ports = PortParcer(line);
             module.ports.insert(module.ports.end(), ports.begin(), ports.end());
         }
-        // Обработка параметров
+
         else if (module_area && line.find("parameter") != std::string::npos)
         {
             auto params = ParamParcer(line);
             module.params.insert(module.params.end(), params.begin(), params.end());
         }
-        // Выход из области модуля при функции/таске
+
         else if (line.find("function") != std::string::npos || line.find("task") != std::string::npos)
         {
             module_area = false;
         }
-        // Начало модуля
+
         else if (line.find("module") != std::string::npos && line.find("endmodule") == std::string::npos)
         {
             module_area = true;
@@ -207,7 +207,7 @@ std::vector<Module> Parser::parse()
 
             module.name = trim(line.substr(pos, end - pos));
         }
-        // Конец модуля
+
         else if (line.find("endmodule") != std::string::npos)
         {
             if (!comment_block.comment_block.empty())
@@ -215,7 +215,6 @@ std::vector<Module> Parser::parse()
 
             modules.push_back(module);
 
-            // Сброс данных для следующего модуля
             module = Module();
             comment_block = Comment_block();
             parsed_ports.clear();
@@ -223,7 +222,6 @@ std::vector<Module> Parser::parse()
             module_area = false;
         }
 
-        // Однострочные комментарии
         if (line.find("//*") != std::string::npos)
         {
             size_t pos = line.find("//*");
@@ -234,7 +232,6 @@ std::vector<Module> Parser::parse()
             if (!comment.empty())
                 comment_block.comment_block.push_back(comment);
         }
-        // Многострочные /** **/ комментарии
         else if (line.find("/**") != std::string::npos)
         {
             while (i < lines.size() && lines[i].find("**/") == std::string::npos)
@@ -260,7 +257,6 @@ std::vector<Module> Parser::parse()
 
                 ++i;
             }
-            // Обязательно добавить последнюю строку с "**/"
             if (i < lines.size())
             {
                 std::string lastLine = trim(lines[i]);

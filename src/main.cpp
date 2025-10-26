@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
         return 2;
     }
 
-    std::vector<Module> modules; // <-- теперь только модули
+    std::vector<Module> modules;
 
     try
     {
@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
 
             if (parser.loadFile(entry.path().string()))
             {
-                auto parsed_modules = parser.parse();   // parse возвращает std::vector<Module>
+                auto parsed_modules = parser.parse();
                 modules.insert(modules.end(), parsed_modules.begin(), parsed_modules.end());
             }
             else

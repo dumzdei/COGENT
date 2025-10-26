@@ -1,14 +1,25 @@
-<html>
+<!DOCTYPE html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Report</title>
-    <link rel="stylesheet" href="templates/style_lite.css">
+    <title>Documentation</title>
+    <link rel="stylesheet" href="templates\style_lite.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
 </head>
 <body>
-    <h1>{{TOP_MODULE}}</h1>
+    <header>
+        {{TOP_MODULE}}
+    </header>
 
-    <h2>{{GROUPS}}</h2>
-    {{MODULES}}
+    <main>
+        <aside id="sidebar">
+            {{GROUPS}}
+        </aside>
 
+        <section id="content">
+            {{MODULES}}
+        </section>
+    </main>
+    <script src="templates\script.js"></script>
 </body>
 </html>

@@ -15,7 +15,7 @@ private:
 
     std::vector<std::string> tags = 
     { "@brief" , "@todo" , "@description" , "@note" , "@warning" , "@error" , "@author" ,
-        "@date" , "@example" , "@status" , "@defgroup" , "@ingroup" , "@top" };
+        "@date" , "@example" , "@status" , "@top" };
 
 public:
     bool loadFile(const std::string& filename);
