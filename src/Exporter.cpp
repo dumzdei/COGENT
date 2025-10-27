@@ -109,20 +109,11 @@ std::string Exporter::Generate_SVG(const Module& module)
 {
     std::stringstream svg;
 
-    svg << "<svg width=\"500\" height=\"400\" xmlns=\"http://www.w3.org/2000/svg\">\n";
+    svg << "<svg width=\"750\" height=\"400\" xmlns=\"http://www.w3.org/2000/svg\">\n";
 
-    svg << "<style>\n";
-    svg << "  .module-box { fill: #2d2d2d; stroke: #ffab40; stroke-width: 2; rx: 5; }\n";
-    svg << "  .module-name { fill: #ffab40; font-family: Arial; font-size: 16; font-weight: bold; }\n";
-    svg << "  .input-port { stroke: #4CAF50; stroke-width: 2; }\n";
-    svg << "  .output-port { stroke: #FF5722; stroke-width: 2; }\n";
-    svg << "  .inout-port { stroke: #2196F3; stroke-width: 2; }\n";
-    svg << "  .port-text { font-family: Arial; font-size: 11; }\n";
-    svg << "</style>\n";
+    svg << "<rect class=\"module-box\" x=\"205\" y=\"60\" width=\"340\" height=\"300\"/>\n";
 
-    svg << "<rect class=\"module-box\" x=\"80\" y=\"60\" width=\"340\" height=\"280\"/>\n";
-
-    svg << "<text class=\"module-name\" x=\"250\" y=\"90\" text-anchor=\"middle\">"
+    svg << "<text class=\"module-name\" x=\"375\" y=\"90\" text-anchor=\"middle\">"
         << module.name << "</text>\n";
 
     int input_y = 140;
@@ -130,34 +121,31 @@ std::string Exporter::Generate_SVG(const Module& module)
     int inout_y = 140;
 
     for (const auto& port : module.ports) {
-        if (port.direction == "input") 
+        if (port.direction == "input")
         {
-
-            svg << "<line class=\"input-port\" x1=\"80\" y1=\"" << input_y << "\" x2=\"60\" y2=\"" << input_y << "\"/>\n";
-            svg << "<circle cx=\"60\" cy=\"" << input_y << "\" r=\"3\" fill=\"#4CAF50\"/>\n";
-            svg << "<text class=\"port-text\" fill=\"#4CAF50\" x=\"55\" y=\"" << input_y - 5 << "\" text-anchor=\"end\">"
+            svg << "<line class=\"input-port\" x1=\"205\" y1=\"" << input_y << "\" x2=\"185\" y2=\"" << input_y << "\"/>\n";
+            svg << "<circle class=\"port-circle input-port\" cx=\"185\" cy=\"" << input_y << "\" r=\"3\" fill=\"#4CAF50\"/>\n";
+            svg << "<text class=\"port-text input-port-text\" x=\"180\" y=\"" << input_y - 5 << "\" text-anchor=\"end\">"
                 << port.name << "</text>\n";
-            svg << "<text class=\"port-text\" fill=\"#888\" x=\"85\" y=\"" << input_y + 4 << "\">"
+            svg << "<text class=\"port-text port-type-text\" x=\"210\" y=\"" << input_y + 4 << "\">"
                 << port.width << " " << port.type << "</text>\n";
             input_y += 30;
         }
-        else if (port.direction == "output") 
+        else if (port.direction == "output")
         {
-
-            svg << "<line class=\"output-port\" x1=\"420\" y1=\"" << output_y << "\" x2=\"440\" y2=\"" << output_y << "\"/>\n";
-            svg << "<circle cx=\"440\" cy=\"" << output_y << "\" r=\"3\" fill=\"#FF5722\"/>\n";
-            svg << "<text class=\"port-text\" fill=\"#FF5722\" x=\"445\" y=\"" << output_y - 5 << "\" text-anchor=\"start\">"
+            svg << "<line class=\"output-port\" x1=\"545\" y1=\"" << output_y << "\" x2=\"565\" y2=\"" << output_y << "\"/>\n";
+            svg << "<circle class=\"port-circle output-port\" cx=\"565\" cy=\"" << output_y << "\" r=\"3\" fill=\"#FF5722\"/>\n";
+            svg << "<text class=\"port-text output-port-text\" x=\"570\" y=\"" << output_y - 5 << "\" text-anchor=\"start\">"
                 << port.name << "</text>\n";
-            svg << "<text class=\"port-text\" fill=\"#888\" x=\"415\" y=\"" << output_y + 4 << "\" text-anchor=\"end\">"
+            svg << "<text class=\"port-text port-type-text\" x=\"535\" y=\"" << output_y + 4 << "\" text-anchor=\"end\">"
                 << port.width << " " << port.type << "</text>\n";
             output_y += 30;
         }
-        else 
+        else
         {
-
             svg << "<line class=\"inout-port\" x1=\"" << inout_y << "\" y1=\"340\" x2=\"" << inout_y << "\" y2=\"360\"/>\n";
-            svg << "<circle cx=\"" << inout_y << "\" cy=\"360\" r=\"3\" fill=\"#2196F3\"/>\n";
-            svg << "<text class=\"port-text\" fill=\"#2196F3\" x=\"" << inout_y << "\" y=\"375\" text-anchor=\"middle\">"
+            svg << "<circle class=\"port-circle inout-port\" cx=\"" << inout_y << "\" cy=\"360\" r=\"3\" fill=\"#2196F3\"/>\n";
+            svg << "<text class=\"port-text inout-port-text\" x=\"" << inout_y << "\" y=\"375\" text-anchor=\"middle\">"
                 << port.name << "</text>\n";
             inout_y += 40;
         }

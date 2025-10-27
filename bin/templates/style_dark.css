@@ -148,7 +148,6 @@ h1, h2, h3 {
 }
 
 h2 {
-    border-bottom: 2px solid #333333;
     padding-bottom: 10px;
     margin-bottom: 20px;
 }
@@ -170,9 +169,6 @@ li {
 .module-schema {
     padding: 25px;
     margin: 20px 0;
-    background: #0a0a0a;
-    border-radius: 12px;
-    border: 2px solid #333333;
 }
 
     .module-schema svg {
@@ -187,17 +183,14 @@ li {
         margin-top: 0;
     }
 
-/* Стили для автора */
 p b {
     color: #ff9800;
 }
 
-/* Плавная прокрутка */
 html {
     scroll-behavior: smooth;
 }
 
-/* Кастомный скроллбар */
 #sidebar::-webkit-scrollbar {
     width: 6px;
 }
@@ -214,3 +207,57 @@ html {
     #sidebar::-webkit-scrollbar-thumb:hover {
         background: #ffb74d;
     }
+.module-box { 
+    fill: #1a1a1a; 
+    stroke: #ff9800; 
+    stroke-width: 2; 
+    rx: 5; 
+}
+
+.module-name { 
+    fill: #ff9800; 
+    font-family: 'Segoe UI', Arial, sans-serif; 
+    font-size: 16; 
+    font-weight: bold; 
+}
+
+.input-port { 
+    stroke: #4CAF50; 
+    stroke-width: 2; 
+}
+
+.output-port { 
+    stroke: #FF5722; 
+    stroke-width: 2; 
+}
+
+.inout-port { 
+    stroke: #2196F3; 
+    stroke-width: 2; 
+}
+
+.port-text { 
+    font-family: 'Segoe UI', Arial, sans-serif; 
+    font-size: 11; 
+}
+
+.input-port-text { 
+    fill: #4CAF50; 
+}
+
+.output-port-text { 
+    fill: #FF5722; 
+}
+
+.inout-port-text { 
+    fill: #2196F3; 
+}
+
+.port-type-text { 
+    fill: #888888; 
+    font-size: 10; 
+}
+
+.port-circle { 
+    stroke-width: 1; 
+}
