@@ -7,7 +7,25 @@ Description: 4-bit up-counter with synchronous reset
 module simple_counter (
     input wire clk,     //* Clock, signal
     input wire rst_n/** hello world **/,    //* Active-low synchronous reset
-    output reg [3:0] q /** hello world **/, w/**hello world**/, e, r, t/** hello world **/, y   //* 4-bit counter output
+    output reg [3:0] q, /** hello world **/, w/**hello world**/, e, r, t/** hello world **/, y   //* 4-bit counter output
+    inout g,
+    inout g,
+    inout g,
+    inout g,
+    inout g,
+    inout g,
+    inout g,
+    inout g,
+    inout g,
+    output h,
+    output h,
+    output h,
+    output h,
+    output h,
+    output h,
+    output h,
+    output h,
+    output h
 );
     
     initial begin
