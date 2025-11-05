@@ -27,6 +27,8 @@ struct Comment_block
 struct Module
 {
     std::string name;
+    std::string filename;
+    std::string id;
     std::vector<Port> ports;
 	std::vector<Param> params;
     std::vector<Comment_block> comments;

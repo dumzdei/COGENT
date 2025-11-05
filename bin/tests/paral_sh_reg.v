@@ -1,8 +1,7 @@
 `timescale 1 ns/1ps
 
 /** @top
-sigmo super mega module
-(antisigmo)
+top module
 **/
 
 module paral_sh_reg #(

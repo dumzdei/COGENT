@@ -32,7 +32,7 @@ int Exporter::Export_to_HTML(std::vector<Module>& modules, std::ofstream& html, 
             bool first = true;
             for (const auto& module : modules)
             {
-                std::string id_safe = module.name;
+                std::string id_safe = module.id;
                 std::replace(id_safe.begin(), id_safe.end(), ' ', '_');
 
                 if (first) {
@@ -48,11 +48,12 @@ int Exporter::Export_to_HTML(std::vector<Module>& modules, std::ofstream& html, 
         {
             for (const auto& module : modules)
             {
-                std::string id_safe = module.name;
+                std::string id_safe = module.id;
                 std::replace(id_safe.begin(), id_safe.end(), ' ', '_');
                 html << "<div id='" << id_safe << "' class='module-content'>\n";
 
                 html << "<h2>Module: " << module.name << "</h2>\n";
+                html << "<h3>File: " << module.filename << "</h3>\n";
 
                 html << "<div class='module-schema'>\n";
                 html << Generate_SVG(module);

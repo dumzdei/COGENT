@@ -149,7 +149,6 @@
     <None Include="..\bin\templates\template_lite.htm">
       <DeploymentContent>true</DeploymentContent>
     </None>
-    <None Include="script.js" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

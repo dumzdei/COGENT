@@ -55,11 +55,8 @@
     <None Include="..\bin\templates\template_lite.htm">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="script.js">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="..\bin\templates\script.js">
-      <Filter>Header Files</Filter>
+      <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
 </Project>
