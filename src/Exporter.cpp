@@ -61,13 +61,58 @@ int Exporter::Export_to_HTML(std::vector<Module>& modules, std::ofstream& html, 
 
                 for (const auto& cmt : module.comments)
                 {
-                    if (cmt.tag == "@brief" && !cmt.comment_block.empty())
+                    if (cmt.tag == "@status" && !cmt.comment_block.empty())
+                    {
+                        html << "<p><b>Status:</b> " << cmt.comment_block[0] << "</p>\n";
+                    }
+                    else if (cmt.tag == "@date" && !cmt.comment_block.empty())
+                    {
+                        html << "<p><b>Date:</b> " << cmt.comment_block[0] << "</p>\n";
+                    }
+                    else if (cmt.tag == "@brief" && !cmt.comment_block.empty())
                     {
                         html << "<h3>Description</h3><ul>\n";
                         for (const auto& text : cmt.comment_block)
                             html << "<li>" << text << "</li>\n";
                         html << "</ul>\n";
                     }
+                    else if (cmt.tag == "@note" && !cmt.comment_block.empty())
+                    {
+                        html << "<h3>Note</h3><div class=\"note\">\n";
+                        for (const auto& text : cmt.comment_block)
+                            html << "<p>" << text << "</p>\n";
+                        html << "</div>\n";
+                    }
+                    else if (cmt.tag == "@warning" && !cmt.comment_block.empty())
+                    {
+                        html << "<h3>Warning</h3><div class=\"warning\">\n";
+                        for (const auto& text : cmt.comment_block)
+                            html << "<p>" << text << "</p>\n";
+                        html << "</div>\n";
+                    }
+                    else if (cmt.tag == "@error" && !cmt.comment_block.empty())
+                    {
+                        html << "<h3>Error</h3><div class=\"error\">\n";
+                        for (const auto& text : cmt.comment_block)
+                            html << "<p>" << text << "</p>\n";
+                        html << "</div>\n";
+                    }
+                    else if (cmt.tag == "@todo" && !cmt.comment_block.empty())
+                    {
+                        html << "<h3>Todo</h3><ul>\n";
+                        for (const auto& text : cmt.comment_block)
+                            html << "<li>" << text << "</li>\n";
+                        html << "</ul>\n";
+                    }
+                    else if (cmt.tag == "@example" && !cmt.comment_block.empty())
+                    {
+                        html << "<h3>Example</h3><ul>\n";
+                        for (const auto& text : cmt.comment_block)
+                            html << "<li>" << text << "</li>\n";
+                        html << "</ul>\n";
+                    }
+                    else if (cmt.tag == "@author" && !cmt.comment_block.empty())
+                        html << "<p><b>Author:</b> " << cmt.comment_block[0] << "</p>\n";
                 }
 
                 if (!module.params.empty())
@@ -86,12 +131,6 @@ int Exporter::Export_to_HTML(std::vector<Module>& modules, std::ofstream& html, 
                     for (const auto& port : module.ports)
                         html << "<tr><td>" << port.name << "</td><td>" << port.direction << "</td><td>" << port.type << "</td><td>" << port.width << "</td><td>" << port.description << "</td></tr>\n";
                     html << "</table>\n";
-                }
-
-                for (const auto& cmt : module.comments)
-                {
-                    if (cmt.tag == "@author" && !cmt.comment_block.empty())
-                        html << "<p><b>Author:</b> " << cmt.comment_block[0] << "</p>\n";
                 }
 
                 html << "</div>\n";
@@ -123,8 +162,8 @@ std::string Exporter::Generate_SVG(const Module& module)
 
     // –асчет высоты блока на основе максимального количества портов
     int max_side_ports = std::max(input_count, output_count);
-    int module_height = std::max(300, 120 + max_side_ports * 30);
-    int module_width = 340;
+    int module_height = std::max(300, 60 + max_side_ports * 30);
+    int module_width = 400;
 
     int inout_spacing = 80;
     if (inout_count > 0)
@@ -132,13 +171,12 @@ std::string Exporter::Generate_SVG(const Module& module)
         module_width = inout_spacing * inout_count;
     }
 
-    int svg_height = module_height + 150;
+    int svg_height = module_height + 30;
     int svg_width = module_width*2;
-    
 
     // ѕозиционирование блока
     int module_x = svg_width/4;
-    int module_y = 60;
+    int module_y = 10;
 
     svg << "<svg width=\"" << svg_width << "\" height=\"" << svg_height << "\" xmlns=\"http://www.w3.org/2000/svg\">\n";
 
@@ -149,8 +187,8 @@ std::string Exporter::Generate_SVG(const Module& module)
         << "\" y=\"" << (module_y + 30) << "\" text-anchor=\"middle\">"
         << module.name << "</text>\n";
 
-    int input_y = module_y + 70;
-    int output_y = module_y + 70;
+    int input_y = module_y + 50;
+    int output_y = module_y + 50;
 
     
     int inout_start_x = module_x + (module_width - (inout_count - 1) * inout_spacing) / 2;

@@ -165,8 +165,7 @@ li {
 }
 
 .module-schema {
-    padding: 25px;
-    margin: 20px 0;
+    border-radius: 12px;
 }
 
     .module-schema svg {

@@ -6,7 +6,7 @@ bool Parser::loadFile(const std::string& filename)
     lines.clear();
     std::ifstream file(filename);
     if (!file.is_open()) return false;
-    
+
     while (std::getline(file, line))
     {
         lines.push_back(line);
@@ -58,7 +58,7 @@ std::vector<Port> Parser::PortParcer(const std::string& source_line)
         if (match_pos > 0 && std::isalnum(line[match_pos - 1])) 
         {
             ++it;
-            continue; // Пропускаем, если перед ключевым словом есть буква/цифра
+            continue;
         }
 
         Port p;
@@ -75,31 +75,22 @@ std::vector<Port> Parser::PortParcer(const std::string& source_line)
 
         std::string name = trim(match[4]);
 
-        if (!name.empty()) 
+        if (match.suffix().matched) 
         {
-            name.erase(std::remove_if(name.begin(), name.end(),
-                [](char c) { return c == ',' || c == ';' || c == ')'; }),
-                name.end());
-
-            name = trim(name);
-
-            if (!name.empty() && name != "input" && name != "output" && name != "inout" &&
-                name != "wire" && name != "reg" && name != "logic") 
+            if (match.suffix().str().find("/**") != std::string::npos && match.suffix().str().find("**/") != std::string::npos)
             {
-                if (name.find("/**") != std::string::npos && name.find("**/") != std::string::npos)
-                {
-                    size_t start_desc = name.find("/**");
-                    size_t end_desc = name.find("**/");
-                    p.description = trim(name.substr(start_desc + 3, end_desc - start_desc - 3));
-                    name = name.substr(0, start_desc);
-                    name = trim(name);
-                }
-
-                p.name = name;
-                ports.push_back(p);
+                size_t start_desc = match.suffix().str().find("/**");
+                size_t end_desc = match.suffix().str().find("**/");
+                p.description = trim(match.suffix().str().substr(start_desc + 3, end_desc - start_desc - 3));
+            }
+            else if (match.suffix().str().find("//*") != std::string::npos)
+            {
+                size_t start_desc = match.suffix().str().find("//*");
+                p.description = trim(match.suffix().str().substr(start_desc + 3));
             }
         }
-
+        p.name = name;
+        ports.push_back(p);
         ++it;
     }
 
@@ -201,6 +192,76 @@ std::vector<Module> Parser::parse(const std::string& source_file)
             }
         }
 
+        if (line.find("//*") != std::string::npos)
+        {
+            comment_block = Comment_block();
+            size_t pos = line.find("//*");
+            
+            std::string comment = trim(line.substr(pos + 3));
+
+            comment_block.tag = extractTag(comment);
+
+            if (!comment.empty())
+                comment_block.comment_block.push_back(comment);
+            if (!comment_block.comment_block.empty())
+                module.comments.push_back(comment_block);
+            line.erase(pos);
+        }
+        else if (line.find("/**") != std::string::npos)
+        {
+            comment_block = Comment_block();
+            std::string comment_line = line;
+
+            size_t startPos = comment_line.find("/**");
+            line.substr(0, startPos);
+            comment_line = comment_line.substr(startPos + 3);
+
+            size_t endPos = comment_line.find("**/");
+            bool singleLine = (endPos != std::string::npos);
+            if (singleLine)
+                comment_line = comment_line.substr(0, endPos);
+
+            comment_line = trim(comment_line);
+            if (!comment_line.empty())
+            {
+                std::string tag = extractTag(comment_line);
+                if (!tag.empty() && comment_block.tag.empty())
+                    comment_block.tag = tag;
+                comment_block.comment_block.push_back(comment_line);
+            }
+
+            if (!singleLine)
+            {
+                ++i;
+                while (i < lines.size())
+                {
+                    std::string cur = trim(lines[i]);
+                    endPos = cur.find("**/");
+                    bool endFound = (endPos != std::string::npos);
+
+                    if (endFound)
+                        cur = trim(cur.substr(0, endPos));
+
+                    if (!cur.empty())
+                    {
+                        std::string localTag = extractTag(cur);
+                        if (!localTag.empty() && comment_block.tag.empty())
+                            comment_block.tag = localTag;
+                        comment_block.comment_block.push_back(cur);
+                    }
+
+                    if (endFound)
+                        break;
+                    line.clear();
+                    ++i;
+                }
+            }
+
+            // Добавляем только один раз
+            if (!comment_block.comment_block.empty())
+                module.comments.push_back(comment_block);
+        }
+
         if (line.find("module") != std::string::npos && line.find("endmodule") == std::string::npos)
         {
             module_area = true;
@@ -238,9 +299,6 @@ std::vector<Module> Parser::parse(const std::string& source_file)
 
         else if (line.find("endmodule") != std::string::npos)
         {
-            if (!comment_block.comment_block.empty())
-                module.comments.push_back(comment_block);
-
             modules.push_back(module);
 
             module = Module();
@@ -248,53 +306,6 @@ std::vector<Module> Parser::parse(const std::string& source_file)
             parsed_ports.clear();
             parsed_params.clear();
             module_area = false;
-        }
-
-        if (line.find("//*") != std::string::npos)
-        {
-            comment_block = Comment_block();
-            size_t pos = line.find("//*");
-            std::string comment = trim(line.substr(pos + 3));
-
-            comment_block.tag = extractTag(comment);
-
-            if (!comment.empty())
-                comment_block.comment_block.push_back(comment);
-        }
-        else if (line.find("/**") != std::string::npos)
-        {
-            while (i < lines.size() && lines[i].find("**/") == std::string::npos)
-            {
-                std::string comment = trim(lines[i]);
-                if (lines[i].find("/**") != std::string::npos)
-                    comment = trim(lines[i].substr(lines[i].find("/**") + 3));
-
-                std::string tag = extractTag(comment);
-                if (!tag.empty() && comment_block.tag.empty())
-                    comment_block.tag = tag;
-                else if (!tag.empty())
-                {
-                    if (!comment_block.comment_block.empty())
-                        module.comments.push_back(comment_block);
-
-                    comment_block = Comment_block();
-                    comment_block.tag = tag;
-                }   
-
-                if (!comment.empty())
-                    comment_block.comment_block.push_back(comment);
-
-                ++i;
-            }
-            if (i < lines.size())
-            {
-                std::string lastLine = trim(lines[i]);
-                size_t endPos = lastLine.find("**/");
-                if (endPos != std::string::npos)
-                    lastLine = trim(lastLine.substr(0, endPos));
-                if (!lastLine.empty())
-                    comment_block.comment_block.push_back(lastLine);
-            }
         }
     }
 

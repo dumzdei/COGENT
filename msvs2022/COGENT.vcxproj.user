@@ -3,6 +3,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LocalDebuggerWorkingDirectory>..\bin</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>-p "OpenLane designs\salsa20" -s lite</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-p "test mem ctrl" -s lite</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

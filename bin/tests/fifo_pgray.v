@@ -8,7 +8,7 @@ localparam  MS =1; //don't change !!!
 // ------------ Port declarations --------- //
 input clk_r;
 input clk_w;
-input clr;     //must be in clk_r domen and long enough to meet on  clk_w
+input clr;     //*must be in clk_r domen and long enough to meet on  clk_w
 input re;
 input rst;
 input we;
