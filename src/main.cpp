@@ -14,17 +14,8 @@ int main(int argc, char* argv[])
     if (!cmdLine.canContinue())
         return 0;
 
-    Parser parser;
-    Exporter exporter;
-
-    std::ofstream html("report.htm");
-    std::ifstream temp_html("templates/template_" + cmdLine.getThemeName() + ".htm");
-
-    if (!html.is_open())
-    {
-        std::cerr << "\033[31m__err__\033[0m : Could not open report.htm for writing.\n";
-        return 2;
-    }
+    Parser      parser;
+    Exporter    exporter;
 
     std::vector<Module> modules;
 
@@ -71,7 +62,17 @@ int main(int argc, char* argv[])
         return 3;
     }
 
-    exporter.Export_to_HTML(modules, html, temp_html);
+    switch (cmdLine.getOutputFormat()) {
+        case OutputFormat::html:
+            exporter.Export_to_HTML(modules, cmdLine.getThemeName());
+            break;
+        case OutputFormat::markdown:
+            exporter.Export_to_MD(modules);
+            break;
+        case OutputFormat::asciidoc:
+            exporter.Export_to_ADOC(modules);
+            break;
+    }
 
     return 0;
 }

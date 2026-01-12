@@ -2,9 +2,9 @@
 
 ## About the software
 
-**COGENT** is a console software tool aimed to help IC designers who work with HDL code to generate thir documentation from the HDL source files.
+**COGENT** is a console software tool aimed to help IC designers who work with HDL code to generate their documentation from the HDL source files.
 
-For the code listed below see the result .
+For the code listed below see the result.
 
 ```v
 /** @brief 
@@ -67,6 +67,6 @@ To run the software you should the options as it shown in the table below:
 |  :---:   | :---: |   :---:  |    :---    | :---:  |
 | `Yes`    | `-p`  |`--path`  | The path to the input files folder. | `--path <path>` |
 | `No`     | `-s`  |`--style` | The style of the theme, possible values are: `light` and `dark`.<br/>By default the `dark` style is used. | `--style <light\|dark>`|
-| `No`     | `-f`  |`--format`| The format of the result document. Possible values will be `html` and `md`.<br/>By now only the `html` value is supported.| `--format <html\|md>`|
+| `No`     | `-f`  |`--format`| The format of the result document. Possible values will be `html`, `markdown` and `asciidoc`. | `--format <html\|{md\|markdown}\|{adoc\|asciidoc}>`|
 | `No`     | `-h`  |`--help`  | The help message will be shown. | `--help` |
 

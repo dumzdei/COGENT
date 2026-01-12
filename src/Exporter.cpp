@@ -1,7 +1,18 @@
 #include "Exporter.h"
 
-int Exporter::Export_to_HTML(std::vector<Module>& modules, std::ofstream& html, std::ifstream& temp_html)
+#include <string>
+
+int Exporter::Export_to_HTML(std::vector<Module>& modules, std::string theme_name)
 {
+    std::ofstream html("report.htm");
+    std::ifstream temp_html("templates/template_" + theme_name + ".htm");
+
+    if (!html.is_open())
+    {
+        std::cerr << "\033[31m__err__\033[0m : Could not open report.htm for writing.\n";
+        return 2;
+    }
+
     if (!html.is_open() || !temp_html.is_open())
     {
         std::cerr << "Error opening HTML file\n";
@@ -145,7 +156,242 @@ int Exporter::Export_to_HTML(std::vector<Module>& modules, std::ofstream& html, 
     return 0;
 }
 
-std::string Exporter::Generate_SVG(const Module& module)
+int Exporter::Export_to_MD(std::vector<Module>& modules) {
+    std::ofstream md("report.md");
+
+    if (!md.is_open())
+    {
+        std::cerr << "\033[31m__err__\033[0m : Could not open report.md for writing.\n";
+        return 2;
+    }
+
+    bool inTopModule = false;
+    const Module *top = nullptr;
+    
+    for (const auto& module : modules)
+    {
+        for (const auto& cmt : module.comments)
+        {
+            if (cmt.tag == "@top" && !cmt.comment_block.empty())
+            {
+                top = &module;
+                break;
+            }
+        }
+        if (top)
+            break;
+    }
+
+    if (!top)
+        if (modules.size() == 1)
+            top = &modules[0];
+        else {
+            std::cerr << "\033[31m__err__\033[0m : Didn't find the top module.\n";
+            return 3;
+        }
+
+    md << "<h2>Module: " << top->name << "</h2>\n";
+    md << "<h3>File: " << top->filename << "</h3>\n";
+
+    md << "\n";
+    md << Generate_SVG(*top, false);
+    md << "\n\n";
+
+
+    for (const auto& cmt : top->comments)
+    {
+        if (cmt.tag == "@top" && !cmt.comment_block.empty())
+        {
+            //md << "#" << top->name << "\n\n";
+            //md << cmt.comment_block[0] << "\n\n";
+            continue;
+        }
+        if (cmt.tag == "@status" && !cmt.comment_block.empty())
+        {
+            md << "### Status: " << cmt.comment_block[0] << "\n\n";
+            continue;
+        }
+        if (cmt.tag == "@date" && !cmt.comment_block.empty())
+        {
+            md << "### Date: " << cmt.comment_block[0] << "\n";
+            continue;
+        }
+        if (cmt.tag == "@brief" && !cmt.comment_block.empty())
+        {
+            md << "### Description\n\n";
+            for (const auto& text : cmt.comment_block)
+                if (!text.empty())
+                    md << text << "<br/>\n";
+            md << "\n\n";
+            continue;
+        }
+        if (cmt.tag == "@note" && !cmt.comment_block.empty())
+        {
+            md << "### Note\n\n";
+            for (const auto& text : cmt.comment_block)
+                md << text << "<br/>\n";
+            md << "\n";
+            continue;
+        }
+        if (cmt.tag == "@warning" && !cmt.comment_block.empty())
+        {
+            md << "### Warning\n\n";
+            for (const auto& text : cmt.comment_block)
+                md << text << "<br/>\n";
+            md << "\n";
+            continue;
+        }
+        if (cmt.tag == "@error" && !cmt.comment_block.empty())
+        {
+            md << "### Error\n\n";
+            for (const auto& text : cmt.comment_block)
+                md << text << "<br/>\n";
+            md << "\n";
+            continue;
+        }
+        if (cmt.tag == "@todo" && !cmt.comment_block.empty())
+        {
+            md << "### TODO\n\n";
+            for (const auto& text : cmt.comment_block)
+                md << "- " << text << "\n";
+            md << "\n\n";
+            continue;
+        }
+        if (cmt.tag == "@example" && !cmt.comment_block.empty())
+        {
+            md << "### Example\n\n";
+            md << "```v";
+            for (const auto& text : cmt.comment_block)
+                md << text << "\n";
+            md << "```\n\n";
+            continue;
+        }
+        if (cmt.tag == "@author" && !cmt.comment_block.empty())
+            md << "### Author: \n\n" << cmt.comment_block[0] << "\n\n";
+    }
+
+    return 0;
+}
+
+int Exporter::Export_to_ADOC(std::vector<Module>& modules) {
+    std::ofstream adoc("report.adoc");
+
+    if (!adoc.is_open())
+    {
+        std::cerr << "\033[31m__err__\033[0m : Could not open report.adoc for writing.\n";
+        return 2;
+    }
+
+    bool inTopModule = false;
+    const Module *top = nullptr;
+
+    for (const auto& module : modules)
+    {
+        for (const auto& cmt : module.comments)
+        {
+            if (cmt.tag == "@top" && !cmt.comment_block.empty())
+            {
+                top = &module;
+                break;
+            }
+        }
+        if (top)
+            break;
+    }
+
+    if (!top)
+        if (modules.size() == 1)
+            top = &modules[0];
+        else {
+            std::cerr << "\033[31m__err__\033[0m : Didn't find the top module.\n";
+            return 3;
+        }
+
+    adoc << "== Module: " << top->name << "\n\n";
+    adoc << "== File: " << top->filename << "\n\n";
+
+    adoc << "\n++++\n";
+    adoc << Generate_SVG(*top, false);
+    adoc << "\n++++\n\n";
+
+
+    for (const auto& cmt : top->comments)
+    {
+        if (cmt.tag == "@top" && !cmt.comment_block.empty())
+        {
+            //adoc << "#" << top->name << "\n\n";
+            //adoc << cmt.comment_block[0] << "\n\n";
+            continue;
+        }
+        if (cmt.tag == "@status" && !cmt.comment_block.empty())
+        {
+            adoc << "=== Status: " << cmt.comment_block[0] << "\n\n";
+            continue;
+        }
+        if (cmt.tag == "@date" && !cmt.comment_block.empty())
+        {
+            adoc << "=== Date: " << cmt.comment_block[0] << "\n";
+            continue;
+        }
+        if (cmt.tag == "@brief" && !cmt.comment_block.empty())
+        {
+            adoc << "=== Description\n\n";
+            for (const auto& text : cmt.comment_block)
+                if (!text.empty())
+                    adoc << text << "<br/>\n";
+            adoc << "\n\n";
+            continue;
+        }
+        if (cmt.tag == "@note" && !cmt.comment_block.empty())
+        {
+            adoc << "=== Note\n\n";
+            for (const auto& text : cmt.comment_block)
+                adoc << text << "<br/>\n";
+            adoc << "\n";
+            continue;
+        }
+        if (cmt.tag == "@warning" && !cmt.comment_block.empty())
+        {
+            adoc << "=== Warning\n\n";
+            for (const auto& text : cmt.comment_block)
+                adoc << text << "<br/>\n";
+            adoc << "\n";
+            continue;
+        }
+        if (cmt.tag == "@error" && !cmt.comment_block.empty())
+        {
+            adoc << "=== Error\n\n";
+            for (const auto& text : cmt.comment_block)
+                adoc << text << "<br/>\n";
+            adoc << "\n";
+            continue;
+        }
+        if (cmt.tag == "@todo" && !cmt.comment_block.empty())
+        {
+            adoc << "=== TODO\n\n";
+            for (const auto& text : cmt.comment_block)
+                adoc << "* " << text << "\n";
+            adoc << "\n\n";
+            continue;
+        }
+        if (cmt.tag == "@example" && !cmt.comment_block.empty())
+        {
+            adoc << "=== Example\n\n";
+            adoc << "[source,verilog]\n";
+            adoc << "....";
+            for (const auto& text : cmt.comment_block)
+                adoc << text << "\n";
+            adoc << "....\n\n";
+            continue;
+        }
+        if (cmt.tag == "@author" && !cmt.comment_block.empty())
+            adoc << "=== Author: \n\n" << cmt.comment_block[0] << "\n\n";
+    }
+
+    return 0;
+}
+
+std::string Exporter::Generate_SVG(const Module& module, bool use_external_styles)
 {
     std::stringstream svg;
 
@@ -179,6 +425,56 @@ std::string Exporter::Generate_SVG(const Module& module)
     int module_y = 10;
 
     svg << "<svg width=\"" << svg_width << "\" height=\"" << svg_height << "\" xmlns=\"http://www.w3.org/2000/svg\">\n";
+
+    if (!use_external_styles) {
+        svg << "\
+<style>\n\
+.module-box {\n\
+    fill: #ffffff;\n\
+    stroke: #1976d2;\n\
+    stroke-width: 2;\n\
+    rx : 5;\n\
+}\n\
+.module-name {\n\
+    fill: #1976d2;\n\
+    font-family: 'Segoe UI', Arial, sans-serif;\n\
+    font-size: 16;\n\
+    font-weight: bold;\n\
+}\n\
+.input-port {\n\
+    stroke: #2E7D32;\n\
+    stroke-width: 2;\n\
+}\n\
+.output-port {\n\
+    stroke: #D32F2F;\n\
+    stroke-width: 2;\n\
+}\n\
+.inout-port {\n\
+    stroke: #1565C0;\n\
+    stroke-width: 2;\n\
+}\n\
+.port-text {\n\
+    font-family: 'Segoe UI', Arial, sans-serif;\n\
+    font-size: 11;\n\
+}\n\
+.input-port-text {\n\
+    fill: #2E7D32;\n\
+}\n\
+.output-port-text {\n\
+    fill: #D32F2F;\n\
+}\n\
+.inout-port-text {\n\
+    fill: #1565C0;\n\
+}\n\
+.port-type-text {\n\
+    fill: #666666;\n\
+    font-size: 10;\n\
+}\n\
+.port-circle {\n\
+    stroke-width: 1;\n\
+}\n\
+</style>\n";
+    }
 
     svg << "<rect class=\"module-box\" x=\"" << module_x << "\" y=\"" << module_y
         << "\" width=\"" << module_width << "\" height=\"" << module_height << "\"/>\n";

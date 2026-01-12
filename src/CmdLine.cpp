@@ -45,8 +45,21 @@ CmdLine::CmdLine(int _argc, char *_argv[]) {
 		}
 		if (strcmp(_argv[i], "--format") == 0 || (strcmp(_argv[i], "-f") == 0)) {
 			if (i < _argc - 1) {
-				std::cerr << "\033[33m__wrn__\033[0m : the output format set option '" << _argv[i] << "' is not supported." << std::endl;
 				++i;
+				if (!strcmp(_argv[i], "html")) {
+					std::cerr << "\033[33m__wrn__\033[0m : HTML is the default output format, no need to specify it." << std::endl;
+					continue;
+				}
+				if (!strcmp(_argv[i], "markdown") || !strcmp(_argv[i], "md")) {
+					std::cout << "\033[36m__inf__\033[0m : output format has been set to Markdown" << std::endl;
+					format = OutputFormat::markdown;
+					continue;
+				}
+				if (!strcmp(_argv[i], "asciidoc") || !strcmp(_argv[i], "adoc")) {
+					std::cout << "\033[36m__inf__\033[0m : output format has been set to Asciidoc" << std::endl;
+					format = OutputFormat::asciidoc;
+					continue;
+				}
 				continue;
 			}
 			else {
