@@ -135,6 +135,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\CmdLine.hpp" />
+    <ClInclude Include="..\src\Colors.hpp" />
     <ClInclude Include="..\src\DataTypes.h" />
     <ClInclude Include="..\src\Exporter.h" />
     <ClInclude Include="..\src\Parser.h" />

@@ -41,6 +41,9 @@
     <ClInclude Include="..\src\CmdLine.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\Colors.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\bin\templates\style_dark.css">

@@ -1,12 +1,15 @@
 #include "CmdLine.hpp"
+
 #include <cstring>
 #include <iostream>
 #include <iomanip>
 
+#include "Colors.hpp"
+
 CmdLine::CmdLine(int _argc, char *_argv[]) {
 	// Проверяем, что аргументы вообще есть
 	if (1 == _argc) {
-		std::cerr << "\033[31m__err__\033[0m : no arguments. Use options '-h' or '--help' for help." << std::endl;
+		std::cerr << FORMAT_ERROR "no arguments. Use options '-h' or '--help' for help." << std::endl;
 		argsOk		= true;
 		shouldStop	= true;
 		return;
@@ -16,12 +19,12 @@ CmdLine::CmdLine(int _argc, char *_argv[]) {
 		if (strcmp(_argv[i], "--path") == 0 || (strcmp(_argv[i], "-p") == 0)) {
 			if (i < _argc - 1) {
 				if (!path.empty())
-					std::cerr << "\033[33m__wrn__\033[0m : the path to the source files will be overwritten from '" << path << "' to '" << _argv[i + 1] << "'" << std::endl;
+					std::cerr << FORMAT_WARNING "the path to the source files will be overwritten from '" << path << "' to '" << _argv[i + 1] << "'" << std::endl;
 				path = _argv[++i];
 				continue;
 			}
 			else {
-				std::cerr << "\033[31m__err__\033[0m : the '" << _argv[i] << "' should be followed by a path to the input files." << std::endl;
+				std::cerr << FORMAT_ERROR "the '" << _argv[i] << "' should be followed by a path to the input files." << std::endl;
 				argsOk		= false;
 				shouldStop	= true;
 				return;
@@ -31,13 +34,13 @@ CmdLine::CmdLine(int _argc, char *_argv[]) {
 			if (i < _argc - 1) {
 				themeName = _argv[++i];
 				if (themeName != "dark" && themeName != "lite") {
-					std::cerr << "\033[33m__wrn__\033[0m : the style '" << _argv[i] << "' is not supported. The default value of 'dark' will be used." << std::endl;
+					std::cerr << FORMAT_WARNING "the style '" << _argv[i] << "' is not supported. The default value of 'dark' will be used." << std::endl;
 					themeName = "dark";
 				}
 				continue;
 			}
 			else {
-				std::cerr << "\033[31m__err__\033[0m : the '" << _argv[i] << "' should be followed by thestyle name." << std::endl;
+				std::cerr << FORMAT_ERROR "the '" << _argv[i] << "' should be followed by thestyle name." << std::endl;
 				argsOk		= false;
 				shouldStop	= true;
 				return;
@@ -47,23 +50,23 @@ CmdLine::CmdLine(int _argc, char *_argv[]) {
 			if (i < _argc - 1) {
 				++i;
 				if (!strcmp(_argv[i], "html")) {
-					std::cerr << "\033[33m__wrn__\033[0m : HTML is the default output format, no need to specify it." << std::endl;
+					std::cerr << FORMAT_WARNING "HTML is the default output format, no need to specify it." << std::endl;
 					continue;
 				}
 				if (!strcmp(_argv[i], "markdown") || !strcmp(_argv[i], "md")) {
-					std::cout << "\033[36m__inf__\033[0m : output format has been set to Markdown" << std::endl;
+					std::cout << FORMAT_INFO "output format has been set to Markdown" << std::endl;
 					format = OutputFormat::markdown;
 					continue;
 				}
 				if (!strcmp(_argv[i], "asciidoc") || !strcmp(_argv[i], "adoc")) {
-					std::cout << "\033[36m__inf__\033[0m : output format has been set to Asciidoc" << std::endl;
+					std::cout << FORMAT_INFO "output format has been set to Asciidoc" << std::endl;
 					format = OutputFormat::asciidoc;
 					continue;
 				}
 				continue;
 			}
 			else {
-				std::cerr << "\033[31m__err__\033[0m : the '" << _argv[i] << "' should be followed by the output format name." << std::endl;
+				std::cerr << FORMAT_ERROR "the '" << _argv[i] << "' should be followed by the output format name." << std::endl;
 				argsOk		= false;
 				shouldStop	= true;
 				return;
@@ -76,7 +79,7 @@ CmdLine::CmdLine(int _argc, char *_argv[]) {
 			return;
 		}
 
-		std::cerr << "\033[31m__err__\033[0m : unknown option: " << _argv[i] << ". Use '-h' or '--help'.\n";
+		std::cerr << FORMAT_ERROR "unknown option: " << _argv[i] << ". Use '-h' or '--help'.\n";
 		return;
 	}
 	// Проверяем, что все необходимые аргументы были заданы
@@ -90,7 +93,7 @@ CmdLine::CmdLine(int _argc, char *_argv[]) {
 
 bool CmdLine::checkArgs() {
 	if (path.empty()) {
-		std::cerr << "\033[31m__err__\033[0m : no input files were given! Use '-h' or '--help' to learn about .\n";
+		std::cerr << FORMAT_ERROR "no input files were given! Use '-h' or '--help' to learn about .\n";
 		return false;
 	}
 	return true;

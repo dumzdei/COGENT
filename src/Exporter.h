@@ -12,5 +12,6 @@ public:
     int Export_to_MD(std::vector<Module>& modules);
     int Export_to_ADOC(std::vector<Module>& modules);
 private:
+    std::string Print_CSS_for_SVG();
     std::string Generate_SVG(const Module& module, bool use_external_styles = true);
 };

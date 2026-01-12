@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include "Colors.hpp"
+
 int Exporter::Export_to_HTML(std::vector<Module>& modules, std::string theme_name)
 {
     std::ofstream html("report.htm");
@@ -9,7 +11,7 @@ int Exporter::Export_to_HTML(std::vector<Module>& modules, std::string theme_nam
 
     if (!html.is_open())
     {
-        std::cerr << "\033[31m__err__\033[0m : Could not open report.htm for writing.\n";
+        std::cerr << FORMAT_ERROR "could not open report.htm for writing.\n";
         return 2;
     }
 
@@ -161,7 +163,7 @@ int Exporter::Export_to_MD(std::vector<Module>& modules) {
 
     if (!md.is_open())
     {
-        std::cerr << "\033[31m__err__\033[0m : Could not open report.md for writing.\n";
+        std::cerr << FORMAT_ERROR "could not open report.md for writing.\n";
         return 2;
     }
 
@@ -186,7 +188,7 @@ int Exporter::Export_to_MD(std::vector<Module>& modules) {
         if (modules.size() == 1)
             top = &modules[0];
         else {
-            std::cerr << "\033[31m__err__\033[0m : Didn't find the top module.\n";
+            std::cerr << FORMAT_ERROR "didn't find the top module.\n";
             return 3;
         }
 
@@ -278,7 +280,7 @@ int Exporter::Export_to_ADOC(std::vector<Module>& modules) {
 
     if (!adoc.is_open())
     {
-        std::cerr << "\033[31m__err__\033[0m : Could not open report.adoc for writing.\n";
+        std::cerr << FORMAT_ERROR "could not open report.adoc for writing.\n";
         return 2;
     }
 
@@ -303,7 +305,7 @@ int Exporter::Export_to_ADOC(std::vector<Module>& modules) {
         if (modules.size() == 1)
             top = &modules[0];
         else {
-            std::cerr << "\033[31m__err__\033[0m : Didn't find the top module.\n";
+            std::cerr << FORMAT_ERROR "didn't find the top module.\n";
             return 3;
         }
 
@@ -391,43 +393,8 @@ int Exporter::Export_to_ADOC(std::vector<Module>& modules) {
     return 0;
 }
 
-std::string Exporter::Generate_SVG(const Module& module, bool use_external_styles)
-{
-    std::stringstream svg;
-
-    int input_count = 0;
-    int output_count = 0;
-    int inout_count = 0;
-
-    for (const auto& port : module.ports)
-    {
-        if (port.direction == "input") input_count++;
-        else if (port.direction == "output") output_count++;
-        else inout_count++;
-    }
-
-    // –асчет высоты блока на основе максимального количества портов
-    int max_side_ports = std::max(input_count, output_count);
-    int module_height = std::max(300, 60 + max_side_ports * 30);
-    int module_width = 400;
-
-    int inout_spacing = 80;
-    if (inout_count > 0)
-    {
-        module_width = inout_spacing * inout_count;
-    }
-
-    int svg_height = module_height + 30;
-    int svg_width = module_width*2;
-
-    // ѕозиционирование блока
-    int module_x = svg_width/4;
-    int module_y = 10;
-
-    svg << "<svg width=\"" << svg_width << "\" height=\"" << svg_height << "\" xmlns=\"http://www.w3.org/2000/svg\">\n";
-
-    if (!use_external_styles) {
-        svg << "\
+std::string Exporter::Print_CSS_for_SVG() {
+    return "\
 <style>\n\
 .module-box {\n\
     fill: #ffffff;\n\
@@ -474,7 +441,45 @@ std::string Exporter::Generate_SVG(const Module& module, bool use_external_style
     stroke-width: 1;\n\
 }\n\
 </style>\n";
+}
+
+std::string Exporter::Generate_SVG(const Module& module, bool use_external_styles)
+{
+    std::stringstream svg;
+
+    int input_count = 0;
+    int output_count = 0;
+    int inout_count = 0;
+
+    for (const auto& port : module.ports)
+    {
+        if (port.direction == "input") input_count++;
+        else if (port.direction == "output") output_count++;
+        else inout_count++;
     }
+
+    // –асчет высоты блока на основе максимального количества портов
+    int max_side_ports = std::max(input_count, output_count);
+    int module_height = std::max(300, 60 + max_side_ports * 30);
+    int module_width = 400;
+
+    int inout_spacing = 80;
+    if (inout_count > 0)
+    {
+        module_width = inout_spacing * inout_count;
+    }
+
+    int svg_height = module_height + 30;
+    int svg_width = module_width*2;
+
+    // ѕозиционирование блока
+    int module_x = svg_width/4;
+    int module_y = 10;
+
+    svg << "<svg width=\"" << svg_width << "\" height=\"" << svg_height << "\" xmlns=\"http://www.w3.org/2000/svg\">\n";
+
+    if (!use_external_styles) 
+        svg << Print_CSS_for_SVG();
 
     svg << "<rect class=\"module-box\" x=\"" << module_x << "\" y=\"" << module_y
         << "\" width=\"" << module_width << "\" height=\"" << module_height << "\"/>\n";
