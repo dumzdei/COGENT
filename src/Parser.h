@@ -6,7 +6,17 @@
 #include <sstream>
 #include <regex>
 
-class Parser
+class Parser {
+public:
+    virtual bool isMyFormat(const std::string& fileName) = 0;
+    virtual bool loadFile(const std::string& fileName) = 0;
+    virtual std::vector<Module> parse(const std::string& fileName) = 0;
+};
+
+Parser* GetParser(const std::string& fileName);
+void FreeParser(Parser **parser);
+
+class Parser_Verilog : public Parser 
 {
 private:
     std::vector<std::string> lines;
@@ -18,10 +28,11 @@ private:
         "@date" , "@example" , "@status" , "@top" };
 
 public:
-    bool loadFile(const std::string& filename);
+    bool isMyFormat(const std::string& filename) override final;
+    bool loadFile(const std::string& filename) override final;
+    std::vector<Module> parse(const std::string& source_file) override final;
     std::string trim(const std::string& source_line);
     std::string extractTag(std::string& text);
     std::vector<Port> PortParcer(const std::string& source_line);
 	std::vector<Param> ParamParcer(const std::string& source_line);
-    std::vector<Module> parse(const std::string& source_file);
 };

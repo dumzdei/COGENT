@@ -132,6 +132,7 @@
     <ClCompile Include="..\src\Exporter.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\Parser.cpp" />
+    <ClCompile Include="..\src\Parser_Verilog.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\CmdLine.hpp" />

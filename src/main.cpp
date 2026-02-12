@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
         return 0;
     std::cout << std::endl;
 
-    Parser      parser;
+    Parser     *parser = nullptr;
     Exporter    exporter;
 
     std::vector<Module> modules;
@@ -40,25 +40,33 @@ int main(int argc, char* argv[])
             return 3;
         }
 
-        for (const auto& entry : std::filesystem::directory_iterator(path))
+        for (const auto &entry : std::filesystem::directory_iterator(path))
         {
             if (!entry.is_regular_file()) continue;
 
-            std::string ext = entry.path().extension().string();
-            if (ext != ".v" && ext != ".sv")
+            // Эту работу у нас теперь делает GetParser
+            //std::string ext = entry.path().extension().string();
+            //if (ext != ".v" && ext != ".sv")
+            //    continue;
+            
+            std::cout << FORMAT_INFO "processing file '" << entry.path().string() << "'\n";
+
+            parser = GetParser(entry.path().string());
+            if (!parser) {
+                std::cerr << FORMAT_WARNING << "don't know how to read file '" << entry.path().string() << "', it will be skipped\n";
                 continue;
+            }
 
-            std::cout << FORMAT_INFO "processing file " << entry.path() << "\n";
-
-            if (parser.loadFile(entry.path().string()))
+            if (parser->loadFile(entry.path().string()))
             {
-                auto parsed_modules = parser.parse(entry.path().string());
+                auto parsed_modules = parser->parse(entry.path().string());
                 modules.insert(modules.end(), parsed_modules.begin(), parsed_modules.end());
             }
             else
             {
                 std::cerr << FORMAT_WARNING "failed to load file.\n";
             }
+            FreeParser(&parser);
         }
     }
     catch (const std::filesystem::filesystem_error& e)
