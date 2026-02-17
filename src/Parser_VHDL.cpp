@@ -1,10 +1,10 @@
 #include "Parser.h"
 
-bool Parser_Verilog::IsMyFormat(const std::string& filename) {
+bool Parser_VHDL::IsMyFormat(const std::string& filename) {
     // Первым делом проверяем, может мы сможем по раширению понять, что за формат?
     auto pos = filename.find_last_of('.');
     if (pos != std::string::npos) {
-        if (filename.substr(pos + 1) == "v")
+        if (filename.substr(pos + 1) == "vhd" || filename.substr(pos + 1) == "vhdl")
             return true;
     }
     // Если делать нормально, то если по расширению понять не 
@@ -14,7 +14,7 @@ bool Parser_Verilog::IsMyFormat(const std::string& filename) {
     // Но пока оставим так
 }
 
-std::vector<Port> Parser_Verilog::ParsePort(const std::string& source_line)
+std::vector<Port> Parser_VHDL::ParsePort(const std::string& source_line)
 {
     std::vector<Port> ports;
 
@@ -32,7 +32,7 @@ std::vector<Port> Parser_Verilog::ParsePort(const std::string& source_line)
 
         // Проверяем, что это действительно объявление порта, а не часть другого слова
         size_t match_pos = match.position();
-        if (match_pos > 0 && std::isalnum(line[match_pos - 1])) 
+        if (match_pos > 0 && std::isalnum(line[match_pos - 1]))
         {
             ++it;
             continue;
@@ -52,7 +52,7 @@ std::vector<Port> Parser_Verilog::ParsePort(const std::string& source_line)
 
         std::string name = Trim(match[4]);
 
-        if (match.suffix().matched) 
+        if (match.suffix().matched)
         {
             if (match.suffix().str().find("/**") != std::string::npos && match.suffix().str().find("**/") != std::string::npos)
             {
@@ -74,13 +74,13 @@ std::vector<Port> Parser_Verilog::ParsePort(const std::string& source_line)
     return ports;
 }
 
-std::vector<Param> Parser_Verilog::ParseParam(const std::string& source_line)
+std::vector<Param> Parser_VHDL::ParseGenerics(const std::string& source_line)
 {
     std::vector<Param> params;
-    
+
     std::string line = Trim(source_line);
-	size_t pos = line.find("parameter");
-	line = line.substr(pos + 9, line.length());
+    size_t pos = line.find("parameter");
+    line = line.substr(pos + 9, line.length());
 
     std::stringstream ss(line);
     std::string hash;
@@ -90,13 +90,13 @@ std::vector<Param> Parser_Verilog::ParseParam(const std::string& source_line)
         std::string value_str;
         std::string description;
 
-		size_t eq_pos = hash.find('=');
+        size_t eq_pos = hash.find('=');
         if (eq_pos != std::string::npos)
         {
-			size_t start_desc = hash.find("/**") + 3;
-			size_t end_desc = hash.find("**/");
+            size_t start_desc = hash.find("/**") + 3;
+            size_t end_desc = hash.find("**/");
 
-			name = Trim(hash.substr(0, eq_pos));
+            name = Trim(hash.substr(0, eq_pos));
 
             size_t value_start = eq_pos + 1;
             size_t value_end = value_start;
@@ -107,7 +107,7 @@ std::vector<Param> Parser_Verilog::ParseParam(const std::string& source_line)
 
             if (start_desc != std::string::npos && end_desc != std::string::npos)
             {
-				description = Trim(hash.substr(start_desc, end_desc - start_desc));
+                description = Trim(hash.substr(start_desc, end_desc - start_desc));
             }
         }
 
@@ -115,15 +115,15 @@ std::vector<Param> Parser_Verilog::ParseParam(const std::string& source_line)
         {
             Param np;
             np.name = name;
-			np.value = value_str;
-			np.description = description;
+            np.value = value_str;
+            np.description = description;
             params.push_back(np);
         }
     }
     return params;
 }
 
-std::vector<Module> Parser_Verilog::Parse(const std::string& source_file)
+std::vector<Module> Parser_VHDL::Parse(const std::string& source_file)
 {
     Module module;
     std::vector<Module> modules;
@@ -132,48 +132,24 @@ std::vector<Module> Parser_Verilog::Parse(const std::string& source_file)
     std::vector<Param> parsed_params;
     bool module_area = false;
 
+    std::regex port_keyword(R"(^.*port\b)", std::regex_constants::icase);
+    std::regex generic_keyword(R"(^.*generic\b)", std::regex_constants::icase);
+
     for (size_t i = 0; i < lines.size(); ++i)
     {
         std::string& line = lines[i];
 
-        if (line.find("//") != std::string::npos && line.find("//*") == std::string::npos)
+        if (line.find("--") != std::string::npos && line.find("--*") == std::string::npos)
         {
-            size_t pos = line.find("//");
+            size_t pos = line.find("--");
             line.erase(pos);
         }
 
-        else if (line.find("/*") != std::string::npos && line.find("/**") == std::string::npos && line.find("//*") == std::string::npos)
-        {
-            while (i < lines.size() && line.find("*/") == std::string::npos)
-            {
-                line.clear();
-                if (i + 1 < lines.size())
-                {
-                    i++;
-                    line = lines[i];
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            if (line.find("*/") != std::string::npos)
-            {
-                size_t endPos = line.find("*/");
-                line.erase(0, endPos + 3);
-            }
-            else
-            {
-                line.clear();
-            }
-        }
-
-        if (line.find("//*") != std::string::npos)
+        if (line.find("--*") != std::string::npos)
         {
             comment_block = Comment_block();
-            size_t pos = line.find("//*");
-            
+            size_t pos = line.find("--*");
+
             std::string comment = Trim(line.substr(pos + 3));
 
             comment_block.tag = ExtractTag(comment);
@@ -184,97 +160,48 @@ std::vector<Module> Parser_Verilog::Parse(const std::string& source_file)
                 module.comments.push_back(comment_block);
             line.erase(pos);
         }
-        else if (line.find("/**") != std::string::npos)
-        {
-            comment_block = Comment_block();
-            std::string comment_line = line;
 
-            size_t startPos = comment_line.find("/**");
-            line.substr(0, startPos);
-            comment_line = comment_line.substr(startPos + 3);
-
-            size_t endPos = comment_line.find("**/");
-            bool singleLine = (endPos != std::string::npos);
-            if (singleLine)
-                comment_line = comment_line.substr(0, endPos);
-
-            comment_line = Trim(comment_line);
-            if (!comment_line.empty())
-            {
-                std::string tag = ExtractTag(comment_line);
-                if (!tag.empty() && comment_block.tag.empty())
-                    comment_block.tag = tag;
-                comment_block.comment_block.push_back(comment_line);
-            }
-
-            if (!singleLine)
-            {
-                ++i;
-                while (i < lines.size())
-                {
-                    std::string cur = Trim(lines[i]);
-                    endPos = cur.find("**/");
-                    bool endFound = (endPos != std::string::npos);
-
-                    if (endFound)
-                        cur = Trim(cur.substr(0, endPos));
-
-                    if (!cur.empty())
-                    {
-                        std::string localTag = ExtractTag(cur);
-                        if (!localTag.empty() && comment_block.tag.empty())
-                            comment_block.tag = localTag;
-                        comment_block.comment_block.push_back(cur);
-                    }
-
-                    if (endFound)
-                        break;
-                    line.clear();
-                    ++i;
-                }
-            }
-
-            // Добавляем только один раз
-            if (!comment_block.comment_block.empty())
-                module.comments.push_back(comment_block);
-        }
-
-        if (line.find("module") != std::string::npos && line.find("endmodule") == std::string::npos)
+        if (line.find("entity") != std::string::npos &&
+            line.find("end entity") == std::string::npos)
         {
             module_area = true;
             module.filename = source_file;
 
-            size_t pos = line.find("module") + 6;
-            size_t end = line.find_first_of("#(;");
+            size_t pos = line.find("entity");
+            size_t start_name = pos + 6; // длина "entity"
 
-            module.name = Trim(line.substr(pos, end - pos));
+            size_t end = line.find("is", start_name);
 
-            // ID: имя_модуля + хеш файла (первые 4 символа)
+            // Если "is" не найдено, берем до конца строки или скобки
+            if (end == std::string::npos) {
+                end = line.find_first_of("(", start_name);
+            }
+
+            module.name = Trim(line.substr(start_name, end - start_name));
+
             std::string base_filename = source_file.substr(source_file.find_last_of("/\\") + 1);
             size_t file_hash = std::hash<std::string>{}(base_filename);
             module.id = module.name + std::to_string(file_hash).substr(0, 4);
         }
 
-        if (module_area && (line.find("input") != std::string::npos ||
-            line.find("output") != std::string::npos ||
-            line.find("inout") != std::string::npos))
+        if (module_area && std::regex_search(line, port_keyword))
         {
             auto ports = ParsePort(line);
             module.ports.insert(module.ports.end(), ports.begin(), ports.end());
         }
-
-        else if (module_area && line.find("parameter") != std::string::npos)
+        
+        else if (module_area && std::regex_search(line, generic_keyword))
         {
-            auto params = ParseParam(line);
+            auto params = ParseGenerics(line);
             module.params.insert(module.params.end(), params.begin(), params.end());
         }
 
-        else if (line.find("function") != std::string::npos || line.find("task") != std::string::npos)
+        /*else if (line.find("function") != std::string::npos || line.find("task") != std::string::npos)
         {
             module_area = false;
-        }
+        }*/
 
-        else if (line.find("endmodule") != std::string::npos)
+        else if (line.find("end") != std::string::npos && line.find(module.name) != std::string::npos)
         {
             modules.push_back(module);
 

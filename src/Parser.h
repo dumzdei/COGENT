@@ -7,10 +7,18 @@
 #include <regex>
 
 class Parser {
+protected:
+    std::vector<std::string> lines;
+    std::vector<std::string> tags =
+    { "@brief" , "@todo" , "@description" , "@note" , "@warning" , "@error" , "@author" ,
+        "@date" , "@example" , "@status" , "@top" };
+
+    std::string Trim(const std::string& source_line);
+    std::string ExtractTag(std::string& text);
 public:
-    virtual bool isMyFormat(const std::string& fileName) = 0;
-    virtual bool loadFile(const std::string& fileName) = 0;
-    virtual std::vector<Module> parse(const std::string& fileName) = 0;
+    bool LoadFile(const std::string& fileName);
+    virtual bool IsMyFormat(const std::string& fileName) = 0;
+    virtual std::vector<Module> Parse(const std::string& fileName) = 0;
 };
 
 Parser* GetParser(const std::string& fileName);
@@ -19,20 +27,19 @@ void FreeParser(Parser **parser);
 class Parser_Verilog : public Parser 
 {
 private:
-    std::vector<std::string> lines;
-    std::string line;
-    std::vector<std::string> commentVariants = { "//", "//*", "/**", "**/", "/*",  "*/"};
-
-    std::vector<std::string> tags = 
-    { "@brief" , "@todo" , "@description" , "@note" , "@warning" , "@error" , "@author" ,
-        "@date" , "@example" , "@status" , "@top" };
-
+    std::vector<Port> ParsePort(const std::string& source_line);
+    std::vector<Param> ParseParam(const std::string& source_line);
 public:
-    bool isMyFormat(const std::string& filename) override final;
-    bool loadFile(const std::string& filename) override final;
-    std::vector<Module> parse(const std::string& source_file) override final;
-    std::string trim(const std::string& source_line);
-    std::string extractTag(std::string& text);
-    std::vector<Port> PortParcer(const std::string& source_line);
-	std::vector<Param> ParamParcer(const std::string& source_line);
+    bool IsMyFormat(const std::string& filename) override final;
+    std::vector<Module> Parse(const std::string& source_file) override final;
+};
+
+class Parser_VHDL : public Parser
+{
+private:
+    std::vector<Port> ParsePort(const std::string& source_line);
+    std::vector<Param> ParseGenerics(const std::string& source_line);
+public:
+    bool IsMyFormat(const std::string& filename) override final;
+    std::vector<Module> Parse(const std::string& source_file) override final;
 };
