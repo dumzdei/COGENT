@@ -16,6 +16,7 @@ struct Param
     std::string name;
     std::string description;
     std::string value;
+    std::string type;
 };
 
 struct Comment_block

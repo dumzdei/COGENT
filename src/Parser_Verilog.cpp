@@ -30,14 +30,6 @@ std::vector<Port> Parser_Verilog::ParsePort(const std::string& source_line)
     {
         std::smatch match = *it;
 
-        // Проверяем, что это действительно объявление порта, а не часть другого слова
-        size_t match_pos = match.position();
-        if (match_pos > 0 && std::isalnum(line[match_pos - 1])) 
-        {
-            ++it;
-            continue;
-        }
-
         Port p;
         p.direction = match[1];
         if (match[2].matched)

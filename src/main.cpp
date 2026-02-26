@@ -57,9 +57,9 @@ int main(int argc, char* argv[])
                 continue;
             }
 
-            if (parser->loadFile(entry.path().string()))
+            if (parser->LoadFile(entry.path().string()))
             {
-                auto parsed_modules = parser->parse(entry.path().string());
+                auto parsed_modules = parser->Parse(entry.path().string());
                 modules.insert(modules.end(), parsed_modules.begin(), parsed_modules.end());
             }
             else

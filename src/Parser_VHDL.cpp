@@ -14,6 +14,29 @@ bool Parser_VHDL::IsMyFormat(const std::string& filename) {
     // Но пока оставим так
 }
 
+
+std::string ConvertVHDLRange(const std::string& vhdl_range)
+{
+    // Парсим VHDL диапазон: (7 downto 0) или (0 to 7)
+    std::regex rangeRegex(R"(\(\s*(\d+)\s*(downto|to)\s*(\d+)\s*\))");
+    std::smatch match;
+
+    if (std::regex_search(vhdl_range, match, rangeRegex))
+    {
+        int msb = std::stoi(match[1]);
+        int lsb = std::stoi(match[3]);
+        std::string direction = match[2];
+
+        // Формируем унифицированный вид [msb:lsb]
+        if (direction == "to")
+            return "[" + std::to_string(lsb) + ":" + std::to_string(msb) + "]";
+        else
+            return "[" + std::to_string(msb) + ":" + std::to_string(lsb) + "]";
+    }
+
+    return "1";
+}
+
 std::vector<Port> Parser_VHDL::ParsePort(const std::string& source_line)
 {
     std::vector<Port> ports;
@@ -21,7 +44,17 @@ std::vector<Port> Parser_VHDL::ParsePort(const std::string& source_line)
     std::string line = source_line;
     line = Trim(line);
 
-    std::regex portRegex(R"(\b(input|output|inout)\s*(wire|reg|logic)?\s*(\[[^\]]+\])?\s*([^,);/\s]+)\s*)");
+    std::string description;
+    size_t doc_comment_pos = line.find("--*");
+    if (doc_comment_pos != std::string::npos)
+    {
+        // Извлекаем всё после --* до конца строки
+        description = Trim(line.substr(doc_comment_pos + 3));
+    }
+
+    std::regex portRegex(
+        R"(\b([a-zA-Z_][a-zA-Z0-9_]*)\s*:\s*(in|out|inout|buffer|linkage)\s+([a-zA-Z_][a-zA-Z0-9_]*(?:\s*\([^)]+\))?)\s*)"
+    );
 
     std::sregex_iterator it(line.begin(), line.end(), portRegex);
     std::sregex_iterator end;
@@ -30,43 +63,27 @@ std::vector<Port> Parser_VHDL::ParsePort(const std::string& source_line)
     {
         std::smatch match = *it;
 
-        // Проверяем, что это действительно объявление порта, а не часть другого слова
-        size_t match_pos = match.position();
-        if (match_pos > 0 && std::isalnum(line[match_pos - 1]))
-        {
-            ++it;
-            continue;
-        }
-
         Port p;
-        p.direction = match[1];
-        if (match[2].matched)
-            p.type = match[2];
-        else
-            p.type = "wire";
+        p.name = Trim(match[1]);                    // Имя порта
+        p.direction = match[2];                     // Направление (in/out/...)
+        std::string base_type = Trim(match[3]);     // Тип с возможным диапазоном
 
-        if (match[3].matched)
-            p.width = match[3];
-        else
-            p.width = "1";
-
-        std::string name = Trim(match[4]);
-
-        if (match.suffix().matched)
+        // Выделяем диапазон, если он есть в типе
+        size_t paren_pos = base_type.find('(');
+        if (paren_pos != std::string::npos)
         {
-            if (match.suffix().str().find("/**") != std::string::npos && match.suffix().str().find("**/") != std::string::npos)
-            {
-                size_t start_desc = match.suffix().str().find("/**");
-                size_t end_desc = match.suffix().str().find("**/");
-                p.description = Trim(match.suffix().str().substr(start_desc + 3, end_desc - start_desc - 3));
-            }
-            else if (match.suffix().str().find("//*") != std::string::npos)
-            {
-                size_t start_desc = match.suffix().str().find("//*");
-                p.description = Trim(match.suffix().str().substr(start_desc + 3));
-            }
+            p.type = Trim(base_type.substr(0, paren_pos));      // std_logic_vector
+            std::string range = Trim(base_type.substr(paren_pos)); // (7 downto 0)
+            p.width = ConvertVHDLRange(range);
         }
-        p.name = name;
+        else
+        {
+            p.type = base_type;
+            p.width = "1";
+        }
+
+        p.description = description;
+
         ports.push_back(p);
         ++it;
     }
@@ -77,44 +94,47 @@ std::vector<Port> Parser_VHDL::ParsePort(const std::string& source_line)
 std::vector<Param> Parser_VHDL::ParseGenerics(const std::string& source_line)
 {
     std::vector<Param> params;
-
     std::string line = Trim(source_line);
-    size_t pos = line.find("parameter");
-    line = line.substr(pos + 9, line.length());
+
+    size_t pos = line.find("generic");
+    if (pos != std::string::npos)
+        line = line.substr(pos + 7);
 
     std::stringstream ss(line);
-    std::string hash;
-    while (std::getline(ss, hash, ','))
+    std::string item;
+    while (std::getline(ss, item, ';'))
     {
         std::string name;
+        std::string type;
         std::string value_str;
         std::string description;
 
-        size_t eq_pos = hash.find('=');
-        if (eq_pos != std::string::npos)
-        {
-            size_t start_desc = hash.find("/**") + 3;
-            size_t end_desc = hash.find("**/");
-
-            name = Trim(hash.substr(0, eq_pos));
-
-            size_t value_start = eq_pos + 1;
-            size_t value_end = value_start;
-            while (value_end < hash.size() && (isdigit(hash[value_end]) || hash[value_end] == ' '))
-                ++value_end;
-
-            value_str = hash.substr(value_start, value_end - value_start);
-
-            if (start_desc != std::string::npos && end_desc != std::string::npos)
-            {
-                description = Trim(hash.substr(start_desc, end_desc - start_desc));
-            }
+        size_t comment_pos = item.find("--*");
+        if (comment_pos != std::string::npos) {
+            description = Trim(item.substr(comment_pos + 2));
+            item = item.substr(0, comment_pos);
         }
 
-        if (!name.empty())
-        {
+        size_t eq_pos = item.find(":=");
+        if (eq_pos != std::string::npos) {
+            value_str = Trim(item.substr(eq_pos + 2));
+            item = item.substr(0, eq_pos);
+        }
+
+        // Поиск типа
+        size_t colon_pos = item.find(':');
+        if (colon_pos != std::string::npos) {
+            name = Trim(item.substr(0, colon_pos));
+            type = Trim(item.substr(colon_pos + 1));
+        }
+        else {
+            name = Trim(item);
+        }
+
+        if (!name.empty()) {
             Param np;
             np.name = name;
+            np.type = type;
             np.value = value_str;
             np.description = description;
             params.push_back(np);
@@ -132,8 +152,14 @@ std::vector<Module> Parser_VHDL::Parse(const std::string& source_file)
     std::vector<Param> parsed_params;
     bool module_area = false;
 
-    std::regex port_keyword(R"(^.*port\b)", std::regex_constants::icase);
-    std::regex generic_keyword(R"(^.*generic\b)", std::regex_constants::icase);
+    std::regex port_keyword(R"(port\s*\()", std::regex_constants::icase);
+    std::regex generic_keyword(R"(generic\s*\()", std::regex_constants::icase);
+
+    // Переменные состояния для сбора блоков
+    std::string port_buffer, generic_buffer;
+    bool in_port_block = false;
+    bool in_generic_block = false;
+    int brace_balance = 0; // Счётчик вложенности скобок
 
     for (size_t i = 0; i < lines.size(); ++i)
     {
@@ -186,14 +212,69 @@ std::vector<Module> Parser_VHDL::Parse(const std::string& source_file)
 
         if (module_area && std::regex_search(line, port_keyword))
         {
-            auto ports = ParsePort(line);
-            module.ports.insert(module.ports.end(), ports.begin(), ports.end());
+            in_port_block = true;
+            brace_balance = 0;
+            port_buffer.clear();
+
+            // Считаем скобки в этой строке и сохраняем содержимое
+            for (char c : line) {
+                if (c == '(') brace_balance++;
+                if (c == ')') brace_balance--;
+            }
+            port_buffer += line;
+            continue;
         }
-        
-        else if (module_area && std::regex_search(line, generic_keyword))
+
+        if (in_port_block)
         {
-            auto params = ParseGenerics(line);
-            module.params.insert(module.params.end(), params.begin(), params.end());
+            // Обновляем баланс скобок для текущей строки
+            for (char c : line) {
+                if (c == '(') brace_balance++;
+                if (c == ')') brace_balance--;
+            }
+            port_buffer += " " + line;
+
+            // Если баланс вернулся в 0 — блок закрыт
+            if (brace_balance <= 0)
+            {
+                auto ports = ParsePort(port_buffer);
+                module.ports.insert(module.ports.end(), ports.begin(), ports.end());
+                in_port_block = false;
+                port_buffer.clear();
+            }
+            continue;
+        }
+
+        if (module_area && std::regex_search(line, generic_keyword))
+        {
+            in_generic_block = true;
+            brace_balance = 0;
+            generic_buffer.clear();
+
+            for (char c : line) {
+                if (c == '(') brace_balance++;
+                if (c == ')') brace_balance--;
+            }
+            generic_buffer += line;
+            continue;
+        }
+
+        if (in_generic_block)
+        {
+            for (char c : line) {
+                if (c == '(') brace_balance++;
+                if (c == ')') brace_balance--;
+            }
+            generic_buffer += " " + line;
+
+            if (brace_balance <= 0)
+            {
+                auto params = ParseGenerics(generic_buffer);
+                module.params.insert(module.params.end(), params.begin(), params.end());
+                in_generic_block = false;
+                generic_buffer.clear();
+            }
+            continue;
         }
 
         /*else if (line.find("function") != std::string::npos || line.find("task") != std::string::npos)

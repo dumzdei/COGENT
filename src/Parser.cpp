@@ -42,7 +42,7 @@ bool Parser::LoadFile(const std::string& filename)
     return true;
 }
 
-inline std::string Parser::Trim(const std::string& str)
+std::string Parser::Trim(const std::string& str)
 {
     size_t first = str.find_first_not_of(" \t");
     if (first == std::string::npos) return "";
