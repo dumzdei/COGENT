@@ -453,8 +453,8 @@ std::string Exporter::Generate_SVG(const Module& module, bool use_external_style
 
     for (const auto& port : module.ports)
     {
-        if (port.direction == "input") input_count++;
-        else if (port.direction == "output") output_count++;
+        if (port.direction == "input" || port.direction == "in") input_count++;
+        else if (port.direction == "output" || port.direction == "out") output_count++;
         else inout_count++;
     }
 
@@ -497,7 +497,7 @@ std::string Exporter::Generate_SVG(const Module& module, bool use_external_style
 
     for (const auto& port : module.ports)
     {
-        if (port.direction == "input")
+        if (port.direction == "input" || port.direction == "in")
         {
             svg << "<line class=\"input-port\" x1=\"" << module_x << "\" y1=\"" << input_y
                 << "\" x2=\"" << (module_x - 20) << "\" y2=\"" << input_y << "\"/>\n";
@@ -511,7 +511,7 @@ std::string Exporter::Generate_SVG(const Module& module, bool use_external_style
                 << port.width << " " << port.type << "</text>\n";
             input_y += 30;
         }
-        else if (port.direction == "output")
+        else if (port.direction == "output" || port.direction == "out")
         {
             svg << "<line class=\"output-port\" x1=\"" << (module_x + module_width) << "\" y1=\"" << output_y
                 << "\" x2=\"" << (module_x + module_width + 20) << "\" y2=\"" << output_y << "\"/>\n";

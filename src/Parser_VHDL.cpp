@@ -96,9 +96,17 @@ std::vector<Param> Parser_VHDL::ParseGenerics(const std::string& source_line)
     std::vector<Param> params;
     std::string line = Trim(source_line);
 
+    std::string description;
+
     size_t pos = line.find("generic");
     if (pos != std::string::npos)
         line = line.substr(pos + 7);
+
+    size_t comment_pos = line.find("--*");
+    if (comment_pos != std::string::npos) {
+        description = Trim(line.substr(comment_pos + 3));
+        line = line.substr(0, comment_pos);
+    }
 
     std::stringstream ss(line);
     std::string item;
@@ -107,13 +115,6 @@ std::vector<Param> Parser_VHDL::ParseGenerics(const std::string& source_line)
         std::string name;
         std::string type;
         std::string value_str;
-        std::string description;
-
-        size_t comment_pos = item.find("--*");
-        if (comment_pos != std::string::npos) {
-            description = Trim(item.substr(comment_pos + 2));
-            item = item.substr(0, comment_pos);
-        }
 
         size_t eq_pos = item.find(":=");
         if (eq_pos != std::string::npos) {
@@ -128,14 +129,14 @@ std::vector<Param> Parser_VHDL::ParseGenerics(const std::string& source_line)
             type = Trim(item.substr(colon_pos + 1));
         }
         else {
-            name = Trim(item);
+            name = item;
         }
 
-        if (!name.empty()) {
+        if (!CleanToken(name).empty()) {
             Param np;
             np.name = name;
-            np.type = type;
-            np.value = value_str;
+            np.type = CleanToken(type);
+            np.value = CleanToken(value_str);
             np.description = description;
             params.push_back(np);
         }
@@ -156,7 +157,7 @@ std::vector<Module> Parser_VHDL::Parse(const std::string& source_file)
     std::regex generic_keyword(R"(generic\s*\()", std::regex_constants::icase);
 
     // Переменные состояния для сбора блоков
-    std::string port_buffer, generic_buffer;
+    std::vector<std::string> port_buffer, generic_buffer;
     bool in_port_block = false;
     bool in_generic_block = false;
     int brace_balance = 0; // Счётчик вложенности скобок
@@ -184,7 +185,6 @@ std::vector<Module> Parser_VHDL::Parse(const std::string& source_file)
                 comment_block.comment_block.push_back(comment);
             if (!comment_block.comment_block.empty())
                 module.comments.push_back(comment_block);
-            line.erase(pos);
         }
 
         if (line.find("entity") != std::string::npos &&
@@ -221,26 +221,31 @@ std::vector<Module> Parser_VHDL::Parse(const std::string& source_file)
                 if (c == '(') brace_balance++;
                 if (c == ')') brace_balance--;
             }
-            port_buffer += line;
+            port_buffer.push_back(line);
+            
             continue;
         }
 
         if (in_port_block)
         {
-            // Обновляем баланс скобок для текущей строки
-            for (char c : line) {
-                if (c == '(') brace_balance++;
-                if (c == ')') brace_balance--;
-            }
-            port_buffer += " " + line;
-
-            // Если баланс вернулся в 0 — блок закрыт
-            if (brace_balance <= 0)
             {
-                auto ports = ParsePort(port_buffer);
-                module.ports.insert(module.ports.end(), ports.begin(), ports.end());
-                in_port_block = false;
-                port_buffer.clear();
+                for (char c : line) {
+                    if (c == '(') brace_balance++;
+                    if (c == ')') brace_balance--;
+                }
+
+                port_buffer.push_back(line);
+
+                if (brace_balance <= 0)
+                {
+                    for (size_t i = 0; i < port_buffer.size(); i++) {
+                        auto ports = ParsePort(port_buffer[i]);
+                        if (!ports.empty())
+                            module.ports.insert(module.ports.end(), ports.begin(), ports.end());
+                    }
+                    in_port_block = false;
+                    port_buffer.clear();
+                }
             }
             continue;
         }
@@ -255,24 +260,29 @@ std::vector<Module> Parser_VHDL::Parse(const std::string& source_file)
                 if (c == '(') brace_balance++;
                 if (c == ')') brace_balance--;
             }
-            generic_buffer += line;
+            generic_buffer.push_back(line);
             continue;
         }
 
         if (in_generic_block)
         {
-            for (char c : line) {
-                if (c == '(') brace_balance++;
-                if (c == ')') brace_balance--;
-            }
-            generic_buffer += " " + line;
-
-            if (brace_balance <= 0)
             {
-                auto params = ParseGenerics(generic_buffer);
-                module.params.insert(module.params.end(), params.begin(), params.end());
-                in_generic_block = false;
-                generic_buffer.clear();
+                for (char c : line) {
+                    if (c == '(') brace_balance++;
+                    if (c == ')') brace_balance--;
+                }
+                generic_buffer.push_back(line);
+
+                if (brace_balance <= 0)
+                {
+                    for (size_t i = 0; i < generic_buffer.size(); i++) {
+                        auto params = ParseGenerics(generic_buffer[i]);
+                        if (!params.empty())
+                            module.params.insert(module.params.end(), params.begin(), params.end());
+                    }
+                    in_generic_block = false;
+                    generic_buffer.clear();
+                }
             }
             continue;
         }
@@ -282,7 +292,7 @@ std::vector<Module> Parser_VHDL::Parse(const std::string& source_file)
             module_area = false;
         }*/
 
-        else if (line.find("end") != std::string::npos && line.find(module.name) != std::string::npos)
+        else if (line.find("end entity") != std::string::npos && line.find(module.name) != std::string::npos)
         {
             modules.push_back(module);
 

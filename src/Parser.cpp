@@ -51,6 +51,20 @@ std::string Parser::Trim(const std::string& str)
     return str.substr(first, last - first + 1);
 }
 
+std::string Parser::CleanToken(std::string& str)
+{
+    str = Trim(str);
+
+    // Удаляем скобки, запятые, точки с запятой
+    const std::string charsToRemove = "(){}[],;";
+
+    for (char c : charsToRemove) {
+        str.erase(std::remove(str.begin(), str.end(), c), str.end());
+    }
+
+    return Trim(str);
+}
+
 std::string Parser::ExtractTag(std::string& text)
 {
     for (const auto& tag : tags)

@@ -14,6 +14,7 @@ protected:
         "@date" , "@example" , "@status" , "@top" };
 
     std::string Trim(const std::string& source_line);
+    std::string CleanToken(std::string& str);
     std::string ExtractTag(std::string& text);
 public:
     bool LoadFile(const std::string& fileName);
