@@ -7,6 +7,15 @@
 Parser* GetParser(const std::string& fileName) {
     Parser *parser = nullptr;
 
+    // Проверяем, не является ли файл файлом формата SystemVerilog
+    parser = new Parser_SystemVerilog;
+    if (parser->IsMyFormat(fileName)) {
+        std::cout << FORMAT_INFO "SystemVerilog format detected for file '" << fileName << "'\n";
+        return parser;
+    }
+    delete parser;
+    parser = nullptr;
+
     // Проверяем, не является ли файл файлом формата Verilog
     parser = new Parser_Verilog;
     if (parser->IsMyFormat(fileName)) {

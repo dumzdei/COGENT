@@ -37,6 +37,16 @@ public:
     std::vector<Module> Parse(const std::string& source_file) override final;
 };
 
+class Parser_SystemVerilog : public Parser
+{
+private:
+    std::vector<Port> ParsePort(const std::string& source_line);
+    std::vector<Param> ParseParam(const std::string& source_line);
+public:
+    bool IsMyFormat(const std::string& filename) override final;
+    std::vector<Module> Parse(const std::string& source_file) override final;
+};
+
 class Parser_VHDL : public Parser
 {
 private:

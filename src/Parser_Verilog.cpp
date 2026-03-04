@@ -66,7 +66,7 @@ std::vector<Port> Parser_Verilog::ParsePort(const std::string& source_line)
     }
 
     std::regex portRegex(
-        R"(\b(input|output|inout)\s+(?:(wire|reg|logic|tri)\s+)?(?:\[([^\]]+)\]\s+)?)"
+        R"(\b(input|output|inout)\s+(?:(wire|reg)\s+)?(?:\[([^\]]+)\]\s+)?)"
     );
 
     std::smatch match;

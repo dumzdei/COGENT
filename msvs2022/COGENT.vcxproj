@@ -132,7 +132,6 @@
     <ClCompile Include="..\src\Exporter.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\Parser.cpp" />
-    <ClCompile Include="..\src\Parser_SystemC.cpp" />
     <ClCompile Include="..\src\Parser_SystemVerilog.cpp" />
     <ClCompile Include="..\src\Parser_Verilog.cpp" />
     <ClCompile Include="..\src\Parser_VHDL.cpp" />
