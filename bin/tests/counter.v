@@ -3,7 +3,7 @@ Module: simple_counter
 Description: 4-bit up-counter with synchronous reset
 @author Dima
 **/ 
-
+//* @note test
 module simple_counter (
     input wire clk,     //* Clock, signal
     input wire rst_n,    //* Active-low synchronous reset

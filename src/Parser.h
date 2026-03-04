@@ -16,6 +16,8 @@ protected:
     std::string Trim(const std::string& source_line);
     std::string CleanToken(std::string& str);
     std::string ExtractTag(std::string& text);
+    std::vector<Comment_block> Parse_CommentLine(const std::string& comment_text);
+    std::vector<Comment_block> Parse_CommentLine(const std::vector<std::string>& comment_lines);
 public:
     bool LoadFile(const std::string& fileName);
     virtual bool IsMyFormat(const std::string& fileName) = 0;

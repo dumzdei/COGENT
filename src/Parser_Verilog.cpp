@@ -14,6 +14,29 @@ bool Parser_Verilog::IsMyFormat(const std::string& filename) {
     // Но пока оставим так
 }
 
+std::string ConvertVerilogRange(const std::string& range)
+{
+    size_t colon = range.find(':');
+    if (colon == std::string::npos)
+        return "1";
+
+    try
+    {
+        std::string msb_str = range.substr(0, colon);
+        std::string lsb_str = range.substr(colon + 1);
+
+        int msb = std::stoi(msb_str);
+        int lsb = std::stoi(lsb_str);
+
+        return std::to_string(std::abs(msb - lsb) + 1);
+    }
+    catch (...)
+    {
+        // Если не удалось распарсить числа, возвращаем 1
+        return "1";
+    }
+}
+
 std::vector<Port> Parser_Verilog::ParsePort(const std::string& source_line)
 {
     std::vector<Port> ports;
@@ -21,46 +44,66 @@ std::vector<Port> Parser_Verilog::ParsePort(const std::string& source_line)
     std::string line = source_line;
     line = Trim(line);
 
-    std::regex portRegex(R"(\b(input|output|inout)\s*(wire|reg|logic)?\s*(\[[^\]]+\])?\s*([^,);/\s]+)\s*)");
-
-    std::sregex_iterator it(line.begin(), line.end(), portRegex);
-    std::sregex_iterator end;
-
-    while (it != end)
+    std::string description;
+    size_t doc_pos = line.find("/**");
+    if (doc_pos != std::string::npos)
     {
-        std::smatch match = *it;
-
-        Port p;
-        p.direction = match[1];
-        if (match[2].matched)
-            p.type = match[2];
+        size_t end_doc_pos = line.find("**/");
+        if (end_doc_pos == std::string::npos)
+            description = Trim(line.substr(doc_pos + 3));
         else
-            p.type = "wire";
-
-        if (match[3].matched)
-            p.width = match[3];
-        else
-            p.width = "1";
-
-        std::string name = Trim(match[4]);
-
-        if (match.suffix().matched) 
+            description = Trim(line.substr(doc_pos + 3, end_doc_pos - (doc_pos + 3)));
+        line.erase(doc_pos);
+    }
+    else
+    {
+        doc_pos = line.find("//*");
+        if (doc_pos != std::string::npos)
         {
-            if (match.suffix().str().find("/**") != std::string::npos && match.suffix().str().find("**/") != std::string::npos)
+            description = Trim(line.substr(doc_pos + 3));
+            line.erase(doc_pos);
+        }
+    }
+
+    std::regex portRegex(
+        R"(\b(input|output|inout)\s+(?:(wire|reg|logic|tri)\s+)?(?:\[([^\]]+)\]\s+)?)"
+    );
+
+    std::smatch match;
+    if (std::regex_search(line, match, portRegex))
+    {
+        // Извлекаем общие атрибуты для всех портов в этой строке
+        std::string direction = match[1];
+        std::string net_type = Trim(match[2]);
+        std::string range_content = Trim(match[3]);
+
+        std::string port_type = net_type.empty() ? "wire" : net_type;
+        std::string width = range_content.empty() ? "1" : ConvertVerilogRange(range_content);
+
+        // Извлекаем список имён портов
+        std::string names_part = match.suffix().str();
+
+        if (!names_part.empty() && names_part.back() == ';')
+            names_part.pop_back();
+
+        std::stringstream ss(names_part);
+        std::string name;
+
+        while (std::getline(ss, name, ','))
+        {
+            name = Trim(name);
+            if (!name.empty())
             {
-                size_t start_desc = match.suffix().str().find("/**");
-                size_t end_desc = match.suffix().str().find("**/");
-                p.description = Trim(match.suffix().str().substr(start_desc + 3, end_desc - start_desc - 3));
-            }
-            else if (match.suffix().str().find("//*") != std::string::npos)
-            {
-                size_t start_desc = match.suffix().str().find("//*");
-                p.description = Trim(match.suffix().str().substr(start_desc + 3));
+                Port p;
+                p.name = name;
+                p.direction = direction;
+                p.type = port_type;
+                p.width = width;
+                p.description = description;
+
+                ports.push_back(p);
             }
         }
-        p.name = name;
-        ports.push_back(p);
-        ++it;
     }
 
     return ports;
@@ -127,108 +170,15 @@ std::vector<Module> Parser_Verilog::Parse(const std::string& source_file)
     for (size_t i = 0; i < lines.size(); ++i)
     {
         std::string& line = lines[i];
+        if (line.empty())
+            continue;
+        std::string current_tag;
 
+        // Удаляем служебные комментарии
         if (line.find("//") != std::string::npos && line.find("//*") == std::string::npos)
         {
             size_t pos = line.find("//");
             line.erase(pos);
-        }
-
-        else if (line.find("/*") != std::string::npos && line.find("/**") == std::string::npos && line.find("//*") == std::string::npos)
-        {
-            while (i < lines.size() && line.find("*/") == std::string::npos)
-            {
-                line.clear();
-                if (i + 1 < lines.size())
-                {
-                    i++;
-                    line = lines[i];
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            if (line.find("*/") != std::string::npos)
-            {
-                size_t endPos = line.find("*/");
-                line.erase(0, endPos + 3);
-            }
-            else
-            {
-                line.clear();
-            }
-        }
-
-        if (line.find("//*") != std::string::npos)
-        {
-            comment_block = Comment_block();
-            size_t pos = line.find("//*");
-            
-            std::string comment = Trim(line.substr(pos + 3));
-
-            comment_block.tag = ExtractTag(comment);
-
-            if (!comment.empty())
-                comment_block.comment_block.push_back(comment);
-            if (!comment_block.comment_block.empty())
-                module.comments.push_back(comment_block);
-            line.erase(pos);
-        }
-        else if (line.find("/**") != std::string::npos)
-        {
-            comment_block = Comment_block();
-            std::string comment_line = line;
-
-            size_t startPos = comment_line.find("/**");
-            line.substr(0, startPos);
-            comment_line = comment_line.substr(startPos + 3);
-
-            size_t endPos = comment_line.find("**/");
-            bool singleLine = (endPos != std::string::npos);
-            if (singleLine)
-                comment_line = comment_line.substr(0, endPos);
-
-            comment_line = Trim(comment_line);
-            if (!comment_line.empty())
-            {
-                std::string tag = ExtractTag(comment_line);
-                if (!tag.empty() && comment_block.tag.empty())
-                    comment_block.tag = tag;
-                comment_block.comment_block.push_back(comment_line);
-            }
-
-            if (!singleLine)
-            {
-                ++i;
-                while (i < lines.size())
-                {
-                    std::string cur = Trim(lines[i]);
-                    endPos = cur.find("**/");
-                    bool endFound = (endPos != std::string::npos);
-
-                    if (endFound)
-                        cur = Trim(cur.substr(0, endPos));
-
-                    if (!cur.empty())
-                    {
-                        std::string localTag = ExtractTag(cur);
-                        if (!localTag.empty() && comment_block.tag.empty())
-                            comment_block.tag = localTag;
-                        comment_block.comment_block.push_back(cur);
-                    }
-
-                    if (endFound)
-                        break;
-                    line.clear();
-                    ++i;
-                }
-            }
-
-            // Добавляем только один раз
-            if (!comment_block.comment_block.empty())
-                module.comments.push_back(comment_block);
         }
 
         if (line.find("module") != std::string::npos && line.find("endmodule") == std::string::npos)
@@ -264,6 +214,97 @@ std::vector<Module> Parser_Verilog::Parse(const std::string& source_file)
         else if (line.find("function") != std::string::npos || line.find("task") != std::string::npos)
         {
             module_area = false;
+        }
+
+        if (line.find("/*") != std::string::npos &&
+            line.find("/**") == std::string::npos &&
+            line.find("//*") == std::string::npos)
+        {
+            while (i < lines.size() && line.find("*/") == std::string::npos)
+            {
+                line.clear();
+                if (i + 1 < lines.size())
+                {
+                    i++;
+                    line = lines[i];
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            if (line.find("*/") != std::string::npos)
+            {
+                size_t endPos = line.find("*/");
+                line.erase(0, endPos + 3);
+            }
+            else
+            {
+                line.clear();
+            }
+        }
+
+        if (line.find("//*") != std::string::npos)
+        {
+            size_t pos = line.find("//*");
+
+            std::string comment_text = line.substr(pos + 3);
+
+            line.erase(pos);
+
+            auto comment_blocks = Parse_CommentLine(comment_text);
+            module.comments.insert(module.comments.end(),
+                comment_blocks.begin(),
+                comment_blocks.end());
+        }
+        else if (line.find("/**") != std::string::npos)
+        {
+            std::vector<std::string> full_comment;
+            size_t startPos = line.find("/**");
+
+            std::string comment_line = line.substr(startPos + 3);
+            size_t endPos = comment_line.find("**/");
+
+            if (endPos != std::string::npos)
+            {
+                full_comment.push_back(Trim(comment_line.substr(0, endPos)));
+            }
+            else
+            {
+                full_comment.push_back(Trim(comment_line));
+
+                ++i;
+                while (i < lines.size())
+                {
+                    std::string cur = lines[i];
+                    size_t local_endPos = cur.find("**/");
+
+                    if (local_endPos != std::string::npos)
+                    {
+                        full_comment.push_back(Trim(cur.substr(0, local_endPos)));
+
+                        // Оставляем остаток строки после **/ для дальнейшей обработки
+                        std::string after_comment = cur.substr(local_endPos + 3);
+                        lines[i] = after_comment;
+                        break;
+                    }
+                    else
+                    {
+                        full_comment.push_back(Trim(cur));
+                        lines[i].clear();
+                    }
+                    ++i;
+                }
+            }
+
+            if (!full_comment.empty())
+            {
+                auto comment_blocks = Parse_CommentLine(full_comment);
+                module.comments.insert(module.comments.end(),
+                    comment_blocks.begin(),
+                    comment_blocks.end());
+            }
         }
 
         else if (line.find("endmodule") != std::string::npos)

@@ -21,7 +21,7 @@ struct Param
 
 struct Comment_block
 {
-    std::vector<std::string> comment_block;
+    std::vector<std::string> lines;
     std::string tag;
 };
 

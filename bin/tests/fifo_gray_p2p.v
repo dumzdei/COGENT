@@ -1,4 +1,4 @@
-
+//* @brief test
 module fifo_gray_p2p
 #( parameter DW = 32/** data width **/,  AWg = 4, AWs = 2)
 (clk_r, clk_w, rst, clr, re, we, din, dout, empty, full, diff_rd, diff_wr) ;
@@ -6,7 +6,7 @@ module fifo_gray_p2p
 input clk_r;
 input clk_w;
 input clr;     //* must be in clk_r domen and long enough to meet on  clk_w
-input re;
+input re;	/** read enable **/
 input rst;
 input we;
 input [DW-1:0] din;

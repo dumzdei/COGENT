@@ -182,8 +182,8 @@ std::vector<Module> Parser_VHDL::Parse(const std::string& source_file)
             comment_block.tag = ExtractTag(comment);
 
             if (!comment.empty())
-                comment_block.comment_block.push_back(comment);
-            if (!comment_block.comment_block.empty())
+                comment_block.lines.push_back(comment);
+            if (!comment_block.lines.empty())
                 module.comments.push_back(comment_block);
         }
 
