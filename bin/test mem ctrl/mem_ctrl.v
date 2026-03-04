@@ -10,8 +10,8 @@ ensuring data storage and retrieval through the cache.
 //* @top A memory controller that connects the CPU to the main memory and cache.
 module memory_controller
 #(
-    parameter ADDR_WIDTH = 32,
-    parameter DATA_WIDTH = 64,
+    parameter ADDR_WIDTH = 32, //* test
+    parameter DATA_WIDTH = 64, /** TeSt **/
     parameter CACHE_SIZE = 128
 )
 (

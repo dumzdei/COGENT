@@ -1,6 +1,6 @@
 //* @brief test
 module fifo_gray_p2p
-#( parameter DW = 32/** data width **/,  AWg = 4, AWs = 2)
+#( parameter DW = 32,  AWg = 4, AWs = 2)
 (clk_r, clk_w, rst, clr, re, we, din, dout, empty, full, diff_rd, diff_wr) ;
 // ------------ Port declarations --------- //
 input clk_r;

@@ -112,46 +112,55 @@ std::vector<Port> Parser_Verilog::ParsePort(const std::string& source_line)
 std::vector<Param> Parser_Verilog::ParseParam(const std::string& source_line)
 {
     std::vector<Param> params;
-    
     std::string line = Trim(source_line);
-	size_t pos = line.find("parameter");
-	line = line.substr(pos + 9, line.length());
+
+    std::string description;
+
+    size_t pos = line.find("parameter");
+    if (pos != std::string::npos)
+        line = line.substr(pos + 9); // длина "parameter"
+
+    size_t comment_pos = line.find("/**");
+    if (comment_pos != std::string::npos) {
+        size_t comment_end = line.find("**/", comment_pos);
+        if (comment_end != std::string::npos) {
+            description = Trim(line.substr(comment_pos + 3, comment_end - comment_pos - 3));
+            line = line.substr(0, comment_pos) + line.substr(comment_end + 3);
+        }
+    }
+    else {
+        comment_pos = line.find("//*");
+        if (comment_pos != std::string::npos) {
+            description = Trim(line.substr(comment_pos + 3));
+            line = line.substr(0, comment_pos);
+        }
+    }
 
     std::stringstream ss(line);
-    std::string hash;
-    while (std::getline(ss, hash, ','))
+    std::string item;
+    while (std::getline(ss, item, ',')) 
     {
         std::string name;
         std::string value_str;
-        std::string description;
 
-		size_t eq_pos = hash.find('=');
-        if (eq_pos != std::string::npos)
-        {
-			size_t start_desc = hash.find("/**") + 3;
-			size_t end_desc = hash.find("**/");
-
-			name = Trim(hash.substr(0, eq_pos));
-
-            size_t value_start = eq_pos + 1;
-            size_t value_end = value_start;
-            while (value_end < hash.size() && (isdigit(hash[value_end]) || hash[value_end] == ' '))
-                ++value_end;
-
-            value_str = hash.substr(value_start, value_end - value_start);
-
-            if (start_desc != std::string::npos && end_desc != std::string::npos)
-            {
-				description = Trim(hash.substr(start_desc, end_desc - start_desc));
-            }
+        size_t eq_pos = item.find('=');
+        if (eq_pos != std::string::npos) {
+            value_str = Trim(item.substr(eq_pos + 1));
+            item = item.substr(0, eq_pos);
         }
 
-        if (!name.empty())
-        {
+        name = Trim(item);
+        size_t semicolon_pos = name.find(';');
+        if (semicolon_pos != std::string::npos) {
+            name = name.substr(0, semicolon_pos);
+        }
+
+        if (!CleanToken(name).empty()) {
             Param np;
             np.name = name;
-			np.value = value_str;
-			np.description = description;
+            np.value = CleanToken(value_str);
+            // Приоритет: комментарий параметра > общий комментарий
+            np.description = description ;
             params.push_back(np);
         }
     }
