@@ -12,29 +12,7 @@ bool Parser_SystemVerilog::IsMyFormat(const std::string& filename) {
     // пару строк и попытатьс€ по ним пон€ть, что же за формат
     // ...
     // Ќо пока оставим так
-}
-
-std::string ConvertSystemVerilogRange(const std::string& range)
-{
-    size_t colon = range.find(':');
-    if (colon == std::string::npos)
-        return "1";
-
-    try
-    {
-        std::string msb_str = range.substr(0, colon);
-        std::string lsb_str = range.substr(colon + 1);
-
-        int msb = std::stoi(msb_str);
-        int lsb = std::stoi(lsb_str);
-
-        return std::to_string(std::abs(msb - lsb) + 1);
-    }
-    catch (...)
-    {
-        // ≈сли не удалось распарсить числа, возвращаем 1
-        return "1";
-    }
+    return false;
 }
 
 std::vector<Port> Parser_SystemVerilog::ParsePort(const std::string& source_line)
@@ -78,7 +56,7 @@ std::vector<Port> Parser_SystemVerilog::ParsePort(const std::string& source_line
         std::string range_content = Trim(match[3]);
 
         std::string port_type = net_type.empty() ? "wire" : net_type;
-        std::string width = range_content.empty() ? "1" : ConvertSystemVerilogRange(range_content);
+        std::string width = range_content.empty() ? "1" : range_content;
 
         // »звлекаем список имЄн портов
         std::string names_part = match.suffix().str();

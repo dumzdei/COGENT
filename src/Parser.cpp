@@ -1,7 +1,5 @@
 #include "Parser.h"
-
 #include <iostream>
-
 #include "Colors.hpp"
 
 Parser* GetParser(const std::string& fileName) {
@@ -16,39 +14,309 @@ Parser* GetParser(const std::string& fileName) {
     delete parser;
     parser = nullptr;
 
-    // Проверяем, не является ли файл файлом формата Verilog
-    parser = new Parser_Verilog;
-    if (parser->IsMyFormat(fileName)) {
-        std::cout << FORMAT_INFO "Verilog format detected for file '" << fileName << "'\n";
-        return parser;
-    }
-    delete parser;
-    parser = nullptr;
-
-    // Проверяем, не является ли файл файлом формата VHDL
-    parser = new Parser_VHDL;
-    if (parser->IsMyFormat(fileName)) {
-        std::cout << FORMAT_INFO "VHDL format detected for file '" << fileName << "'\n";
-        return parser;
-    }
-    delete parser;
-    parser = nullptr;
-
     return nullptr;
 }
 
-bool Parser::LoadFile(const std::string& filename)
-{
+bool Parser::LoadFile(const std::string& filename) {
     std::string line;
     lines.clear();
+    tokens.clear();
+
     std::ifstream file(filename);
-    if (!file.is_open()) return false;
+    if (!file.is_open()) {
+        std::cerr << FORMAT_ERROR "Cannot open file: " << filename << "\n";
+        return false;
+    }
 
     while (std::getline(file, line))
-    {
         lines.push_back(line);
-    }
+
     return true;
+}
+
+void Parser::Tokenize() {
+    tokens.clear();
+    size_t line = 0;
+
+    while (line < lines.size()) {
+        size_t col = 0;
+        const std::string& current_line = lines[line];
+
+        while (col < current_line.length()) {
+            SkipWhitespace(line, col);
+            if (col >= current_line.length()) break;
+
+            char c = current_line[col];
+
+            // Комментарии
+            if (c == '/') {
+                if (col + 1 < current_line.length()) {
+                    char next = current_line[col + 1];
+                    if (next == '*') {
+                        // /* или /**
+                        ReadComment(line, col);
+                        continue;
+                    }
+                    else if (next == '/') {
+                        // // или //*
+                        ReadComment(line, col);
+                        continue;
+                    }
+                }
+            }
+
+            // Идентификаторы и ключевые слова
+            if (std::isalpha(c) || c == '_') {
+                ReadIdentifier(line, col);
+                continue;
+            }
+
+            // Числа
+            if (std::isdigit(c)) {
+                ReadNumber(line, col);
+                continue;
+            }
+
+            // Строки
+            if (c == '"') {
+                ReadString(line, col);
+                continue;
+            }
+
+            // Операторы
+            switch (c) {
+            case '=':
+                tokens.push_back(CreateToken(TokenType::OP_ASSIGN, "=", "=", line, col));
+                col++;
+                break;
+            case '[':
+                tokens.push_back(CreateToken(TokenType::OP_LBRACKET, "[", "[", line, col));
+                col++;
+                break;
+            case ']':
+                tokens.push_back(CreateToken(TokenType::OP_RBRACKET, "]", "]", line, col));
+                col++;
+                break;
+            case '(':
+                tokens.push_back(CreateToken(TokenType::OP_LPAREN, "(", "(", line, col));
+                col++;
+                break;
+            case ')':
+                tokens.push_back(CreateToken(TokenType::OP_RPAREN, ")", ")", line, col));
+                col++;
+                break;
+            case ';':
+                tokens.push_back(CreateToken(TokenType::OP_SEMICOLON, ";", ";", line, col));
+                col++;
+                break;
+            case ',':
+                tokens.push_back(CreateToken(TokenType::OP_COMMA, ",", ",", line, col));
+                col++;
+                break;
+            case '#':
+                tokens.push_back(CreateToken(TokenType::OP_HASH, "#", "#", line, col));
+                col++;
+                break;
+            default:
+                col++;
+                break;
+            }
+        }
+
+        line++;
+    }
+
+    tokens.push_back(CreateToken(TokenType::END_OF_FILE, "", "", lines.size(), 0));
+}
+
+Token Parser::CreateToken(TokenType type, const std::string& value,
+    const std::string& lexeme, size_t line, size_t col) {
+
+    if (lexeme.empty() && type != TokenType::END_OF_FILE) {
+        std::cerr << FORMAT_WARNING "Empty lexeme in line " << (line + 1) << ". Сharacter № " << (col + 1) << "\n";
+    }
+
+    return Token(type, value, lexeme, line + 1, col + 1);  // 1-based для парсера/пользователя
+}
+
+TokenType Parser::KeywordToTokenType(const std::string& keyword) {
+    static const std::unordered_map<std::string, TokenType> keywords = {
+        {"module", TokenType::KW_MODULE},
+        {"endmodule", TokenType::KW_ENDMODULE},
+        {"interface", TokenType::KW_INTERFACE},
+        {"endinterface", TokenType::KW_ENDINTERFACE},
+        {"package", TokenType::KW_PACKAGE},
+        {"endpackage", TokenType::KW_ENDPACKAGE},
+        {"function", TokenType::KW_FUNCTION},
+        {"endfunction", TokenType::KW_ENDFUNCTION},
+        {"task", TokenType::KW_TASK},
+        {"endtask", TokenType::KW_ENDTASK},
+        {"input", TokenType::KW_INPUT},
+        {"output", TokenType::KW_OUTPUT},
+        {"inout", TokenType::KW_INOUT},
+        {"parameter", TokenType::KW_PARAMETER},
+        {"localparam", TokenType::KW_LOCALPARAM},
+        {"wire", TokenType::KW_WIRE},
+        {"reg", TokenType::KW_REG},
+        {"logic", TokenType::KW_LOGIC},
+        {"tri", TokenType::KW_TRI},
+        {"bit", TokenType::KW_BIT},
+        {"signed", TokenType::KW_SIGNED}
+    };
+
+    auto it = keywords.find(keyword);
+    return (it != keywords.end()) ? it->second : TokenType::IDENTIFIER;
+}
+
+void Parser::SkipWhitespace(size_t& line, size_t& col) {
+    while (line < lines.size()) {
+        while (col < lines[line].length()) {
+            char c = lines[line][col];
+            if (c == ' ' || c == '\t' || c == '\r') {
+                col++;
+            }
+            else if (c == '\n') {
+                line++;
+                col = 0;
+            }
+            else {
+                return;
+            }
+        }
+        line++;
+        col = 0;
+    }
+}
+
+void Parser::ReadComment(size_t& line, size_t& col) {
+    if (line >= lines.size()) return;
+
+    const std::string& current_line = lines[line];
+    size_t start_col = col;
+
+    if (col + 1 >= current_line.length()) return;
+
+    char next = current_line[col + 1];
+
+    if (next == '*') {
+        // Многострочный комментарий /* или /**
+        bool is_doc = (col + 2 < current_line.length() && current_line[col + 2] == '*');
+        std::string content;
+        size_t content_start = col + (is_doc ? 3 : 2);
+
+        // Первая строка
+        if (content_start < current_line.length()) {
+            size_t end_pos = current_line.find("*/", content_start);
+            if (end_pos != std::string::npos) {
+                content = current_line.substr(content_start, end_pos - content_start);
+                col = end_pos + 2;
+                TokenType type = is_doc ? TokenType::COMMENT_DOC_MULTI : TokenType::COMMENT_MULTI;
+                tokens.push_back(CreateToken(type, content, content, line, start_col));
+                return;
+            }
+            else {
+                content = current_line.substr(content_start);
+            }
+        }
+
+        // Продолжение на следующих строках
+        line++;
+        while (line < lines.size()) {
+            size_t end_pos = lines[line].find("*/");
+            if (end_pos != std::string::npos) {
+                content += "\n" + lines[line].substr(0, end_pos);
+                col = end_pos + 2;
+                TokenType type = is_doc ? TokenType::COMMENT_DOC_MULTI : TokenType::COMMENT_MULTI;
+                tokens.push_back(CreateToken(type, content, content, line, start_col));
+                return;
+            }
+            else {
+                content += "\n" + lines[line];
+                line++;
+            }
+        }
+
+    }
+    else if (next == '/') {
+        // Однострочный комментарий // или //*
+        bool is_doc = (col + 2 < current_line.length() && current_line[col + 2] == '*');
+        size_t content_start = col + (is_doc ? 3 : 2);
+        std::string content = (content_start < current_line.length()) ?
+            current_line.substr(content_start) : "";
+
+        TokenType type = is_doc ? TokenType::COMMENT_DOC_SINGLE : TokenType::COMMENT_SINGLE;
+        tokens.push_back(CreateToken(type, content, content, line, start_col));
+        col = current_line.length();
+    }
+}
+
+void Parser::ReadIdentifier(size_t& line, size_t& col) {
+    if (line >= lines.size()) return;
+
+    size_t start_col = col;
+    std::string ident;
+
+    while (col < lines[line].length()) {
+        char c = lines[line][col];
+        if (std::isalnum(c) || c == '_') {
+            ident += c;
+            col++;
+        }
+        else {
+            break;
+        }
+    }
+
+    TokenType type = KeywordToTokenType(ident);
+    tokens.push_back(CreateToken(type, ident, ident, line, start_col));
+}
+
+void Parser::ReadNumber(size_t& line, size_t& col) {
+    if (line >= lines.size()) return;
+
+    size_t start_col = col;
+    std::string num;
+
+    while (col < lines[line].length()) {
+        char c = lines[line][col];
+        if (std::isalnum(c) || c == '_' || c == '\'' || c == 'x' || c == 'X' ||
+            c == 'z' || c == 'Z' || c == 'b' || c == 'B' || c == 'h' || c == 'H') {
+            num += c;
+            col++;
+        }
+        else {
+            break;
+        }
+    }
+
+    tokens.push_back(CreateToken(TokenType::NUMBER, num, num, line, start_col));
+}
+
+void Parser::ReadString(size_t& line, size_t& col) {
+    if (line >= lines.size()) return;
+
+    size_t start_col = col;
+    std::string str;
+    col++;  // Пропускаем открывающую кавычку
+
+    while (col < lines[line].length()) {
+        char c = lines[line][col];
+        if (c == '"') {
+            col++;
+            break;
+        }
+        else if (c == '\\' && col + 1 < lines[line].length()) {
+            str += c;
+            str += lines[line][col + 1];
+            col += 2;
+        }
+        else {
+            str += c;
+            col++;
+        }
+    }
+
+    tokens.push_back(CreateToken(TokenType::STRING, str, str, line, start_col));
 }
 
 std::string Parser::Trim(const std::string& str)
@@ -88,92 +356,68 @@ std::string Parser::ExtractTag(std::string& text)
     return "";
 }
 
-std::vector<Comment_block> Parser::Parse_CommentLine(const std::string& comment_text)
-{
+// Обработка строки
+std::vector<Comment_block> Parser::ParseCommentText(const std::string& comment_text) {
     std::vector<Comment_block> blocks;
     std::string remaining = Trim(comment_text);
+
+    if (remaining.empty()) return blocks;
+
     std::string current_tag;
     std::string current_text;
 
-    while (!remaining.empty())
-    {
-        // Ищем позицию следующего тега
+    while (!remaining.empty()) {
         size_t next_tag_pos = std::string::npos;
         std::string next_tag;
 
-        for (const auto& tag : tags)
-        {
+        for (const auto& tag : tags) {
             size_t found = remaining.find(tag);
-            if (found != std::string::npos)
-            {
-                if (next_tag_pos == std::string::npos || found < next_tag_pos)
-                {
+            if (found != std::string::npos) {
+                if (next_tag_pos == std::string::npos || found < next_tag_pos) {
                     next_tag_pos = found;
                     next_tag = tag;
                 }
             }
         }
 
-        if (next_tag_pos != std::string::npos)
-        {
-            // Если это не первый тег и есть накопленный текст
-            if (!current_tag.empty() && !current_text.empty())
-            {
+        if (next_tag_pos != std::string::npos) {
+            // Сохраняем предыдущий блок если есть
+            if (!current_tag.empty() && !current_text.empty()) {
                 Comment_block block;
                 block.tag = current_tag;
                 block.lines.push_back(Trim(current_text));
                 blocks.push_back(block);
-                current_text.clear();
             }
-            else if (current_tag.empty() && next_tag_pos > 0)
-            {
-                // Текст перед первым тегом
-                std::string before_first_tag = Trim(remaining.substr(0, next_tag_pos));
-                if (!before_first_tag.empty())
-                {
+            else if (current_tag.empty() && next_tag_pos > 0) {
+                std::string before = Trim(remaining.substr(0, next_tag_pos));
+                if (!before.empty()) {
                     Comment_block block;
-                    block.tag = ""; // Текст без тега
-                    block.lines.push_back(before_first_tag);
+                    block.tag = "";
+                    block.lines.push_back(before);
                     blocks.push_back(block);
                 }
             }
 
-            // Начинаем новый блок с текущим тегом
             current_tag = next_tag;
             current_text = remaining.substr(next_tag_pos + next_tag.length());
-            remaining = ""; // Очищаем, так как мы взяли весь остаток
+            remaining = "";
 
-            // Проверяем, есть ли еще теги в оставшемся тексте
-            size_t another_tag_pos = std::string::npos;
-            for (const auto& tag : tags)
-            {
+            // Проверяем, есть ли ещё теги в текущем тексте
+            for (const auto& tag : tags) {
                 size_t found = current_text.find(tag);
-                if (found != std::string::npos)
-                {
-                    another_tag_pos = found;
+                if (found != std::string::npos) {
+                    remaining = current_text.substr(found);
+                    current_text = current_text.substr(0, found);
                     break;
                 }
             }
-
-            if (another_tag_pos != std::string::npos)
-            {
-                // Есть еще теги - разделяем
-                remaining = current_text.substr(another_tag_pos);
-                current_text = current_text.substr(0, another_tag_pos);
-            }
         }
-        else
-        {
-            // Нет больше тегов
-            if (!current_tag.empty())
-            {
-                if (!current_text.empty())
-                    current_text += " ";
-                current_text += remaining;
+        else {
+            // Тегов больше нет
+            if (!current_tag.empty()) {
+                current_text += (current_text.empty() ? "" : " ") + remaining;
             }
-            else if (!remaining.empty())
-            {
-                // Текст без тега
+            else if (!remaining.empty()) {
                 Comment_block block;
                 block.tag = "";
                 block.lines.push_back(Trim(remaining));
@@ -183,9 +427,8 @@ std::vector<Comment_block> Parser::Parse_CommentLine(const std::string& comment_
         }
     }
 
-    // Сохраняем последний блок, если есть
-    if (!current_tag.empty() && !current_text.empty())
-    {
+    // Сохраняем последний блок
+    if (!current_tag.empty() && !current_text.empty()) {
         Comment_block block;
         block.tag = current_tag;
         block.lines.push_back(Trim(current_text));
@@ -195,76 +438,17 @@ std::vector<Comment_block> Parser::Parse_CommentLine(const std::string& comment_
     return blocks;
 }
 
-std::vector<Comment_block> Parser::Parse_CommentLine(const std::vector<std::string>& comment_lines)
-{
-    std::vector<Comment_block> result;
+// Обработка вектора строк
+std::vector<Comment_block> Parser::ParseCommentText(const std::vector<std::string>& comment_lines) {
+    if (comment_lines.empty()) return {};
 
-    if (comment_lines.empty())
-        return result;
-
-    // Текущий накапливаемый блок
-    Comment_block current_block;
-    std::string current_tag;
-
-    for (const auto& raw_line : comment_lines)
-    {
-        if (raw_line.empty()) continue;
-
-        // Копируем строку для обработки
-        std::string line = raw_line;
-
-        // Ищем тег в строке (так же, как в однострочном варианте)
-        std::string tag = ExtractTag(line);
-
-        line = Trim(line);
-        
-
-        if (!tag.empty())
-        {
-            // Нашли новый тег
-
-            // Если есть накопленный блок с предыдущим тегом - сохраняем его
-            if (!current_block.lines.empty())
-            {
-                result.push_back(current_block);
-                current_block = Comment_block();
-            }
-
-            // Начинаем новый блок с этим тегом
-            current_block.tag = tag;
-            if (!line.empty())
-            {
-                current_block.lines.push_back(line);
-            }
-        }
-        else if (!current_block.tag.empty())
-        {
-            // Нет тега, но есть текущий блок - добавляем строку в него
-            if (!line.empty())
-            {
-                current_block.lines.push_back(line);
-            }
-        }
-        else
-        {
-            // Нет тега и нет текущего блока - создаём блок без тега
-            Comment_block block;
-            block.tag = "";
-            if (!line.empty())
-            {
-                block.lines.push_back(line);
-                result.push_back(block);
-            }
-        }
+    std::string combined;
+    for (size_t i = 0; i < comment_lines.size(); ++i) {
+        if (i > 0) combined += "\n";
+        combined += comment_lines[i];
     }
 
-    // Сохраняем последний накопленный блок
-    if (!current_block.lines.empty())
-    {
-        result.push_back(current_block);
-    }
-
-    return result;
+    return ParseCommentText(combined);
 }
 
 void FreeParser(Parser** parser) {

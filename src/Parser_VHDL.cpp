@@ -14,29 +14,6 @@ bool Parser_VHDL::IsMyFormat(const std::string& filename) {
     // Но пока оставим так
 }
 
-
-std::string ConvertVHDLRange(const std::string& vhdl_range)
-{
-    // Парсим VHDL диапазон: (7 downto 0) или (0 to 7)
-    std::regex rangeRegex(R"(\(\s*(\d+)\s*(downto|to)\s*(\d+)\s*\))");
-    std::smatch match;
-
-    if (std::regex_search(vhdl_range, match, rangeRegex))
-    {
-        int msb = std::stoi(match[1]);
-        int lsb = std::stoi(match[3]);
-        std::string direction = match[2];
-
-        // Формируем унифицированный вид [msb:lsb]
-        if (direction == "to")
-            return "[" + std::to_string(lsb) + ":" + std::to_string(msb) + "]";
-        else
-            return "[" + std::to_string(msb) + ":" + std::to_string(lsb) + "]";
-    }
-
-    return "1";
-}
-
 std::vector<Port> Parser_VHDL::ParsePort(const std::string& source_line)
 {
     std::vector<Port> ports;
@@ -74,7 +51,7 @@ std::vector<Port> Parser_VHDL::ParsePort(const std::string& source_line)
         {
             p.type = Trim(base_type.substr(0, paren_pos));      // std_logic_vector
             std::string range = Trim(base_type.substr(paren_pos)); // (7 downto 0)
-            p.width = ConvertVHDLRange(range);
+            p.width = range;
         }
         else
         {

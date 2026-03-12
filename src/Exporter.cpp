@@ -3,7 +3,11 @@
 #include <string>
 
 #include "Colors.hpp"
+/*
 
+днаюбхрэ напюанрйс рхонб б оюпюлрепюу б VHDL Х SystemVerilog
+
+*/
 int Exporter::Export_to_HTML(std::vector<Module>& modules, std::string theme_name)
 {
     std::ofstream html("report.htm");
