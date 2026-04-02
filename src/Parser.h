@@ -7,10 +7,12 @@
 #include <regex>
 #include <memory>
 #include <unordered_map>
+#include <unordered_set>
 
 class Parser {
 protected:
     std::vector<std::string> lines;
+    std::string current_filename;
     std::vector<Token> tokens;
     std::vector<std::string> tags =
     { "@brief" , "@todo" , "@description" , "@note" , "@warning" ,
@@ -34,15 +36,20 @@ protected:
     std::string Trim(const std::string& source_line);
     std::string CleanToken(std::string& str);
     std::string ExtractTag(std::string& text);
+
+    bool IsAtToken(size_t index, TokenType type);
+    bool IsAtKeyword(size_t index, const std::string& keyword);
+    Token& CurrentToken(size_t index);
+    Token& NextToken(size_t& index);
+
     std::vector<Comment_block> ParseCommentText(const std::string& comment_text);
     std::vector<Comment_block> ParseCommentText(const std::vector<std::string>& comment_lines);
 
-    // Поиск комментария перед текущей позицией
-    Comment_block FindPrecedingDocComment(size_t token_index);
+
+    bool LoadFile(const std::string& filename);
 public:
-    bool LoadFile(const std::string& fileName);
-    virtual bool IsMyFormat(const std::string& fileName) = 0;
-    virtual std::vector<Module> Parse(const std::string& fileName) = 0;
+    virtual bool IsMyFormat(const std::string& filename) = 0;
+    std::vector<Module> Parse(const std::string& filename);
     virtual ~Parser() = default;
 };
 
@@ -51,20 +58,15 @@ void FreeParser(Parser **parser);
 
 class Parser_SystemVerilog : public Parser {
 private:
-    // Парсинг из токенов
+    // хранение алиасов типов: имя типа -> полное определение
+    std::unordered_map<std::string, std::string> known_types;
+
     std::vector<Module> ParseFromTokens() override;
 
     bool ParseModule(size_t& token_index, Module& module);
     bool ParsePortList(size_t& token_index, Module& module);
     bool ParseParameterList(size_t& token_index, Module& module);
 
-    // Проверка токенов
-    bool IsAtToken(size_t index, TokenType type);
-    bool IsAtKeyword(size_t index, const std::string& keyword);
-    Token& CurrentToken(size_t index);
-    Token& NextToken(size_t& index);
-
 public:
     bool IsMyFormat(const std::string& filename) override final;
-    std::vector<Module> Parse(const std::string& source_file) override final;
 };

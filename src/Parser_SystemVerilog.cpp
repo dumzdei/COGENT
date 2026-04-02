@@ -4,305 +4,270 @@ bool Parser_SystemVerilog::IsMyFormat(const std::string& filename) {
     // Первым делом проверяем, может мы сможем по раширению понять, что за формат?
     auto pos = filename.find_last_of('.');
     if (pos != std::string::npos) {
-        if (filename.substr(pos + 1) == "sv")
+        std::string ext = filename.substr(pos + 1);
+        if (ext == "sv" || ext == "svh" || ext == "v" || ext == "vh")
             return true;
     }
-    // Если делать нормально, то если по расширению понять не 
-    // удалось, нужно попробовать открыть файл, зачитать 
-    // пару строк и попытаться по ним понять, что же за формат
-    // ...
-    // Но пока оставим так
+    
+    std::ifstream file(filename);
+    if (!file.is_open()) return false;
+
+    std::string line;
+    int lines_checked = 0;
+    while (std::getline(file, line) && lines_checked < 100) {
+        lines_checked++;
+        std::string line;
+
+        if (line.find("module") != std::string::npos ||
+            line.find("interface") != std::string::npos ||
+            line.find("package") != std::string::npos ||
+            line.find("logic") != std::string::npos ||
+            line.find("always_ff") != std::string::npos ||
+            line.find("always_comb") != std::string::npos) {
+            return true;
+        }
+    }
+
     return false;
 }
 
-std::vector<Port> Parser_SystemVerilog::ParsePort(const std::string& source_line)
-{
-    std::vector<Port> ports;
+bool Parser_SystemVerilog::ParseModule(size_t& token_index, Module& module) {
+    // Пропускаем 'module'
+    NextToken(token_index);
 
-    std::string line = source_line;
-    line = Trim(line);
-
-    std::string description;
-    size_t doc_pos = line.find("/**");
-    if (doc_pos != std::string::npos)
-    {
-        size_t end_doc_pos = line.find("**/");
-        if (end_doc_pos == std::string::npos)
-            description = Trim(line.substr(doc_pos + 3));
-        else
-            description = Trim(line.substr(doc_pos + 3, end_doc_pos - (doc_pos + 3)));
-        line.erase(doc_pos);
+    // Имя модуля
+    if (!IsAtToken(token_index, TokenType::IDENTIFIER)) {
+        return false;
     }
-    else
-    {
-        doc_pos = line.find("//*");
-        if (doc_pos != std::string::npos)
-        {
-            description = Trim(line.substr(doc_pos + 3));
-            line.erase(doc_pos);
+    module.name = CurrentToken(token_index).value;
+    NextToken(token_index);
+
+    // Параметры #(...)
+    if (IsAtToken(token_index, TokenType::OP_HASH)) {
+        NextToken(token_index);  // #
+        if (IsAtToken(token_index, TokenType::OP_LPAREN)) {
+            ParseParameterList(token_index, module);
         }
     }
 
-    std::regex portRegex(
-        R"(\b(input|output|inout)\s+(?:(wire|reg|logic|tri)\s+)?(?:\[([^\]]+)\]\s+)?)"
-    );
-
-    std::smatch match;
-    if (std::regex_search(line, match, portRegex))
-    {
-        // Извлекаем общие атрибуты для всех портов в этой строке
-        std::string direction = match[1];
-        std::string net_type = Trim(match[2]);
-        std::string range_content = Trim(match[3]);
-
-        std::string port_type = net_type.empty() ? "wire" : net_type;
-        std::string width = range_content.empty() ? "1" : range_content;
-
-        // Извлекаем список имён портов
-        std::string names_part = match.suffix().str();
-
-        if (!names_part.empty() && names_part.back() == ';')
-            names_part.pop_back();
-
-        std::stringstream ss(names_part);
-        std::string name;
-
-        while (std::getline(ss, name, ','))
-        {
-            name = Trim(name);
-            if (!name.empty())
-            {
-                Port p;
-                p.name = name;
-                p.direction = direction;
-                p.type = port_type;
-                p.width = width;
-                p.description = description;
-
-                ports.push_back(p);
-            }
-        }
+    // Порты (...)
+    if (IsAtToken(token_index, TokenType::OP_LPAREN)) {
+        ParsePortList(token_index, module);
     }
 
-    return ports;
-}
-
-std::vector<Param> Parser_SystemVerilog::ParseParam(const std::string& source_line)
-{
-    std::vector<Param> params;
-    std::string line = Trim(source_line);
-
-    std::string description;
-
-    size_t pos = line.find("parameter");
-    if (pos != std::string::npos)
-        line = line.substr(pos + 9); // длина "parameter"
-
-    size_t comment_pos = line.find("/**");
-    if (comment_pos != std::string::npos) {
-        size_t comment_end = line.find("**/", comment_pos);
-        if (comment_end != std::string::npos) {
-            description = Trim(line.substr(comment_pos + 3, comment_end - comment_pos - 3));
-            line = line.substr(0, comment_pos) + line.substr(comment_end + 3);
-        }
-    }
-    else {
-        comment_pos = line.find("//*");
-        if (comment_pos != std::string::npos) {
-            description = Trim(line.substr(comment_pos + 3));
-            line = line.substr(0, comment_pos);
-        }
-    }
-
-    std::stringstream ss(line);
-    std::string item;
-    while (std::getline(ss, item, ','))
-    {
-        std::string name;
-        std::string value_str;
-
-        size_t eq_pos = item.find('=');
-        if (eq_pos != std::string::npos) {
-            value_str = Trim(item.substr(eq_pos + 1));
-            item = item.substr(0, eq_pos);
+    // Ищем endmodule
+    while (token_index < tokens.size()) {
+        if (CurrentToken(token_index).type == TokenType::KW_ENDMODULE) {
+            NextToken(token_index);
+            return true;
         }
 
-        name = Trim(item);
-        size_t semicolon_pos = name.find(';');
-        if (semicolon_pos != std::string::npos) {
-            name = name.substr(0, semicolon_pos);
-        }
-
-        if (!CleanToken(name).empty()) {
-            Param np;
-            np.name = name;
-            np.value = CleanToken(value_str);
-            // Приоритет: комментарий параметра > общий комментарий
-            np.description = description;
-            params.push_back(np);
-        }
-    }
-    return params;
-}
-
-std::vector<Module> Parser_SystemVerilog::Parse(const std::string& source_file)
-{
-    Module module;
-    std::vector<Module> modules;
-    Comment_block comment_block;
-    std::vector<Port> parsed_ports;
-    std::vector<Param> parsed_params;
-    bool module_area = false;
-
-    for (size_t i = 0; i < lines.size(); ++i)
-    {
-        std::string& line = lines[i];
-        if (line.empty())
+        // Параметры внутри модуля
+        if (CurrentToken(token_index).type == TokenType::KW_PARAM ||
+            CurrentToken(token_index).type == TokenType::KW_LOCALPARAM) {
+            ParseParameterList(token_index, module);
             continue;
-        std::string current_tag;
-
-        // Удаляем служебные комментарии
-        if (line.find("//") != std::string::npos && line.find("//*") == std::string::npos)
-        {
-            size_t pos = line.find("//");
-            line.erase(pos);
         }
 
-        if (line.find("module") != std::string::npos && line.find("endmodule") == std::string::npos)
-        {
-            module_area = true;
-            module.filename = source_file;
+        // Порты внутри модуля (ANSI стиль)
+        if (CurrentToken(token_index).type == TokenType::DIR_INPUT ||
+            CurrentToken(token_index).type == TokenType::DIR_OUTPUT ||
+            CurrentToken(token_index).type == TokenType::DIR_INOUT) {
+            ParsePortList(token_index, module);
+            continue;
+        }
 
-            size_t pos = line.find("module") + 6;
-            size_t end = line.find_first_of("#(;");
+        NextToken(token_index);
+    }
 
-            module.name = Trim(line.substr(pos, end - pos));
+    return false;
+}
 
-            // ID: имя_модуля + хеш файла (первые 4 символа)
-            std::string base_filename = source_file.substr(source_file.find_last_of("/\\") + 1);
+bool Parser_SystemVerilog::ParsePortList(size_t& token_index, Module& module) {
+    // Пропускаем '(' если есть
+    if (IsAtToken(token_index, TokenType::OP_LPAREN)) {
+        NextToken(token_index);
+    }
+
+    std::string direction;
+    std::string port_type = "logic";
+    std::string width = "1";
+    std::string description;
+
+    while (token_index < tokens.size()) {
+        Token& tok = CurrentToken(token_index);
+
+        // Направление
+        if (tok.type == TokenType::DIR_INPUT ||
+            tok.type == TokenType::DIR_OUTPUT ||
+            tok.type == TokenType::DIR_INOUT) {
+            direction = tok.value;
+            NextToken(token_index);
+            continue;
+        }
+
+        // Тип
+        else if (tok.type == TokenType::DT_WIRE || tok.type == TokenType::DT_REG ||
+            tok.type == TokenType::DT_LOGIC || tok.type == TokenType::DT_TRI ||
+            tok.type == TokenType::DT_BIT) {
+            port_type = tok.value;
+            NextToken(token_index);
+            continue;
+        }
+
+        // Ширина [N:M]
+        else if (tok.type == TokenType::OP_LBRACKET) {
+            NextToken(token_index);
+            width = "";
+            while (token_index < tokens.size() &&
+                CurrentToken(token_index).type != TokenType::OP_RBRACKET) {
+                width += CurrentToken(token_index).value;
+                NextToken(token_index);
+            }
+            if (IsAtToken(token_index, TokenType::OP_RBRACKET)) {
+                NextToken(token_index);
+            }
+            continue;
+        }
+
+        // Имя порта
+        else if (tok.type == TokenType::IDENTIFIER) {
+            Port p;
+            p.name = tok.value;
+            p.direction = direction.empty() ? "input" : direction;
+            p.type = port_type;
+            p.width = width;
+            module.ports.push_back(p);
+
+            NextToken(token_index);
+
+            // Запятая или конец
+            if (IsAtToken(token_index, TokenType::OP_COMMA)) {
+                NextToken(token_index);
+                direction = "";
+                port_type = "logic";
+                width = "1";
+            }
+            continue;
+        }
+        // Описание порта
+        else if (tok.type == TokenType::COMMENT_DOC_SINGLE ||
+            tok.type == TokenType::COMMENT_DOC_MULTI) {
+            if (!module.ports.empty())
+                module.ports.back().description = tok.value;
+        }
+        // Конец списка портов
+        if (tok.type == TokenType::OP_RPAREN ||
+            tok.type == TokenType::OP_SEMICOLON) {
+            if (tok.type == TokenType::OP_RPAREN) {
+                NextToken(token_index);
+            }
+            break;
+        }
+        NextToken(token_index);
+    }
+
+    return true;
+}
+
+bool Parser_SystemVerilog::ParseParameterList(size_t& token_index, Module& module) {
+    // Пропускаем '(' если есть
+    if (IsAtToken(token_index, TokenType::OP_LPAREN)) {
+        NextToken(token_index);
+    }
+
+    while (token_index < tokens.size()) {
+        Token& tok = CurrentToken(token_index);
+        std::string data_type;
+        bool is_local = true;
+        
+        if (tok.type == TokenType::KW_LOCALPARAM) {
+            is_local = true;
+        }
+
+        if (tok.type == TokenType::DT_LOGIC || tok.type == TokenType::DT_REG ||       ///ADD TYPEDEF SUPPORT
+            tok.type == TokenType::DT_WIRE || tok.type == TokenType::DT_BIT ||        
+            tok.type == TokenType::DT_INT || tok.type == TokenType::DT_BYTE ||
+            tok.type == TokenType::KW_TYPE) {
+            data_type = tok.value;
+        }
+        else if (tok.type == TokenType::COMMENT_DOC_SINGLE ||
+            tok.type == TokenType::COMMENT_DOC_MULTI) {
+            if (!module.params.empty())
+                module.params.back().description = tok.value;
+        }
+        // Имя параметра
+        else if (tok.type == TokenType::IDENTIFIER) {
+            Param p;
+            p.name = tok.value;
+            p.type = is_local ? "localparam" : "parameter";
+            p.data_type = data_type;
+
+            NextToken(token_index);
+
+            // Значение = ...
+            if (IsAtToken(token_index, TokenType::OP_ASSIGN)) {
+                NextToken(token_index);
+                while (CurrentToken(token_index).type != TokenType::OP_COMMA &&
+                    CurrentToken(token_index).type != TokenType::OP_RPAREN &&
+                    CurrentToken(token_index).type != TokenType::COMMENT_DOC_SINGLE &&
+                    CurrentToken(token_index).type != TokenType::COMMENT_DOC_MULTI &&
+                    CurrentToken(token_index).type != TokenType::COMMENT_SINGLE &&
+                    CurrentToken(token_index).type != TokenType::COMMENT_MULTI) {
+                    p.value += CurrentToken(token_index).lexeme;
+                    NextToken(token_index);
+                }
+            }
+
+            module.params.push_back(p);
+            // Запятая
+            if (IsAtToken(token_index, TokenType::OP_COMMA)) {
+                NextToken(token_index);
+            }
+            continue;
+        }
+        NextToken(token_index);
+
+        // Конец списка
+        if (tok.type == TokenType::OP_RPAREN ||
+            tok.type == TokenType::OP_SEMICOLON) {
+            if (tok.type == TokenType::OP_RPAREN) {
+                NextToken(token_index);
+            }
+            break;
+        }
+    }
+
+    return true;
+}
+
+
+std::vector<Module> Parser_SystemVerilog::ParseFromTokens() {
+    std::vector<Module> modules;
+    size_t token_index = 0;
+
+    while (token_index < tokens.size()) {
+        Token& tok = CurrentToken(token_index);
+
+        if (tok.type == TokenType::KW_MODULE) {
+            Module module;
+            module.filename = current_filename;
+
+            // ID
+            std::string base_filename = module.filename;
+            size_t path_pos = base_filename.find_last_of("/\\");
+            if (path_pos != std::string::npos) {
+                base_filename = base_filename.substr(path_pos + 1);
+            }
             size_t file_hash = std::hash<std::string>{}(base_filename);
             module.id = module.name + std::to_string(file_hash).substr(0, 4);
-        }
 
-        if (module_area && (line.find("input") != std::string::npos ||
-            line.find("output") != std::string::npos ||
-            line.find("inout") != std::string::npos))
-        {
-            auto ports = ParsePort(line);
-            module.ports.insert(module.ports.end(), ports.begin(), ports.end());
-        }
-
-        else if (module_area && line.find("parameter") != std::string::npos)
-        {
-            auto params = ParseParam(line);
-            module.params.insert(module.params.end(), params.begin(), params.end());
-        }
-
-        else if (line.find("function") != std::string::npos || line.find("task") != std::string::npos)
-        {
-            module_area = false;
-        }
-
-        if (line.find("/*") != std::string::npos &&
-            line.find("/**") == std::string::npos &&
-            line.find("//*") == std::string::npos)
-        {
-            while (i < lines.size() && line.find("*/") == std::string::npos)
-            {
-                line.clear();
-                if (i + 1 < lines.size())
-                {
-                    i++;
-                    line = lines[i];
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            if (line.find("*/") != std::string::npos)
-            {
-                size_t endPos = line.find("*/");
-                line.erase(0, endPos + 3);
-            }
-            else
-            {
-                line.clear();
+            if (ParseModule(token_index, module)) {
+                modules.push_back(module);
             }
         }
-
-        if (line.find("//*") != std::string::npos)
-        {
-            size_t pos = line.find("//*");
-
-            std::string comment_text = line.substr(pos + 3);
-
-            line.erase(pos);
-
-            auto comment_blocks = Parse_CommentLine(comment_text);
-            module.comments.insert(module.comments.end(),
-                comment_blocks.begin(),
-                comment_blocks.end());
-        }
-        else if (line.find("/**") != std::string::npos)
-        {
-            std::vector<std::string> full_comment;
-            size_t startPos = line.find("/**");
-
-            std::string comment_line = line.substr(startPos + 3);
-            size_t endPos = comment_line.find("**/");
-
-            if (endPos != std::string::npos)
-            {
-                full_comment.push_back(Trim(comment_line.substr(0, endPos)));
-            }
-            else
-            {
-                full_comment.push_back(Trim(comment_line));
-
-                ++i;
-                while (i < lines.size())
-                {
-                    std::string cur = lines[i];
-                    size_t local_endPos = cur.find("**/");
-
-                    if (local_endPos != std::string::npos)
-                    {
-                        full_comment.push_back(Trim(cur.substr(0, local_endPos)));
-
-                        // Оставляем остаток строки после **/ для дальнейшей обработки
-                        std::string after_comment = cur.substr(local_endPos + 3);
-                        lines[i] = after_comment;
-                        break;
-                    }
-                    else
-                    {
-                        full_comment.push_back(Trim(cur));
-                        lines[i].clear();
-                    }
-                    ++i;
-                }
-            }
-
-            if (!full_comment.empty())
-            {
-                auto comment_blocks = Parse_CommentLine(full_comment);
-                module.comments.insert(module.comments.end(),
-                    comment_blocks.begin(),
-                    comment_blocks.end());
-            }
-        }
-
-        else if (line.find("endmodule") != std::string::npos)
-        {
-            modules.push_back(module);
-
-            module = Module();
-            comment_block = Comment_block();
-            parsed_ports.clear();
-            parsed_params.clear();
-            module_area = false;
+        else {
+            NextToken(token_index);
         }
     }
 

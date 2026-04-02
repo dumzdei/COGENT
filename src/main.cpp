@@ -1,4 +1,4 @@
-#include <filesystem>
+п»ї#include <filesystem>
 #include <vector>
 #include <iostream>
 #include <fstream>
@@ -40,31 +40,25 @@ int main(int argc, char* argv[])
             return 3;
         }
 
-        for (const auto &entry : std::filesystem::directory_iterator(path))
-        {
+        for (const auto& entry : std::filesystem::directory_iterator(path)) {
             if (!entry.is_regular_file()) continue;
 
-            // Эту работу у нас теперь делает GetParser
-            //std::string ext = entry.path().extension().string();
-            //if (ext != ".v" && ext != ".sv")
-            //    continue;
-            
             std::cout << FORMAT_INFO "processing file '" << entry.path().string() << "'\n";
 
+            // GetParser РѕРїСЂРµРґРµР»СЏРµС‚ С„РѕСЂРјР°С‚ Рё СЃРѕР·РґР°С‘С‚ РЅСѓР¶РЅС‹Р№ РїР°СЂСЃРµСЂ
             parser = GetParser(entry.path().string());
             if (!parser) {
-                std::cerr << FORMAT_WARNING << "don't know how to read file '" << entry.path().string() << "', it will be skipped\n";
+                std::cerr << FORMAT_WARNING << "unsupported format: '" << entry.path().string()
+                    << "', skipped\n";
                 continue;
             }
-
-            if (parser->LoadFile(entry.path().string()))
-            {
-                auto parsed_modules = parser->Parse(entry.path().string());
-                modules.insert(modules.end(), parsed_modules.begin(), parsed_modules.end());
+            auto parsed_modules = parser->Parse(entry.path().string());
+            if (parsed_modules.empty()) {
+                std::cerr << FORMAT_WARNING << "no modules parsed in '" << entry.path().string() << "'\n";
             }
-            else
-            {
-                std::cerr << FORMAT_WARNING "failed to load file.\n";
+            else {
+                std::cout << FORMAT_INFO << "found " << parsed_modules.size() << " module(s)\n";
+                modules.insert(modules.end(), parsed_modules.begin(), parsed_modules.end());
             }
             FreeParser(&parser);
         }

@@ -1,8 +1,8 @@
 /////////////////////////////
 //
-// Test example 1
+//* @top Test example 1
 //
-//* @brief Useless module for add/sub operation
+//* @brief module for add/sub operation
 //
 //* @author krt2019@yandex.ru
 //
@@ -11,9 +11,9 @@
 module add #(
     parameter int DATA_WIDTH = 32,
 
-    // derived_parameters
+    //* derived_parameters
 
-    parameter type data_t  = logic[DATA_WIDTH-1:0]
+    parameter type data_t  = logic[DATA_WIDTH-1:0] //* derived_parameter
 ) (
     input   logic   clk,
     input   logic   reset_n,

@@ -6,9 +6,15 @@ enum class TokenType {
     // Ключевые слова
     KW_MODULE, KW_ENDMODULE, KW_INTERFACE, KW_ENDINTERFACE,
     KW_PACKAGE, KW_ENDPACKAGE, KW_FUNCTION, KW_ENDFUNCTION,
-    KW_TASK, KW_ENDTASK, KW_INPUT, KW_OUTPUT, KW_INOUT,
-    KW_PARAMETER, KW_LOCALPARAM, KW_WIRE, KW_REG, KW_LOGIC,
-    KW_TRI, KW_BIT, KW_SIGNED,
+    KW_TASK, KW_ENDTASK, KW_PARAM, KW_LOCALPARAM, KW_SIGNED,
+    KW_PACKED, KW_ENUM, KW_TYPE, KW_TYPEDEF,
+
+    // Типы данных
+    DT_LOGIC, DT_WIRE, DT_TRI, DT_REG, DT_INT,
+    DT_BYTE, DT_BIT, DT_STRUCT, DT_UNION,
+
+    // Направление
+    DIR_INPUT, DIR_OUTPUT, DIR_INOUT,
 
     // Комментарии
     COMMENT_DOC_SINGLE,    // //*
@@ -25,6 +31,9 @@ enum class TokenType {
     OP_SEMICOLON,          // ;
     OP_COMMA,              // ,
     OP_HASH,               // #
+    OP_MINUS,              // -
+    OP_PLUS,               // +
+    OP_COLON,              // :
 
     // Литералы и идентификаторы
     IDENTIFIER,
@@ -66,6 +75,7 @@ struct Param
     std::string name;
     std::string description;
     std::string value;
+    std::string data_type;
     std::string type;
 };
 

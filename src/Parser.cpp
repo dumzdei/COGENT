@@ -2,13 +2,13 @@
 #include <iostream>
 #include "Colors.hpp"
 
-Parser* GetParser(const std::string& fileName) {
-    Parser *parser = nullptr;
+Parser* GetParser(const std::string& filename) {
+    Parser* parser = nullptr;
 
     // Проверяем, не является ли файл файлом формата SystemVerilog
     parser = new Parser_SystemVerilog;
-    if (parser->IsMyFormat(fileName)) {
-        std::cout << FORMAT_INFO "SystemVerilog format detected for file '" << fileName << "'\n";
+    if (parser->IsMyFormat(filename)) {
+        std::cout << FORMAT_INFO "SystemVerilog format detected for file '" << filename << "'\n";
         return parser;
     }
     delete parser;
@@ -19,6 +19,7 @@ Parser* GetParser(const std::string& fileName) {
 
 bool Parser::LoadFile(const std::string& filename) {
     std::string line;
+    current_filename = filename;
     lines.clear();
     tokens.clear();
 
@@ -32,6 +33,13 @@ bool Parser::LoadFile(const std::string& filename) {
         lines.push_back(line);
 
     return true;
+}
+
+std::vector<Module> Parser::Parse(const std::string& filename) {
+    if (!LoadFile(filename)) return {};
+    current_filename = filename;
+    Tokenize();
+    return ParseFromTokens();
 }
 
 void Parser::Tokenize() {
@@ -117,6 +125,18 @@ void Parser::Tokenize() {
                 tokens.push_back(CreateToken(TokenType::OP_HASH, "#", "#", line, col));
                 col++;
                 break;
+            case '-':
+                tokens.push_back(CreateToken(TokenType::OP_MINUS, "-", "-", line, col));
+                col++;
+                break;
+            case '+':
+                tokens.push_back(CreateToken(TokenType::OP_PLUS, "+", "+", line, col));
+                col++;
+                break;
+            case ':':
+                tokens.push_back(CreateToken(TokenType::OP_COLON, ":", ":", line, col));
+                col++;
+                break;
             default:
                 col++;
                 break;
@@ -132,8 +152,9 @@ void Parser::Tokenize() {
 Token Parser::CreateToken(TokenType type, const std::string& value,
     const std::string& lexeme, size_t line, size_t col) {
 
-    if (lexeme.empty() && type != TokenType::END_OF_FILE) {
-        std::cerr << FORMAT_WARNING "Empty lexeme in line " << (line + 1) << ". Сharacter № " << (col + 1) << "\n";
+    if (lexeme.empty() && type != TokenType::END_OF_FILE &&
+        type != TokenType::COMMENT_SINGLE && type != TokenType::COMMENT_MULTI) {
+        std::cerr << FORMAT_WARNING "Empty lexeme in line " << (line + 1) << ". Character N. " << (col + 1) << "\n";
     }
 
     return Token(type, value, lexeme, line + 1, col + 1);  // 1-based для парсера/пользователя
@@ -151,17 +172,24 @@ TokenType Parser::KeywordToTokenType(const std::string& keyword) {
         {"endfunction", TokenType::KW_ENDFUNCTION},
         {"task", TokenType::KW_TASK},
         {"endtask", TokenType::KW_ENDTASK},
-        {"input", TokenType::KW_INPUT},
-        {"output", TokenType::KW_OUTPUT},
-        {"inout", TokenType::KW_INOUT},
-        {"parameter", TokenType::KW_PARAMETER},
+        {"parameter", TokenType::KW_PARAM},
         {"localparam", TokenType::KW_LOCALPARAM},
-        {"wire", TokenType::KW_WIRE},
-        {"reg", TokenType::KW_REG},
-        {"logic", TokenType::KW_LOGIC},
-        {"tri", TokenType::KW_TRI},
-        {"bit", TokenType::KW_BIT},
-        {"signed", TokenType::KW_SIGNED}
+        {"signed", TokenType::KW_SIGNED},
+        {"enum", TokenType::KW_ENUM},
+        {"type", TokenType::KW_TYPE},
+
+        {"input", TokenType::DIR_INPUT},
+        {"output", TokenType::DIR_OUTPUT},
+        {"inout", TokenType::DIR_INOUT},
+
+        {"logic", TokenType::DT_LOGIC},
+        {"wire", TokenType::DT_WIRE},
+        {"tri", TokenType::DT_TRI},
+        {"reg", TokenType::DT_REG},
+        {"int", TokenType::DT_INT},
+        {"byte", TokenType::DT_BYTE},
+        {"bit", TokenType::DT_BIT},
+        {"struct", TokenType::DT_STRUCT}
     };
 
     auto it = keywords.find(keyword);
@@ -222,7 +250,7 @@ void Parser::ReadComment(size_t& line, size_t& col) {
         // Продолжение на следующих строках
         line++;
         while (line < lines.size()) {
-            size_t end_pos = lines[line].find("*/");
+            size_t end_pos = lines[line].find("**/");
             if (end_pos != std::string::npos) {
                 content += "\n" + lines[line].substr(0, end_pos);
                 col = end_pos + 2;
@@ -317,6 +345,26 @@ void Parser::ReadString(size_t& line, size_t& col) {
     }
 
     tokens.push_back(CreateToken(TokenType::STRING, str, str, line, start_col));
+}
+
+
+bool Parser::IsAtToken(size_t index, TokenType type) {
+    return (index < tokens.size() && tokens[index].type == type);
+}
+
+bool Parser::IsAtKeyword(size_t index, const std::string& keyword) {
+    if (index >= tokens.size()) return false;
+    return (tokens[index].type == TokenType::IDENTIFIER &&
+        tokens[index].value == keyword);
+}
+
+Token& Parser::CurrentToken(size_t index) {
+    static Token empty;
+    return (index < tokens.size()) ? tokens[index] : empty;
+}
+
+Token& Parser::NextToken(size_t& index) {
+    return (index < tokens.size()) ? tokens[index++] : tokens.back();
 }
 
 std::string Parser::Trim(const std::string& str)
