@@ -13,7 +13,7 @@ module add #(
 
     //* derived_parameters
 
-    parameter type data_t  = logic[DATA_WIDTH-1:0] //* derived_parameter
+    parameter type data_t  = logic[DATA_WIDTH-1:0]
 ) (
     input   logic   clk,
     input   logic   reset_n,

@@ -3,26 +3,36 @@
 #include <vector>
 
 enum class TokenType {
-    // Ключевые слова
+    // SV Keywords
     KW_MODULE, KW_ENDMODULE, KW_INTERFACE, KW_ENDINTERFACE,
     KW_PACKAGE, KW_ENDPACKAGE, KW_FUNCTION, KW_ENDFUNCTION,
     KW_TASK, KW_ENDTASK, KW_PARAM, KW_LOCALPARAM, KW_SIGNED,
     KW_PACKED, KW_ENUM, KW_TYPE, KW_TYPEDEF,
 
-    // Типы данных
+    // VHDL Keywords
+    KW_ENTITY, KW_ARCHITECTURE, KW_END, KW_GENERIC, KW_CONSTANT,
+    KW_SIGNAL, KW_PROCESS, KW_BEGIN, KW_IS,
+
+    // SV Data types
     DT_LOGIC, DT_WIRE, DT_TRI, DT_REG, DT_INT,
     DT_BYTE, DT_BIT, DT_STRUCT, DT_UNION,
 
-    // Направление
+    // VHDL Data types
+    DT_STD_LOGIC, DT_STD_LOGIC_VECTOR, DT_INTEGER, DT_BOOLEAN,
+
+    // SV Directions
     DIR_INPUT, DIR_OUTPUT, DIR_INOUT,
 
-    // Комментарии
-    COMMENT_DOC_SINGLE,    // //*
+    // VHDL directions
+    DT_IN, DT_OUT, DT_INOUT, DT_BUFFER, 
+
+    // Comments
+    COMMENT_DOC_SINGLE,    // //* or --*
     COMMENT_DOC_MULTI,     // /** **/
-    COMMENT_SINGLE,        // //
+    COMMENT_SINGLE,        // // or --
     COMMENT_MULTI,         // /* */
 
-    // Операторы
+    // Operators
     OP_ASSIGN,             // =
     OP_LBRACKET,           // [
     OP_RBRACKET,           // ]
@@ -35,12 +45,12 @@ enum class TokenType {
     OP_PLUS,               // +
     OP_COLON,              // :
 
-    // Литералы и идентификаторы
+    // Literals and Identifiers
     IDENTIFIER,
     NUMBER,
     STRING,
 
-    // Специальные
+    // Special
     UNKNOWN,
     END_OF_FILE
 };
@@ -48,9 +58,9 @@ enum class TokenType {
 struct Token {
     TokenType type;
     std::string value;
-    std::string lexeme;      // Оригинальный текст
-    size_t line;             // Номер строки в файле
-    size_t column;           // Позиция в строке
+    std::string lexeme;      // Original text
+    size_t line;             // Line number in the file
+    size_t column;           // Position in line
 
     Token(TokenType t = TokenType::UNKNOWN,
         const std::string& v = "",
@@ -81,7 +91,7 @@ struct Param
 
 struct Comment_block
 {
-    std::vector<std::string> lines;
+    std::string text;
     std::string tag;
 };
 
@@ -90,7 +100,6 @@ struct Module
     std::string name;
     std::string filename;
     std::string id;
-    std::string description;    // Основное описание модуля
     std::vector<Port> ports;
 	std::vector<Param> params;
     std::vector<Comment_block> comments;

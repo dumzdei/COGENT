@@ -3,11 +3,7 @@
 #include <string>
 
 #include "Colors.hpp"
-/*
 
-ƒŒ¡¿¬»“‹ Œ¡–¿¡Œ“ ” “»œŒ¬ ¬ œ¿–¿Ã“≈–¿’ ¬ VHDL Ë SystemVerilog
-
-*/
 int Exporter::Export_to_HTML(std::vector<Module>& modules, std::string theme_name)
 {
     std::ofstream html("report.htm");
@@ -35,10 +31,10 @@ int Exporter::Export_to_HTML(std::vector<Module>& modules, std::string theme_nam
             {
                 for (const auto& cmt : module.comments)
                 {
-                    if (cmt.tag == "@top" && !cmt.lines.empty())
+                    if (cmt.tag == "@top" && !cmt.text.empty())
                     {
                         html << "<h1>" << module.name << "</h1>\n";
-                        html << "<h3>" << cmt.lines[0] << "</h3>\n";
+                        html << "<h3>" << cmt.text << "</h3>\n";
                         break;
                     }
                 }
@@ -78,58 +74,52 @@ int Exporter::Export_to_HTML(std::vector<Module>& modules, std::string theme_nam
 
                 for (const auto& cmt : module.comments)
                 {
-                    if (cmt.tag == "@status" && !cmt.lines.empty())
+                    if (cmt.tag == "@status" && !cmt.text.empty())
                     {
-                        html << "<p><b>Status:</b> " << cmt.lines[0] << "</p>\n";
+                        html << "<p><b>Status:</b> " << cmt.text << "</p>\n";
                     }
-                    else if (cmt.tag == "@date" && !cmt.lines.empty())
+                    else if (cmt.tag == "@date" && !cmt.text.empty())
                     {
-                        html << "<p><b>Date:</b> " << cmt.lines[0] << "</p>\n";
+                        html << "<p><b>Date:</b> " << cmt.text << "</p>\n";
                     }
-                    else if (cmt.tag == "@brief" && !cmt.lines.empty())
+                    else if (cmt.tag == "@brief" && !cmt.text.empty())
                     {
                         html << "<h3>Description</h3><ul>\n";
-                        for (const auto& text : cmt.lines)
-                            html << "<li>" << text << "</li>\n";
+                        html << "<li>" << cmt.text << "</li>\n";
                         html << "</ul>\n";
                     }
-                    else if (cmt.tag == "@note" && !cmt.lines.empty())
+                    else if (cmt.tag == "@note" && !cmt.text.empty())
                     {
                         html << "<h3>Note</h3><div class=\"note\">\n";
-                        for (const auto& text : cmt.lines)
-                            html << "<p>" << text << "</p>\n";
+                        html << "<p>" << cmt.text << "</p>\n";
                         html << "</div>\n";
                     }
-                    else if (cmt.tag == "@warning" && !cmt.lines.empty())
+                    else if (cmt.tag == "@warning" && !cmt.text.empty())
                     {
                         html << "<h3>Warning</h3><div class=\"warning\">\n";
-                        for (const auto& text : cmt.lines)
-                            html << "<p>" << text << "</p>\n";
+                        html << "<p>" << cmt.text << "</p>\n";
                         html << "</div>\n";
                     }
-                    else if (cmt.tag == "@error" && !cmt.lines.empty())
+                    else if (cmt.tag == "@error" && !cmt.text.empty())
                     {
                         html << "<h3>Error</h3><div class=\"error\">\n";
-                        for (const auto& text : cmt.lines)
-                            html << "<p>" << text << "</p>\n";
+                        html << "<p>" << cmt.text << "</p>\n";
                         html << "</div>\n";
                     }
-                    else if (cmt.tag == "@todo" && !cmt.lines.empty())
+                    else if (cmt.tag == "@todo" && !cmt.text.empty())
                     {
                         html << "<h3>Todo</h3><ul>\n";
-                        for (const auto& text : cmt.lines)
-                            html << "<li>" << text << "</li>\n";
+                        html << "<li>" << cmt.text << "</li>\n";
                         html << "</ul>\n";
                     }
-                    else if (cmt.tag == "@example" && !cmt.lines.empty())
+                    else if (cmt.tag == "@example" && !cmt.text.empty())
                     {
                         html << "<h3>Example</h3><ul>\n";
-                        for (const auto& text : cmt.lines)
-                            html << "<li>" << text << "</li>\n";
+                        html << "<li>" << cmt.text << "</li>\n";
                         html << "</ul>\n";
                     }
-                    else if (cmt.tag == "@author" && !cmt.lines.empty())
-                        html << "<p><b>Author:</b> " << cmt.lines[0] << "</p>\n";
+                    else if (cmt.tag == "@author" && !cmt.text.empty())
+                        html << "<p><b>Author:</b> " << cmt.text << "</p>\n";
                 }
 
                 if (!module.params.empty())
@@ -178,7 +168,7 @@ int Exporter::Export_to_MD(std::vector<Module>& modules) {
     {
         for (const auto& cmt : module.comments)
         {
-            if (cmt.tag == "@top" && !cmt.lines.empty())
+            if (cmt.tag == "@top" && !cmt.text.empty())
             {
                 top = &module;
                 break;
@@ -206,74 +196,73 @@ int Exporter::Export_to_MD(std::vector<Module>& modules) {
 
     for (const auto& cmt : top->comments)
     {
-        if (cmt.tag == "@top" && !cmt.lines.empty())
+        if (cmt.tag == "@top" && !cmt.text.empty())
         {
             //md << "#" << top->name << "\n\n";
-            //md << cmt.lines[0] << "\n\n";
+            //md << cmt.text[0] << "\n\n";
             continue;
         }
-        if (cmt.tag == "@status" && !cmt.lines.empty())
+        if (cmt.tag == "@status" && !cmt.text.empty())
         {
-            md << "### Status: " << cmt.lines[0] << "\n\n";
+            md << "### Status: " << cmt.text[0] << "\n\n";
             continue;
         }
-        if (cmt.tag == "@date" && !cmt.lines.empty())
+        if (cmt.tag == "@date" && !cmt.text.empty())
         {
-            md << "### Date: " << cmt.lines[0] << "\n";
+            md << "### Date: " << cmt.text[0] << "\n";
             continue;
         }
-        if (cmt.tag == "@brief" && !cmt.lines.empty())
+        if (cmt.tag == "@brief" && !cmt.text.empty())
         {
             md << "### Description\n\n";
-            for (const auto& text : cmt.lines)
-                if (!text.empty())
-                    md << text << "<br/>\n";
+            if (!cmt.text.empty())
+                    md << cmt.text << "<br/>\n";
             md << "\n\n";
             continue;
         }
-        if (cmt.tag == "@note" && !cmt.lines.empty())
+        if (cmt.tag == "@note" && !cmt.text.empty())
         {
             md << "### Note\n\n";
-            for (const auto& text : cmt.lines)
+            for (const auto& text : cmt.text)
                 md << text << "<br/>\n";
             md << "\n";
             continue;
         }
-        if (cmt.tag == "@warning" && !cmt.lines.empty())
+        if (cmt.tag == "@warning" && !cmt.text.empty())
         {
             md << "### Warning\n\n";
-            for (const auto& text : cmt.lines)
+            for (const auto& text : cmt.text)
                 md << text << "<br/>\n";
             md << "\n";
             continue;
         }
-        if (cmt.tag == "@error" && !cmt.lines.empty())
+        if (cmt.tag == "@error" && !cmt.text.empty())
         {
             md << "### Error\n\n";
-            for (const auto& text : cmt.lines)
+            for (const auto& text : cmt.text)
                 md << text << "<br/>\n";
             md << "\n";
             continue;
         }
-        if (cmt.tag == "@todo" && !cmt.lines.empty())
+        if (cmt.tag == "@todo" && !cmt.text.empty())
         {
             md << "### TODO\n\n";
-            for (const auto& text : cmt.lines)
+            for (const auto& text : cmt.text)
                 md << "- " << text << "\n";
             md << "\n\n";
             continue;
         }
-        if (cmt.tag == "@example" && !cmt.lines.empty())
+        if (cmt.tag == "@example" && !cmt.text.empty())
         {
             md << "### Example\n\n";
             md << "```v";
-            for (const auto& text : cmt.lines)
+            for (const auto& text : cmt.text)
                 md << text << "\n";
             md << "```\n\n";
             continue;
         }
-        if (cmt.tag == "@author" && !cmt.lines.empty())
-            md << "### Author: \n\n" << cmt.lines[0] << "\n\n";
+        if (cmt.tag == "@author" && !cmt.text.empty())
+            md << "### Author: \n\n" << cmt.text[0] << "\n\n";
     }
 
     return 0;
@@ -295,7 +284,7 @@ int Exporter::Export_to_ADOC(std::vector<Module>& modules) {
     {
         for (const auto& cmt : module.comments)
         {
-            if (cmt.tag == "@top" && !cmt.lines.empty())
+            if (cmt.tag == "@top" && !cmt.text.empty())
             {
                 top = &module;
                 break;
@@ -323,75 +312,74 @@ int Exporter::Export_to_ADOC(std::vector<Module>& modules) {
 
     for (const auto& cmt : top->comments)
     {
-        if (cmt.tag == "@top" && !cmt.lines.empty())
+        if (cmt.tag == "@top" && !cmt.text.empty())
         {
             //adoc << "#" << top->name << "\n\n";
-            //adoc << cmt.lines[0] << "\n\n";
+            //adoc << cmt.text[0] << "\n\n";
             continue;
         }
-        if (cmt.tag == "@status" && !cmt.lines.empty())
+        if (cmt.tag == "@status" && !cmt.text.empty())
         {
-            adoc << "=== Status: " << cmt.lines[0] << "\n\n";
+            adoc << "=== Status: " << cmt.text[0] << "\n\n";
             continue;
         }
-        if (cmt.tag == "@date" && !cmt.lines.empty())
+        if (cmt.tag == "@date" && !cmt.text.empty())
         {
-            adoc << "=== Date: " << cmt.lines[0] << "\n";
+            adoc << "=== Date: " << cmt.text[0] << "\n";
             continue;
         }
-        if (cmt.tag == "@brief" && !cmt.lines.empty())
+        if (cmt.tag == "@brief" && !cmt.text.empty())
         {
             adoc << "=== Description\n\n";
-            for (const auto& text : cmt.lines)
-                if (!text.empty())
-                    adoc << text << "<br/>\n";
+            if (!cmt.text.empty())
+                    adoc << cmt.text << "<br/>\n";
             adoc << "\n\n";
             continue;
         }
-        if (cmt.tag == "@note" && !cmt.lines.empty())
+        if (cmt.tag == "@note" && !cmt.text.empty())
         {
             adoc << "=== Note\n\n";
-            for (const auto& text : cmt.lines)
+            for (const auto& text : cmt.text)
                 adoc << text << "<br/>\n";
             adoc << "\n";
             continue;
         }
-        if (cmt.tag == "@warning" && !cmt.lines.empty())
+        if (cmt.tag == "@warning" && !cmt.text.empty())
         {
             adoc << "=== Warning\n\n";
-            for (const auto& text : cmt.lines)
+            for (const auto& text : cmt.text)
                 adoc << text << "<br/>\n";
             adoc << "\n";
             continue;
         }
-        if (cmt.tag == "@error" && !cmt.lines.empty())
+        if (cmt.tag == "@error" && !cmt.text.empty())
         {
             adoc << "=== Error\n\n";
-            for (const auto& text : cmt.lines)
+            for (const auto& text : cmt.text)
                 adoc << text << "<br/>\n";
             adoc << "\n";
             continue;
         }
-        if (cmt.tag == "@todo" && !cmt.lines.empty())
+        if (cmt.tag == "@todo" && !cmt.text.empty())
         {
             adoc << "=== TODO\n\n";
-            for (const auto& text : cmt.lines)
+            for (const auto& text : cmt.text)
                 adoc << "* " << text << "\n";
             adoc << "\n\n";
             continue;
         }
-        if (cmt.tag == "@example" && !cmt.lines.empty())
+        if (cmt.tag == "@example" && !cmt.text.empty())
         {
             adoc << "=== Example\n\n";
             adoc << "[source,verilog]\n";
             adoc << "....";
-            for (const auto& text : cmt.lines)
+            for (const auto& text : cmt.text)
                 adoc << text << "\n";
             adoc << "....\n\n";
             continue;
         }
-        if (cmt.tag == "@author" && !cmt.lines.empty())
-            adoc << "=== Author: \n\n" << cmt.lines[0] << "\n\n";
+        if (cmt.tag == "@author" && !cmt.text.empty())
+            adoc << "=== Author: \n\n" << cmt.text[0] << "\n\n";
     }
 
     return 0;

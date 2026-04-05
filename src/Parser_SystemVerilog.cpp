@@ -1,4 +1,6 @@
+#include <iostream>
 #include "Parser.h"
+#include "Colors.hpp"
 
 bool Parser_SystemVerilog::IsMyFormat(const std::string& filename) {
     // Первым делом проверяем, может мы сможем по раширению понять, что за формат?
@@ -31,18 +33,19 @@ bool Parser_SystemVerilog::IsMyFormat(const std::string& filename) {
     return false;
 }
 
-bool Parser_SystemVerilog::ParseModule(size_t& token_index, Module& module) {
-    // Пропускаем 'module'
+bool Parser_SystemVerilog::ParseModule(size_t token_index, Module& module) {
+    // Skipping 'module'
     NextToken(token_index);
 
-    // Имя модуля
+    // Module name
     if (!IsAtToken(token_index, TokenType::IDENTIFIER)) {
+        std::cout << FORMAT_WARNING "No module name";
         return false;
     }
     module.name = CurrentToken(token_index).value;
     NextToken(token_index);
 
-    // Параметры #(...)
+    // Parameters #(...)
     if (IsAtToken(token_index, TokenType::OP_HASH)) {
         NextToken(token_index);  // #
         if (IsAtToken(token_index, TokenType::OP_LPAREN)) {
@@ -50,36 +53,33 @@ bool Parser_SystemVerilog::ParseModule(size_t& token_index, Module& module) {
         }
     }
 
-    // Порты (...)
+    // Ports (...)
     if (IsAtToken(token_index, TokenType::OP_LPAREN)) {
         ParsePortList(token_index, module);
     }
 
-    // Ищем endmodule
     while (token_index < tokens.size()) {
-        if (CurrentToken(token_index).type == TokenType::KW_ENDMODULE) {
+        switch (CurrentToken(token_index).type) {
+        case TokenType::KW_ENDMODULE:
             NextToken(token_index);
             return true;
-        }
 
-        // Параметры внутри модуля
-        if (CurrentToken(token_index).type == TokenType::KW_PARAM ||
-            CurrentToken(token_index).type == TokenType::KW_LOCALPARAM) {
+        case TokenType::KW_PARAM:
+        case TokenType::KW_LOCALPARAM:
             ParseParameterList(token_index, module);
             continue;
-        }
 
-        // Порты внутри модуля (ANSI стиль)
-        if (CurrentToken(token_index).type == TokenType::DIR_INPUT ||
-            CurrentToken(token_index).type == TokenType::DIR_OUTPUT ||
-            CurrentToken(token_index).type == TokenType::DIR_INOUT) {
+        case TokenType::DIR_INPUT:
+        case TokenType::DIR_OUTPUT:
+        case TokenType::DIR_INOUT:
             ParsePortList(token_index, module);
             continue;
+
+        default:
+            NextToken(token_index);
+            break;
         }
-
-        NextToken(token_index);
     }
-
     return false;
 }
 
@@ -97,7 +97,7 @@ bool Parser_SystemVerilog::ParsePortList(size_t& token_index, Module& module) {
     while (token_index < tokens.size()) {
         Token& tok = CurrentToken(token_index);
 
-        // Направление
+        // Direction
         if (tok.type == TokenType::DIR_INPUT ||
             tok.type == TokenType::DIR_OUTPUT ||
             tok.type == TokenType::DIR_INOUT) {
@@ -106,7 +106,7 @@ bool Parser_SystemVerilog::ParsePortList(size_t& token_index, Module& module) {
             continue;
         }
 
-        // Тип
+        // Type
         else if (tok.type == TokenType::DT_WIRE || tok.type == TokenType::DT_REG ||
             tok.type == TokenType::DT_LOGIC || tok.type == TokenType::DT_TRI ||
             tok.type == TokenType::DT_BIT) {
@@ -115,7 +115,7 @@ bool Parser_SystemVerilog::ParsePortList(size_t& token_index, Module& module) {
             continue;
         }
 
-        // Ширина [N:M]
+        // Width [N:M]
         else if (tok.type == TokenType::OP_LBRACKET) {
             NextToken(token_index);
             width = "";
@@ -130,9 +130,20 @@ bool Parser_SystemVerilog::ParsePortList(size_t& token_index, Module& module) {
             continue;
         }
 
-        // Имя порта
+        // Port name
         else if (tok.type == TokenType::IDENTIFIER) {
             Port p;
+
+            if (known_types.count(tok.lexeme) > 0) {
+                port_type = tok.value;
+                if (known_types[tok.lexeme].find('[')) {
+                    size_t wdt_start = known_types[tok.lexeme].find('[');
+                    width = known_types[tok.lexeme].substr(wdt_start);
+                }
+                NextToken(token_index);
+                continue;
+            }
+
             p.name = tok.value;
             p.direction = direction.empty() ? "input" : direction;
             p.type = port_type;
@@ -141,7 +152,7 @@ bool Parser_SystemVerilog::ParsePortList(size_t& token_index, Module& module) {
 
             NextToken(token_index);
 
-            // Запятая или конец
+            // Comma or end
             if (IsAtToken(token_index, TokenType::OP_COMMA)) {
                 NextToken(token_index);
                 direction = "";
@@ -150,13 +161,13 @@ bool Parser_SystemVerilog::ParsePortList(size_t& token_index, Module& module) {
             }
             continue;
         }
-        // Описание порта
+        // Port description
         else if (tok.type == TokenType::COMMENT_DOC_SINGLE ||
             tok.type == TokenType::COMMENT_DOC_MULTI) {
             if (!module.ports.empty())
                 module.ports.back().description = tok.value;
         }
-        // Конец списка портов
+        // End of port list
         if (tok.type == TokenType::OP_RPAREN ||
             tok.type == TokenType::OP_SEMICOLON) {
             if (tok.type == TokenType::OP_RPAREN) {
@@ -171,14 +182,14 @@ bool Parser_SystemVerilog::ParsePortList(size_t& token_index, Module& module) {
 }
 
 bool Parser_SystemVerilog::ParseParameterList(size_t& token_index, Module& module) {
-    // Пропускаем '(' если есть
+    // Skip '(' if there is one
     if (IsAtToken(token_index, TokenType::OP_LPAREN)) {
         NextToken(token_index);
     }
 
+    std::string data_type;
     while (token_index < tokens.size()) {
         Token& tok = CurrentToken(token_index);
-        std::string data_type;
         bool is_local = true;
         
         if (tok.type == TokenType::KW_LOCALPARAM) {
@@ -196,7 +207,7 @@ bool Parser_SystemVerilog::ParseParameterList(size_t& token_index, Module& modul
             if (!module.params.empty())
                 module.params.back().description = tok.value;
         }
-        // Имя параметра
+        // Parameter name
         else if (tok.type == TokenType::IDENTIFIER) {
             Param p;
             p.name = tok.value;
@@ -205,7 +216,7 @@ bool Parser_SystemVerilog::ParseParameterList(size_t& token_index, Module& modul
 
             NextToken(token_index);
 
-            // Значение = ...
+            // Value = ...
             if (IsAtToken(token_index, TokenType::OP_ASSIGN)) {
                 NextToken(token_index);
                 while (CurrentToken(token_index).type != TokenType::OP_COMMA &&
@@ -219,8 +230,12 @@ bool Parser_SystemVerilog::ParseParameterList(size_t& token_index, Module& modul
                 }
             }
 
+            if (data_type == "type") {
+                known_types.insert({ p.name, p.value });
+            }
+
             module.params.push_back(p);
-            // Запятая
+            // Comma
             if (IsAtToken(token_index, TokenType::OP_COMMA)) {
                 NextToken(token_index);
             }
@@ -228,7 +243,7 @@ bool Parser_SystemVerilog::ParseParameterList(size_t& token_index, Module& modul
         }
         NextToken(token_index);
 
-        // Конец списка
+        // End of list
         if (tok.type == TokenType::OP_RPAREN ||
             tok.type == TokenType::OP_SEMICOLON) {
             if (tok.type == TokenType::OP_RPAREN) {
@@ -241,16 +256,15 @@ bool Parser_SystemVerilog::ParseParameterList(size_t& token_index, Module& modul
     return true;
 }
 
-
 std::vector<Module> Parser_SystemVerilog::ParseFromTokens() {
     std::vector<Module> modules;
+    Module module;
     size_t token_index = 0;
 
     while (token_index < tokens.size()) {
         Token& tok = CurrentToken(token_index);
 
-        if (tok.type == TokenType::KW_MODULE) {
-            Module module;
+        if (tok.type == TokenType::KW_MODULE)  {
             module.filename = current_filename;
 
             // ID
@@ -262,9 +276,20 @@ std::vector<Module> Parser_SystemVerilog::ParseFromTokens() {
             size_t file_hash = std::hash<std::string>{}(base_filename);
             module.id = module.name + std::to_string(file_hash).substr(0, 4);
 
-            if (ParseModule(token_index, module)) {
-                modules.push_back(module);
+            ParseModule(token_index, module);
+            NextToken(token_index);
+        }
+        else if (tok.type == TokenType::COMMENT_DOC_MULTI || tok.type == TokenType::COMMENT_DOC_SINGLE) {
+            std::vector<Comment_block> blocks =  ParseCommentText(tok.value);
+            size_t block_count = blocks.size();
+            for (int i = 0; i < block_count; i++) {
+                module.comments.push_back(blocks[i]);
             }
+            NextToken(token_index);
+        }
+        else if (tok.type == TokenType::KW_ENDMODULE) {
+            modules.push_back(module);
+            NextToken(token_index);
         }
         else {
             NextToken(token_index);

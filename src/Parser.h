@@ -3,11 +3,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
-#include <sstream>
-#include <regex>
-#include <memory>
 #include <unordered_map>
-#include <unordered_set>
 
 class Parser {
 protected:
@@ -18,7 +14,7 @@ protected:
     { "@brief" , "@todo" , "@description" , "@note" , "@warning" ,
       "@error" , "@author" , "@date" , "@example" , "@status" , "@top" };
 
-    // ========== ЛЕКСИЧЕСКИЙ АНАЛИЗ ==========
+    // ========== LEXICAL ANALYSIS ==========
     void Tokenize();
     Token CreateToken(TokenType type, const std::string& value,
         const std::string& lexeme, size_t line, size_t col);
@@ -29,7 +25,7 @@ protected:
     void ReadNumber(size_t& line, size_t& col);
     void ReadString(size_t& line, size_t& col);
 
-    // ========== СИНТАКСИЧЕСКИЙ АНАЛИЗ ==========
+    // ========== SYNTACTIC ANALYSIS ==========
     virtual std::vector<Module> ParseFromTokens() = 0;
 
     // Вспомогательные функции
@@ -42,8 +38,7 @@ protected:
     Token& CurrentToken(size_t index);
     Token& NextToken(size_t& index);
 
-    std::vector<Comment_block> ParseCommentText(const std::string& comment_text);
-    std::vector<Comment_block> ParseCommentText(const std::vector<std::string>& comment_lines);
+    std::vector<Comment_block> ParseCommentText(const std::string comment_text);
 
 
     bool LoadFile(const std::string& filename);
@@ -58,12 +53,12 @@ void FreeParser(Parser **parser);
 
 class Parser_SystemVerilog : public Parser {
 private:
-    // хранение алиасов типов: имя типа -> полное определение
+    // storing type aliases: type name -> full definition
     std::unordered_map<std::string, std::string> known_types;
 
     std::vector<Module> ParseFromTokens() override;
 
-    bool ParseModule(size_t& token_index, Module& module);
+    bool ParseModule(size_t token_index, Module& module);
     bool ParsePortList(size_t& token_index, Module& module);
     bool ParseParameterList(size_t& token_index, Module& module);
 

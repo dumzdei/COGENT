@@ -5,7 +5,7 @@
 Parser* GetParser(const std::string& filename) {
     Parser* parser = nullptr;
 
-    // Проверяем, не является ли файл файлом формата SystemVerilog
+    // Checking if a file is in SystemVerilog format
     parser = new Parser_SystemVerilog;
     if (parser->IsMyFormat(filename)) {
         std::cout << FORMAT_INFO "SystemVerilog format detected for file '" << filename << "'\n";
@@ -56,7 +56,7 @@ void Parser::Tokenize() {
 
             char c = current_line[col];
 
-            // Комментарии
+            // Comments
             if (c == '/') {
                 if (col + 1 < current_line.length()) {
                     char next = current_line[col + 1];
@@ -73,25 +73,25 @@ void Parser::Tokenize() {
                 }
             }
 
-            // Идентификаторы и ключевые слова
+            // Identifiers and keywords
             if (std::isalpha(c) || c == '_') {
                 ReadIdentifier(line, col);
                 continue;
             }
 
-            // Числа
+            // Numbers
             if (std::isdigit(c)) {
                 ReadNumber(line, col);
                 continue;
             }
 
-            // Строки
+            // Lines
             if (c == '"') {
                 ReadString(line, col);
                 continue;
             }
 
-            // Операторы
+            // Operators
             switch (c) {
             case '=':
                 tokens.push_back(CreateToken(TokenType::OP_ASSIGN, "=", "=", line, col));
@@ -157,7 +157,7 @@ Token Parser::CreateToken(TokenType type, const std::string& value,
         std::cerr << FORMAT_WARNING "Empty lexeme in line " << (line + 1) << ". Character N. " << (col + 1) << "\n";
     }
 
-    return Token(type, value, lexeme, line + 1, col + 1);  // 1-based для парсера/пользователя
+    return Token(type, value, lexeme, line + 1, col + 1);  // 1-based for parser/user
 }
 
 TokenType Parser::KeywordToTokenType(const std::string& keyword) {
@@ -227,12 +227,12 @@ void Parser::ReadComment(size_t& line, size_t& col) {
     char next = current_line[col + 1];
 
     if (next == '*') {
-        // Многострочный комментарий /* или /**
+        // Multi-line comment /* or /**
         bool is_doc = (col + 2 < current_line.length() && current_line[col + 2] == '*');
         std::string content;
         size_t content_start = col + (is_doc ? 3 : 2);
 
-        // Первая строка
+        // First line
         if (content_start < current_line.length()) {
             size_t end_pos = current_line.find("*/", content_start);
             if (end_pos != std::string::npos) {
@@ -247,7 +247,7 @@ void Parser::ReadComment(size_t& line, size_t& col) {
             }
         }
 
-        // Продолжение на следующих строках
+        // Continued on the following lines
         line++;
         while (line < lines.size()) {
             size_t end_pos = lines[line].find("**/");
@@ -266,7 +266,7 @@ void Parser::ReadComment(size_t& line, size_t& col) {
 
     }
     else if (next == '/') {
-        // Однострочный комментарий // или //*
+        // Single-line comment // or //*
         bool is_doc = (col + 2 < current_line.length() && current_line[col + 2] == '*');
         size_t content_start = col + (is_doc ? 3 : 2);
         std::string content = (content_start < current_line.length()) ?
@@ -325,7 +325,7 @@ void Parser::ReadString(size_t& line, size_t& col) {
 
     size_t start_col = col;
     std::string str;
-    col++;  // Пропускаем открывающую кавычку
+    col++;  // Skip the opening quotation mark
 
     while (col < lines[line].length()) {
         char c = lines[line][col];
@@ -380,7 +380,7 @@ std::string Parser::CleanToken(std::string& str)
 {
     str = Trim(str);
 
-    // Удаляем скобки, запятые, точки с запятой
+    // Remove brackets, commas, and semicolons
     const std::string charsToRemove = "(){}[],;";
 
     for (char c : charsToRemove) {
@@ -404,22 +404,21 @@ std::string Parser::ExtractTag(std::string& text)
     return "";
 }
 
-// Обработка строки
-std::vector<Comment_block> Parser::ParseCommentText(const std::string& comment_text) {
+// String processing
+std::vector<Comment_block> Parser::ParseCommentText(std::string comment_text) {
     std::vector<Comment_block> blocks;
-    std::string remaining = Trim(comment_text);
 
-    if (remaining.empty()) return blocks;
+    if (comment_text.empty()) return blocks;
 
     std::string current_tag;
     std::string current_text;
 
-    while (!remaining.empty()) {
+    while (!comment_text.empty()) {
         size_t next_tag_pos = std::string::npos;
         std::string next_tag;
 
         for (const auto& tag : tags) {
-            size_t found = remaining.find(tag);
+            size_t found = comment_text.find(tag);
             if (found != std::string::npos) {
                 if (next_tag_pos == std::string::npos || found < next_tag_pos) {
                     next_tag_pos = found;
@@ -429,75 +428,63 @@ std::vector<Comment_block> Parser::ParseCommentText(const std::string& comment_t
         }
 
         if (next_tag_pos != std::string::npos) {
-            // Сохраняем предыдущий блок если есть
+            // Save the previous block if there is one.
             if (!current_tag.empty() && !current_text.empty()) {
                 Comment_block block;
                 block.tag = current_tag;
-                block.lines.push_back(Trim(current_text));
+                block.text = Trim(current_text);
                 blocks.push_back(block);
             }
             else if (current_tag.empty() && next_tag_pos > 0) {
-                std::string before = Trim(remaining.substr(0, next_tag_pos));
+                std::string before = Trim(comment_text.substr(0, next_tag_pos));
                 if (!before.empty()) {
                     Comment_block block;
                     block.tag = "";
-                    block.lines.push_back(before);
+                    block.text = Trim(before);
                     blocks.push_back(block);
                 }
             }
 
             current_tag = next_tag;
-            current_text = remaining.substr(next_tag_pos + next_tag.length());
-            remaining = "";
+            current_text = comment_text.substr(next_tag_pos + next_tag.length());
+            comment_text = "";
 
-            // Проверяем, есть ли ещё теги в текущем тексте
+            // Checking if there are more tags in the current text
             for (const auto& tag : tags) {
                 size_t found = current_text.find(tag);
                 if (found != std::string::npos) {
-                    remaining = current_text.substr(found);
+                    comment_text = current_text.substr(found);
                     current_text = current_text.substr(0, found);
                     break;
                 }
             }
         }
         else {
-            // Тегов больше нет
+            // There are no more tags
             if (!current_tag.empty()) {
-                current_text += (current_text.empty() ? "" : " ") + remaining;
+                current_text += (current_text.empty() ? "" : " ") + comment_text;
             }
-            else if (!remaining.empty()) {
+            else if (!comment_text.empty()) {
                 Comment_block block;
                 block.tag = "";
-                block.lines.push_back(Trim(remaining));
+                block.text = Trim(comment_text);
                 blocks.push_back(block);
             }
             break;
         }
     }
 
-    // Сохраняем последний блок
+    // Save the last block
     if (!current_tag.empty() && !current_text.empty()) {
         Comment_block block;
         block.tag = current_tag;
-        block.lines.push_back(Trim(current_text));
+        block.text = Trim(current_text);
         blocks.push_back(block);
     }
 
     return blocks;
 }
 
-// Обработка вектора строк
-std::vector<Comment_block> Parser::ParseCommentText(const std::vector<std::string>& comment_lines) {
-    if (comment_lines.empty()) return {};
-
-    std::string combined;
-    for (size_t i = 0; i < comment_lines.size(); ++i) {
-        if (i > 0) combined += "\n";
-        combined += comment_lines[i];
-    }
-
-    return ParseCommentText(combined);
-}
 
 void FreeParser(Parser** parser) {
     delete (*parser);

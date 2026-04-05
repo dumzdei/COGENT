@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
 
             std::cout << FORMAT_INFO "processing file '" << entry.path().string() << "'\n";
 
-            // GetParser определяет формат и создаёт нужный парсер
+            // GetParser determines the format and creates the required parser
             parser = GetParser(entry.path().string());
             if (!parser) {
                 std::cerr << FORMAT_WARNING << "unsupported format: '" << entry.path().string()
