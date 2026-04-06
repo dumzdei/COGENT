@@ -17,10 +17,10 @@ protected:
     // ========== LEXICAL ANALYSIS ==========
     void Tokenize();
     Token CreateToken(TokenType type, const std::string& value,
-        const std::string& lexeme, size_t line, size_t col);
-    TokenType KeywordToTokenType(const std::string& keyword);
+                      const std::string& lexeme, size_t line, size_t col);
+    virtual TokenType KeywordToTokenType(const std::string& keyword) = 0;
     void SkipWhitespace(size_t& line, size_t& col);
-    void ReadComment(size_t& line, size_t& col);
+    virtual bool ReadComment(size_t& line, size_t& col) = 0;
     void ReadIdentifier(size_t& line, size_t& col);
     void ReadNumber(size_t& line, size_t& col);
     void ReadString(size_t& line, size_t& col);
@@ -56,11 +56,41 @@ private:
     // storing type aliases: type name -> full definition
     std::unordered_map<std::string, std::string> known_types;
 
+    TokenType KeywordToTokenType(const std::string& keyword) override;
+    bool ReadComment(size_t& line, size_t& col) override;
+
     std::vector<Module> ParseFromTokens() override;
 
     bool ParseModule(size_t token_index, Module& module);
     bool ParsePortList(size_t& token_index, Module& module);
     bool ParseParameterList(size_t& token_index, Module& module);
+
+public:
+    bool IsMyFormat(const std::string& filename) override final;
+};
+
+class Parser_VHDL : public Parser {
+private:
+    std::unordered_map<std::string, std::string> known_types;
+
+    TokenType KeywordToTokenType(const std::string& keyword) override;
+    bool ReadComment(size_t& line, size_t& col) override;
+
+    std::vector<Module> ParseFromTokens() override;
+
+    bool ParseEntity(size_t token_index, Module& module);
+    bool ParsePortList(size_t& token_index, Module& module);
+    bool ParseGenericList(size_t& token_index, Module& module);
+
+    std::string ParseVHDLRange(size_t& token_index);
+    std::string ParseVHDLDefault(size_t& token_index);
+    void AddVHDLPort(Module& module, const std::string& name, const std::string& direction,
+        const std::string& type, const std::string& width, const std::string& description);
+    void AddVHDLGeneric(Module& module, const std::string& name, const std::string& type,
+        const std::string& value, const std::string& description);
+    void ResetDeclarationState(std::string& direction, std::string& data_type,
+        std::string& width, std::string& default_value,
+        std::string& current_name, bool& reading_names, bool is_generic);
 
 public:
     bool IsMyFormat(const std::string& filename) override final;

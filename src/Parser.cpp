@@ -12,6 +12,15 @@ Parser* GetParser(const std::string& filename) {
         return parser;
     }
     delete parser;
+
+    // Checking if a file is in VHDL format
+    parser = new Parser_VHDL;
+    if (parser->IsMyFormat(filename)) {
+        std::cout << FORMAT_INFO "VHDL format detected for file '" << filename << "'\n";
+        return parser;
+    }
+    delete parser;
+
     parser = nullptr;
 
     return nullptr;
@@ -49,100 +58,45 @@ void Parser::Tokenize() {
     while (line < lines.size()) {
         size_t col = 0;
         const std::string& current_line = lines[line];
-
         while (col < current_line.length()) {
             SkipWhitespace(line, col);
             if (col >= current_line.length()) break;
-
             char c = current_line[col];
 
-            // Comments
-            if (c == '/') {
-                if (col + 1 < current_line.length()) {
-                    char next = current_line[col + 1];
-                    if (next == '*') {
-                        // /* или /**
-                        ReadComment(line, col);
-                        continue;
-                    }
-                    else if (next == '/') {
-                        // // или //*
-                        ReadComment(line, col);
-                        continue;
-                    }
-                }
+            // Each language decides for itself whether it is a comment
+            if (c == '/' || c == '-') {
+                if (ReadComment(line, col)) 
+                    continue;
             }
 
-            // Identifiers and keywords
             if (std::isalpha(c) || c == '_') {
                 ReadIdentifier(line, col);
                 continue;
             }
-
-            // Numbers
             if (std::isdigit(c)) {
                 ReadNumber(line, col);
                 continue;
             }
-
-            // Lines
             if (c == '"') {
                 ReadString(line, col);
                 continue;
             }
 
-            // Operators
             switch (c) {
-            case '=':
-                tokens.push_back(CreateToken(TokenType::OP_ASSIGN, "=", "=", line, col));
-                col++;
-                break;
-            case '[':
-                tokens.push_back(CreateToken(TokenType::OP_LBRACKET, "[", "[", line, col));
-                col++;
-                break;
-            case ']':
-                tokens.push_back(CreateToken(TokenType::OP_RBRACKET, "]", "]", line, col));
-                col++;
-                break;
-            case '(':
-                tokens.push_back(CreateToken(TokenType::OP_LPAREN, "(", "(", line, col));
-                col++;
-                break;
-            case ')':
-                tokens.push_back(CreateToken(TokenType::OP_RPAREN, ")", ")", line, col));
-                col++;
-                break;
-            case ';':
-                tokens.push_back(CreateToken(TokenType::OP_SEMICOLON, ";", ";", line, col));
-                col++;
-                break;
-            case ',':
-                tokens.push_back(CreateToken(TokenType::OP_COMMA, ",", ",", line, col));
-                col++;
-                break;
-            case '#':
-                tokens.push_back(CreateToken(TokenType::OP_HASH, "#", "#", line, col));
-                col++;
-                break;
-            case '-':
-                tokens.push_back(CreateToken(TokenType::OP_MINUS, "-", "-", line, col));
-                col++;
-                break;
-            case '+':
-                tokens.push_back(CreateToken(TokenType::OP_PLUS, "+", "+", line, col));
-                col++;
-                break;
-            case ':':
-                tokens.push_back(CreateToken(TokenType::OP_COLON, ":", ":", line, col));
-                col++;
-                break;
-            default:
-                col++;
-                break;
+            case '=': tokens.push_back(CreateToken(TokenType::OP_ASSIGN, "=", "=", line, col)); col++; break;
+            case '[': tokens.push_back(CreateToken(TokenType::OP_LBRACKET, "[", "[", line, col)); col++; break;
+            case ']': tokens.push_back(CreateToken(TokenType::OP_RBRACKET, "]", "]", line, col)); col++; break;
+            case '(': tokens.push_back(CreateToken(TokenType::OP_LPAREN, "(", "(", line, col)); col++; break;
+            case ')': tokens.push_back(CreateToken(TokenType::OP_RPAREN, ")", ")", line, col)); col++; break;
+            case ';': tokens.push_back(CreateToken(TokenType::OP_SEMICOLON, ";", ";", line, col)); col++; break;
+            case ',': tokens.push_back(CreateToken(TokenType::OP_COMMA, ",", ",", line, col)); col++; break;
+            case '#': tokens.push_back(CreateToken(TokenType::OP_HASH, "#", "#", line, col)); col++; break;
+            case '-': tokens.push_back(CreateToken(TokenType::OP_MINUS, "-", "-", line, col)); col++; break;
+            case '+': tokens.push_back(CreateToken(TokenType::OP_PLUS, "+", "+", line, col)); col++; break;
+            case ':': tokens.push_back(CreateToken(TokenType::OP_COLON, ":", ":", line, col)); col++; break;
+            default: col++; break;
             }
         }
-
         line++;
     }
 
@@ -158,42 +112,6 @@ Token Parser::CreateToken(TokenType type, const std::string& value,
     }
 
     return Token(type, value, lexeme, line + 1, col + 1);  // 1-based for parser/user
-}
-
-TokenType Parser::KeywordToTokenType(const std::string& keyword) {
-    static const std::unordered_map<std::string, TokenType> keywords = {
-        {"module", TokenType::KW_MODULE},
-        {"endmodule", TokenType::KW_ENDMODULE},
-        {"interface", TokenType::KW_INTERFACE},
-        {"endinterface", TokenType::KW_ENDINTERFACE},
-        {"package", TokenType::KW_PACKAGE},
-        {"endpackage", TokenType::KW_ENDPACKAGE},
-        {"function", TokenType::KW_FUNCTION},
-        {"endfunction", TokenType::KW_ENDFUNCTION},
-        {"task", TokenType::KW_TASK},
-        {"endtask", TokenType::KW_ENDTASK},
-        {"parameter", TokenType::KW_PARAM},
-        {"localparam", TokenType::KW_LOCALPARAM},
-        {"signed", TokenType::KW_SIGNED},
-        {"enum", TokenType::KW_ENUM},
-        {"type", TokenType::KW_TYPE},
-
-        {"input", TokenType::DIR_INPUT},
-        {"output", TokenType::DIR_OUTPUT},
-        {"inout", TokenType::DIR_INOUT},
-
-        {"logic", TokenType::DT_LOGIC},
-        {"wire", TokenType::DT_WIRE},
-        {"tri", TokenType::DT_TRI},
-        {"reg", TokenType::DT_REG},
-        {"int", TokenType::DT_INT},
-        {"byte", TokenType::DT_BYTE},
-        {"bit", TokenType::DT_BIT},
-        {"struct", TokenType::DT_STRUCT}
-    };
-
-    auto it = keywords.find(keyword);
-    return (it != keywords.end()) ? it->second : TokenType::IDENTIFIER;
 }
 
 void Parser::SkipWhitespace(size_t& line, size_t& col) {
@@ -213,68 +131,6 @@ void Parser::SkipWhitespace(size_t& line, size_t& col) {
         }
         line++;
         col = 0;
-    }
-}
-
-void Parser::ReadComment(size_t& line, size_t& col) {
-    if (line >= lines.size()) return;
-
-    const std::string& current_line = lines[line];
-    size_t start_col = col;
-
-    if (col + 1 >= current_line.length()) return;
-
-    char next = current_line[col + 1];
-
-    if (next == '*') {
-        // Multi-line comment /* or /**
-        bool is_doc = (col + 2 < current_line.length() && current_line[col + 2] == '*');
-        std::string content;
-        size_t content_start = col + (is_doc ? 3 : 2);
-
-        // First line
-        if (content_start < current_line.length()) {
-            size_t end_pos = current_line.find("*/", content_start);
-            if (end_pos != std::string::npos) {
-                content = current_line.substr(content_start, end_pos - content_start);
-                col = end_pos + 2;
-                TokenType type = is_doc ? TokenType::COMMENT_DOC_MULTI : TokenType::COMMENT_MULTI;
-                tokens.push_back(CreateToken(type, content, content, line, start_col));
-                return;
-            }
-            else {
-                content = current_line.substr(content_start);
-            }
-        }
-
-        // Continued on the following lines
-        line++;
-        while (line < lines.size()) {
-            size_t end_pos = lines[line].find("**/");
-            if (end_pos != std::string::npos) {
-                content += "\n" + lines[line].substr(0, end_pos);
-                col = end_pos + 2;
-                TokenType type = is_doc ? TokenType::COMMENT_DOC_MULTI : TokenType::COMMENT_MULTI;
-                tokens.push_back(CreateToken(type, content, content, line, start_col));
-                return;
-            }
-            else {
-                content += "\n" + lines[line];
-                line++;
-            }
-        }
-
-    }
-    else if (next == '/') {
-        // Single-line comment // or //*
-        bool is_doc = (col + 2 < current_line.length() && current_line[col + 2] == '*');
-        size_t content_start = col + (is_doc ? 3 : 2);
-        std::string content = (content_start < current_line.length()) ?
-            current_line.substr(content_start) : "";
-
-        TokenType type = is_doc ? TokenType::COMMENT_DOC_SINGLE : TokenType::COMMENT_SINGLE;
-        tokens.push_back(CreateToken(type, content, content, line, start_col));
-        col = current_line.length();
     }
 }
 
@@ -346,7 +202,6 @@ void Parser::ReadString(size_t& line, size_t& col) {
 
     tokens.push_back(CreateToken(TokenType::STRING, str, str, line, start_col));
 }
-
 
 bool Parser::IsAtToken(size_t index, TokenType type) {
     return (index < tokens.size() && tokens[index].type == type);

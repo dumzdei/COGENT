@@ -33,6 +33,42 @@ bool Parser_SystemVerilog::IsMyFormat(const std::string& filename) {
     return false;
 }
 
+TokenType Parser_SystemVerilog::KeywordToTokenType(const std::string& keyword) {
+    static const std::unordered_map<std::string, TokenType> keywords = {
+        {"module", TokenType::KW_MODULE},
+        {"endmodule", TokenType::KW_ENDMODULE},
+        {"interface", TokenType::KW_INTERFACE},
+        {"endinterface", TokenType::KW_ENDINTERFACE},
+        {"package", TokenType::KW_PACKAGE},
+        {"endpackage", TokenType::KW_ENDPACKAGE},
+        {"function", TokenType::KW_FUNCTION},
+        {"endfunction", TokenType::KW_ENDFUNCTION},
+        {"task", TokenType::KW_TASK},
+        {"endtask", TokenType::KW_ENDTASK},
+        {"parameter", TokenType::KW_PARAM},
+        {"localparam", TokenType::KW_LOCALPARAM},
+        {"signed", TokenType::KW_SIGNED},
+        {"enum", TokenType::KW_ENUM},
+        {"type", TokenType::KW_TYPE},
+
+        {"input", TokenType::DIR_INPUT},
+        {"output", TokenType::DIR_OUTPUT},
+        {"inout", TokenType::DIR_INOUT},
+
+        {"logic", TokenType::DT_LOGIC},
+        {"wire", TokenType::DT_WIRE},
+        {"tri", TokenType::DT_TRI},
+        {"reg", TokenType::DT_REG},
+        {"int", TokenType::DT_INT},
+        {"byte", TokenType::DT_BYTE},
+        {"bit", TokenType::DT_BIT},
+        {"struct", TokenType::DT_STRUCT}
+    };
+
+    auto it = keywords.find(keyword);
+    return (it != keywords.end()) ? it->second : TokenType::IDENTIFIER;
+}
+
 bool Parser_SystemVerilog::ParseModule(size_t token_index, Module& module) {
     // Skipping 'module'
     NextToken(token_index);
@@ -138,7 +174,8 @@ bool Parser_SystemVerilog::ParsePortList(size_t& token_index, Module& module) {
                 port_type = tok.value;
                 if (known_types[tok.lexeme].find('[')) {
                     size_t wdt_start = known_types[tok.lexeme].find('[');
-                    width = known_types[tok.lexeme].substr(wdt_start);
+                    size_t wdt_end = known_types[tok.lexeme].find(']');
+                    width = known_types[tok.lexeme].substr(wdt_start + 1, wdt_end - wdt_start - 1);
                 }
                 NextToken(token_index);
                 continue;
@@ -254,6 +291,68 @@ bool Parser_SystemVerilog::ParseParameterList(size_t& token_index, Module& modul
     }
 
     return true;
+}
+
+bool Parser_SystemVerilog::ReadComment(size_t& line, size_t& col) {
+    if (line >= lines.size() || col + 1 >= lines[line].length()) return false;
+
+    const std::string& current_line = lines[line];
+    size_t start_col = col;
+
+    char next = current_line[col + 1];
+
+    if (next == '*') {
+        // Multi-line comment /* or /**
+        bool is_doc = (col + 2 < current_line.length() && current_line[col + 2] == '*');
+        std::string content;
+        size_t content_start = col + (is_doc ? 3 : 2);
+
+        // First line
+        if (content_start < current_line.length()) {
+            size_t end_pos = current_line.find("*/", content_start);
+            if (end_pos != std::string::npos) {
+                content = current_line.substr(content_start, end_pos - content_start);
+                col = end_pos + 2;
+                TokenType type = is_doc ? TokenType::COMMENT_DOC_MULTI : TokenType::COMMENT_MULTI;
+                tokens.push_back(CreateToken(type, content, content, line, start_col));
+                return true;
+            }
+            else {
+                content = current_line.substr(content_start);
+            }
+        }
+
+        // Continued on the following lines
+        line++;
+        while (line < lines.size()) {
+            size_t end_pos = lines[line].find("*/");
+            if (end_pos != std::string::npos) {
+                content += "\n" + lines[line].substr(0, end_pos);
+                col = end_pos + 2;
+                TokenType type = is_doc ? TokenType::COMMENT_DOC_MULTI : TokenType::COMMENT_MULTI;
+                tokens.push_back(CreateToken(type, content, content, line, start_col));
+                return true;
+            }
+            else {
+                content += "\n" + lines[line];
+                line++;
+            }
+        }
+
+    }
+    else if (next == '/') {
+        // Single-line comment // or //*
+        bool is_doc = (col + 2 < current_line.length() && current_line[col + 2] == '*');
+        size_t content_start = col + (is_doc ? 3 : 2);
+        std::string content = (content_start < current_line.length()) ?
+            current_line.substr(content_start) : "";
+
+        TokenType type = is_doc ? TokenType::COMMENT_DOC_SINGLE : TokenType::COMMENT_SINGLE;
+        tokens.push_back(CreateToken(type, content, content, line, start_col));
+        col = current_line.length();
+        return true;
+    }
+    return false;
 }
 
 std::vector<Module> Parser_SystemVerilog::ParseFromTokens() {

@@ -3,36 +3,43 @@
 #include <vector>
 
 enum class TokenType {
-    // SV Keywords
-    KW_MODULE, KW_ENDMODULE, KW_INTERFACE, KW_ENDINTERFACE,
-    KW_PACKAGE, KW_ENDPACKAGE, KW_FUNCTION, KW_ENDFUNCTION,
-    KW_TASK, KW_ENDTASK, KW_PARAM, KW_LOCALPARAM, KW_SIGNED,
-    KW_PACKED, KW_ENUM, KW_TYPE, KW_TYPEDEF,
+    //  SystemVerilog Keywords 
+    KW_MODULE, KW_ENDMODULE,
+    KW_INTERFACE, KW_ENDINTERFACE,
+    KW_PACKAGE, KW_ENDPACKAGE,
+    KW_FUNCTION, KW_ENDFUNCTION,
+    KW_TASK, KW_ENDTASK,
+    KW_PARAM, KW_LOCALPARAM,
+    KW_SIGNED, KW_ENUM, KW_TYPE,
 
-    // VHDL Keywords
-    KW_ENTITY, KW_ARCHITECTURE, KW_END, KW_GENERIC, KW_CONSTANT,
-    KW_SIGNAL, KW_PROCESS, KW_BEGIN, KW_IS,
+    //  VHDL Keywords 
+    KW_ENTITY, KW_ARCHITECTURE, KW_END,
+    KW_GENERIC, KW_PORT,
+    KW_CONSTANT, KW_SIGNAL, KW_PROCESS,
+    KW_BEGIN,
 
-    // SV Data types
-    DT_LOGIC, DT_WIRE, DT_TRI, DT_REG, DT_INT,
-    DT_BYTE, DT_BIT, DT_STRUCT, DT_UNION,
+    //  SystemVerilog Data Types
+    DT_LOGIC, DT_WIRE, DT_TRI, DT_REG,
+    DT_INT, DT_BYTE, DT_BIT, DT_STRUCT,
 
-    // VHDL Data types
-    DT_STD_LOGIC, DT_STD_LOGIC_VECTOR, DT_INTEGER, DT_BOOLEAN,
+    //  VHDL Data Types
+    DT_STD_LOGIC, DT_STD_LOGIC_VECTOR,
+    DT_INTEGER, DT_BOOLEAN,
 
-    // SV Directions
+    //  SystemVerilog Directions
     DIR_INPUT, DIR_OUTPUT, DIR_INOUT,
 
-    // VHDL directions
-    DT_IN, DT_OUT, DT_INOUT, DT_BUFFER, 
+    //  VHDL Directions
+    DIR_IN, DIR_OUT, DIR_INOUT_VHDL,
+    DIR_BUFFER, DIR_LINKAGE,
 
-    // Comments
-    COMMENT_DOC_SINGLE,    // //* or --*
-    COMMENT_DOC_MULTI,     // /** **/
-    COMMENT_SINGLE,        // // or --
+    //  Comments 
+    COMMENT_DOC_SINGLE,    // //* или --*
+    COMMENT_DOC_MULTI,     // /** */
+    COMMENT_SINGLE,        // // или --
     COMMENT_MULTI,         // /* */
 
-    // Operators
+    //  Operators 
     OP_ASSIGN,             // =
     OP_LBRACKET,           // [
     OP_RBRACKET,           // ]
@@ -45,12 +52,12 @@ enum class TokenType {
     OP_PLUS,               // +
     OP_COLON,              // :
 
-    // Literals and Identifiers
+    //  Literals & Identifiers 
     IDENTIFIER,
     NUMBER,
     STRING,
 
-    // Special
+    //  Special 
     UNKNOWN,
     END_OF_FILE
 };
