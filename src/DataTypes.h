@@ -16,7 +16,7 @@ enum class TokenType {
     KW_ENTITY, KW_ARCHITECTURE, KW_END,
     KW_GENERIC, KW_PORT,
     KW_CONSTANT, KW_SIGNAL, KW_PROCESS,
-    KW_BEGIN,
+    KW_BEGIN, KW_DOWNTO, KW_TO,
 
     //  SystemVerilog Data Types
     DT_LOGIC, DT_WIRE, DT_TRI, DT_REG,
@@ -51,6 +51,7 @@ enum class TokenType {
     OP_MINUS,              // -
     OP_PLUS,               // +
     OP_COLON,              // :
+    OP_SLASH,              // /
 
     //  Literals & Identifiers 
     IDENTIFIER,

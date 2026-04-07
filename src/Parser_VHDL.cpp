@@ -45,6 +45,8 @@ TokenType Parser_VHDL::KeywordToTokenType(const std::string& keyword) {
         {"constant", TokenType::KW_CONSTANT},
         {"signal", TokenType::KW_SIGNAL},
         {"process", TokenType::KW_PROCESS},
+        {"downto", TokenType::KW_DOWNTO},
+        {"to", TokenType::KW_TO},
 
         {"in", TokenType::DIR_IN},
         {"out", TokenType::DIR_OUT},
@@ -149,7 +151,6 @@ bool Parser_VHDL::ParsePortList(size_t& token_index, Module& module) {
         else if (tok.type == TokenType::OP_SEMICOLON || tok.type == TokenType::OP_COMMA) {
             if (!current_name.empty()) {
                 AddVHDLPort(module, current_name, direction, data_type, width, description);
-                description.clear();
             }
             if (tok.type == TokenType::OP_SEMICOLON) {
                 ResetDeclarationState(direction, data_type, width,
@@ -166,7 +167,6 @@ bool Parser_VHDL::ParsePortList(size_t& token_index, Module& module) {
             NextToken(token_index);
             break;
         }
-
         NextToken(token_index);
     }
     return true;
@@ -204,6 +204,10 @@ bool Parser_VHDL::ParseGenericList(size_t& token_index, Module& module) {
             tok.type == TokenType::DT_INTEGER ||
             tok.type == TokenType::DT_BOOLEAN) {
             data_type = tok.value;
+            if (tok.type == TokenType::DT_STD_LOGIC_VECTOR) {
+                NextToken(token_index);
+                data_type += ParseVHDLRange(token_index);
+            }
             reading_names = false;
             NextToken(token_index);
             continue;
@@ -345,12 +349,20 @@ std::vector<Module> Parser_VHDL::ParseFromTokens() {
 // Range processing: (7 downto 0) или (0 to 7)
 std::string Parser_VHDL::ParseVHDLRange(size_t& token_index) {
     if (!IsAtToken(token_index, TokenType::OP_LPAREN)) return "1";
-
     NextToken(token_index);
+
     std::string range;
 
     while (token_index < tokens.size() &&
         CurrentToken(token_index).type != TokenType::OP_RPAREN) {
+        if (IsAtToken(token_index, TokenType::KW_DOWNTO)) {
+            range += " downto ";
+            NextToken(token_index);
+        }
+        else if (IsAtToken(token_index, TokenType::KW_TO)) {
+            range += " to ";
+            NextToken(token_index);
+        }
         range += CurrentToken(token_index).value;
         NextToken(token_index);
     }
@@ -375,8 +387,8 @@ std::string Parser_VHDL::ParseVHDLDefault(size_t& token_index) {
     std::string value;
     while (token_index < tokens.size()) {
         TokenType t = CurrentToken(token_index).type;
-        if (t == TokenType::OP_SEMICOLON || t == TokenType::OP_COMMA ||
-            t == TokenType::OP_RPAREN) {
+        if (t == TokenType::OP_SEMICOLON || t == TokenType::COMMENT_DOC_SINGLE || 
+            t == TokenType::COMMENT_SINGLE || t == TokenType::OP_RPAREN) {
             break;
         }
         value += CurrentToken(token_index).lexeme;

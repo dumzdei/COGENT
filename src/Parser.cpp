@@ -94,6 +94,7 @@ void Parser::Tokenize() {
             case '-': tokens.push_back(CreateToken(TokenType::OP_MINUS, "-", "-", line, col)); col++; break;
             case '+': tokens.push_back(CreateToken(TokenType::OP_PLUS, "+", "+", line, col)); col++; break;
             case ':': tokens.push_back(CreateToken(TokenType::OP_COLON, ":", ":", line, col)); col++; break;
+            case '/': tokens.push_back(CreateToken(TokenType::OP_SLASH, "/", "/", line, col)); col++; break;
             default: col++; break;
             }
         }
