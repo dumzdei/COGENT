@@ -18,6 +18,9 @@ entity axi_reg_bank is
         ENABLE_DEBUG  : boolean := true                   --* optional Debug mode enable
     );
     port (
+        clk, rst_n       : in  std_logic;
+        data_in, addr    : in  std_logic_vector(7 downto 0);
+        result           : out std_logic_vector(15 downto 0);
         axi_aclk      : in  std_logic;                    --* System clock signal
         axi_aresetn   : in  std_logic;                    --* Asynchronous active-low reset
         axi_awaddr    : in  std_logic_vector(ADDR_WIDTH-1 downto 0); --* Write address

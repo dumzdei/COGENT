@@ -83,14 +83,11 @@ private:
     bool ParseGenericList(size_t& token_index, Module& module);
 
     std::string ParseVHDLRange(size_t& token_index);
-    std::string ParseVHDLDefault(size_t& token_index);
+    std::string ParseVHDLDefault(size_t token_index);
     void AddVHDLPort(Module& module, const std::string& name, const std::string& direction,
         const std::string& type, const std::string& width, const std::string& description);
     void AddVHDLGeneric(Module& module, const std::string& name, const std::string& type,
         const std::string& value, const std::string& description);
-    void ResetDeclarationState(std::string& direction, std::string& data_type,
-        std::string& width, std::string& default_value,
-        std::string& current_name, bool& reading_names, bool is_generic);
 
 public:
     bool IsMyFormat(const std::string& filename) override final;

@@ -90,7 +90,7 @@ bool Parser_VHDL::ReadComment(size_t& line, size_t& col) {
 
 bool Parser_VHDL::ParsePortList(size_t& token_index, Module& module) {
     if (!IsAtToken(token_index, TokenType::KW_PORT)) return false;
-    NextToken(token_index); 
+    NextToken(token_index);
 
     if (!IsAtToken(token_index, TokenType::OP_LPAREN)) return false;
     NextToken(token_index);
@@ -128,8 +128,7 @@ bool Parser_VHDL::ParsePortList(size_t& token_index, Module& module) {
         else if (tok.type == TokenType::DT_STD_LOGIC ||
             tok.type == TokenType::DT_STD_LOGIC_VECTOR ||
             tok.type == TokenType::DT_INTEGER ||
-            tok.type == TokenType::DT_BOOLEAN ||
-            tok.type == TokenType::DT_BIT) {
+            tok.type == TokenType::DT_BOOLEAN) {
             data_type = tok.value;
             reading_names = false;
             NextToken(token_index);
@@ -143,18 +142,23 @@ bool Parser_VHDL::ParsePortList(size_t& token_index, Module& module) {
 
         // --*
         else if (tok.type == TokenType::COMMENT_DOC_SINGLE) {
-            module.ports.back().description = tok.value;
+            if (module.ports.back().description.empty())
+                module.ports.back().description = tok.value;
+            description = tok.value;
             NextToken(token_index);
             continue;
         }
 
         else if (tok.type == TokenType::OP_SEMICOLON || tok.type == TokenType::OP_COMMA) {
             if (!current_name.empty()) {
-                AddVHDLPort(module, current_name, direction, data_type, width, description);
+                AddVHDLPort(module, current_name, direction, data_type, width, "");
             }
             if (tok.type == TokenType::OP_SEMICOLON) {
-                ResetDeclarationState(direction, data_type, width,
-                    description, current_name, reading_names, false);
+                current_name.clear();
+                direction = "input";
+                data_type = "std_logic";
+                width = "1";
+                reading_names = true;
             }
             NextToken(token_index);
             continue;
@@ -220,10 +224,12 @@ bool Parser_VHDL::ParseGenericList(size_t& token_index, Module& module) {
             if (!current_name.empty()) {
                 AddVHDLGeneric(module, current_name, data_type, default_value, pending_description);
                 pending_description.clear();
-                ResetDeclarationState(pending_description, data_type,
-                    pending_description, pending_description,
-                    current_name, reading_names, true);
+                current_name.clear();
+                data_type = "std_logic";
+                default_value.clear();
+                reading_names = true;
             }
+            NextToken(token_index);
             continue;
         }
 
@@ -234,26 +240,8 @@ bool Parser_VHDL::ParseGenericList(size_t& token_index, Module& module) {
             continue;
         }
 
-        // Завершение объявления: ; или ,
-        if (tok.type == TokenType::OP_SEMICOLON || tok.type == TokenType::OP_COMMA) {
-            if (!current_name.empty()) {
-                AddVHDLGeneric(module, current_name, data_type, "", pending_description);
-                pending_description.clear();
-            }
-            if (tok.type == TokenType::OP_SEMICOLON) {
-                ResetDeclarationState(pending_description, data_type,
-                    pending_description, pending_description,
-                    current_name, reading_names, true);
-            }
-            NextToken(token_index);
-            continue;
-        }
-
         // Конец списка дженериков
         if (tok.type == TokenType::OP_RPAREN) {
-            if (!current_name.empty()) {
-                AddVHDLGeneric(module, current_name, data_type, "", pending_description);
-            }
             NextToken(token_index);
             break;
         }
@@ -357,13 +345,13 @@ std::string Parser_VHDL::ParseVHDLRange(size_t& token_index) {
         CurrentToken(token_index).type != TokenType::OP_RPAREN) {
         if (IsAtToken(token_index, TokenType::KW_DOWNTO)) {
             range += " downto ";
-            NextToken(token_index);
         }
         else if (IsAtToken(token_index, TokenType::KW_TO)) {
             range += " to ";
-            NextToken(token_index);
+        } 
+        else {
+            range += CurrentToken(token_index).value;
         }
-        range += CurrentToken(token_index).value;
         NextToken(token_index);
     }
 
@@ -374,7 +362,7 @@ std::string Parser_VHDL::ParseVHDLRange(size_t& token_index) {
 }
 
 // :=
-std::string Parser_VHDL::ParseVHDLDefault(size_t& token_index) {
+std::string Parser_VHDL::ParseVHDLDefault(size_t token_index) {
     // Check for ":="
     if (token_index + 1 >= tokens.size()) return "";
     if (CurrentToken(token_index).type != TokenType::OP_ASSIGN ||
@@ -421,17 +409,4 @@ void Parser_VHDL::AddVHDLGeneric(Module& module, const std::string& name,
     p.type = "generic";
     p.description = description;
     module.params.push_back(p);
-}
-
-// Resetting state for the next declaration
-void Parser_VHDL::ResetDeclarationState(std::string& direction, std::string& data_type,
-    std::string& width, std::string& default_value,
-    std::string& current_name, bool& reading_names,
-    bool is_generic) {
-    current_name.clear();
-    direction = is_generic ? "generic" : "input";
-    data_type = "std_logic";
-    width = "1";
-    default_value.clear();
-    reading_names = true;
 }
