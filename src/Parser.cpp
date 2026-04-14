@@ -57,11 +57,10 @@ void Parser::Tokenize() {
 
     while (line < lines.size()) {
         size_t col = 0;
-        const std::string& current_line = lines[line];
-        while (col < current_line.length()) {
+        while (col < lines[line].length()) {
             SkipWhitespace(line, col);
-            if (col >= current_line.length()) break;
-            char c = current_line[col];
+            if (col >= lines[line].length()) break;
+            char c = lines[line][col];
 
             // Each language decides for itself whether it is a comment
             if (c == '/' || c == '-') {
@@ -95,6 +94,8 @@ void Parser::Tokenize() {
             case '+': tokens.push_back(CreateToken(TokenType::OP_PLUS, "+", "+", line, col)); col++; break;
             case ':': tokens.push_back(CreateToken(TokenType::OP_COLON, ":", ":", line, col)); col++; break;
             case '/': tokens.push_back(CreateToken(TokenType::OP_SLASH, "/", "/", line, col)); col++; break;
+            case '*': tokens.push_back(CreateToken(TokenType::OP_STAR, "*", "*", line, col)); col++; break;
+            case '?': tokens.push_back(CreateToken(TokenType::OP_INTERROGATIVE, "?", "?", line, col)); col++; break;
             default: col++; break;
             }
         }

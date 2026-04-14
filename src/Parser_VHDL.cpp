@@ -177,6 +177,8 @@ bool Parser_VHDL::ParsePortList(size_t& token_index, Module& module) {
 }
 
 bool Parser_VHDL::ParseGenericList(size_t& token_index, Module& module) {
+    module.ShowParamType = false;     // VHDL has no types
+
     if (!IsAtToken(token_index, TokenType::KW_GENERIC)) return false;
     NextToken(token_index);
 

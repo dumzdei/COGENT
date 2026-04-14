@@ -24,8 +24,7 @@ bool Parser_SystemVerilog::IsMyFormat(const std::string& filename) {
             line.find("interface") != std::string::npos ||
             line.find("package") != std::string::npos ||
             line.find("logic") != std::string::npos ||
-            line.find("always_ff") != std::string::npos ||
-            line.find("always_comb") != std::string::npos) {
+            line.find("always") != std::string::npos) {
             return true;
         }
     }
@@ -60,6 +59,7 @@ TokenType Parser_SystemVerilog::KeywordToTokenType(const std::string& keyword) {
         {"tri", TokenType::DT_TRI},
         {"reg", TokenType::DT_REG},
         {"int", TokenType::DT_INT},
+        {"integer", TokenType::DT_INT},
         {"byte", TokenType::DT_BYTE},
         {"bit", TokenType::DT_BIT},
         {"struct", TokenType::DT_STRUCT}
@@ -225,9 +225,10 @@ bool Parser_SystemVerilog::ParseParameterList(size_t& token_index, Module& modul
     }
 
     std::string data_type;
+    bool is_local = false;
+
     while (token_index < tokens.size()) {
         Token& tok = CurrentToken(token_index);
-        bool is_local = true;
         
         if (tok.type == TokenType::KW_LOCALPARAM) {
             is_local = true;
@@ -249,21 +250,40 @@ bool Parser_SystemVerilog::ParseParameterList(size_t& token_index, Module& modul
             Param p;
             p.name = tok.value;
             p.type = is_local ? "localparam" : "parameter";
-            p.data_type = data_type;
+            if (!data_type.empty())
+            {
+                module.ShowParamDataType = true;
+                p.data_type = data_type;
+            }
 
             NextToken(token_index);
 
             // Value = ...
             if (IsAtToken(token_index, TokenType::OP_ASSIGN)) {
                 NextToken(token_index);
-                while (CurrentToken(token_index).type != TokenType::OP_COMMA &&
-                    CurrentToken(token_index).type != TokenType::OP_RPAREN &&
-                    CurrentToken(token_index).type != TokenType::COMMENT_DOC_SINGLE &&
-                    CurrentToken(token_index).type != TokenType::COMMENT_DOC_MULTI &&
-                    CurrentToken(token_index).type != TokenType::COMMENT_SINGLE &&
-                    CurrentToken(token_index).type != TokenType::COMMENT_MULTI) {
-                    p.value += CurrentToken(token_index).lexeme;
-                    NextToken(token_index);
+                if (!is_local)
+                {
+                    while (CurrentToken(token_index).type != TokenType::OP_COMMA &&
+                        CurrentToken(token_index).type != TokenType::OP_SEMICOLON &&
+                        CurrentToken(token_index).type != TokenType::OP_RPAREN &&
+                        CurrentToken(token_index).type != TokenType::COMMENT_DOC_SINGLE &&
+                        CurrentToken(token_index).type != TokenType::COMMENT_DOC_MULTI &&
+                        CurrentToken(token_index).type != TokenType::COMMENT_SINGLE &&
+                        CurrentToken(token_index).type != TokenType::COMMENT_MULTI) {
+                        p.value += CurrentToken(token_index).lexeme;
+                        NextToken(token_index);
+                    }
+                }
+                else
+                {
+                    while (CurrentToken(token_index).type != TokenType::OP_SEMICOLON &&
+                        CurrentToken(token_index).type != TokenType::COMMENT_DOC_SINGLE &&
+                        CurrentToken(token_index).type != TokenType::COMMENT_DOC_MULTI &&
+                        CurrentToken(token_index).type != TokenType::COMMENT_SINGLE &&
+                        CurrentToken(token_index).type != TokenType::COMMENT_MULTI) {
+                        p.value += CurrentToken(token_index).lexeme;
+                        NextToken(token_index);
+                    }
                 }
             }
 
@@ -327,14 +347,14 @@ bool Parser_SystemVerilog::ReadComment(size_t& line, size_t& col) {
         while (line < lines.size()) {
             size_t end_pos = lines[line].find("*/");
             if (end_pos != std::string::npos) {
-                content += "\n" + lines[line].substr(0, end_pos);
+                content += lines[line].substr(0, end_pos);
                 col = end_pos + 2;
                 TokenType type = is_doc ? TokenType::COMMENT_DOC_MULTI : TokenType::COMMENT_MULTI;
                 tokens.push_back(CreateToken(type, content, content, line, start_col));
                 return true;
             }
             else {
-                content += "\n" + lines[line];
+                content += ' ' + lines[line];
                 line++;
             }
         }

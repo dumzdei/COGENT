@@ -52,6 +52,8 @@ enum class TokenType {
     OP_PLUS,               // +
     OP_COLON,              // :
     OP_SLASH,              // /
+    OP_STAR,               // *
+    OP_INTERROGATIVE,      // ?
 
     //  Literals & Identifiers 
     IDENTIFIER,
@@ -110,5 +112,7 @@ struct Module
     std::string id;
     std::vector<Port> ports;
 	std::vector<Param> params;
+    bool ShowParamType = true;
+    bool ShowParamDataType = false;
     std::vector<Comment_block> comments;
 };

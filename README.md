@@ -7,41 +7,33 @@
 For the code listed below see the result.
 
 ```v
-/** @brief 
-Memory controller for working with cache and main RAM.
-Interacts between the processor and memory,
-ensuring data storage and retrieval through the cache.
-**/
- 
-//* @author Dima
+/** @brief
+4-bit up-counter with synchronous reset \
+This module implements a basic 4-bit binary counter that increments on every
+positive clock edge. The counter wraps around from 15 to 0 automatically. \
+A synchronous active-low reset allows initialization to zero when rst_n is low.
+*/
 
-//* @date 2025-11-08
-//* @top A memory controller that connects the CPU to the main memory and cache.
-module memory_controller
-#(
-    parameter ADDR_WIDTH = 32,
-    parameter DATA_WIDTH = 64,
-    parameter CACHE_SIZE = 128
-)
-(
-    //* @note The inputs and outputs are connected to the CPU and the data bus.
-    input  wire                  clk,        //* Clock signal
-    input  wire                  rst_n,      //* Reset (active low)
-    input  wire [ADDR_WIDTH-1:0] addr_in,    //* Address entry
-    input  wire [DATA_WIDTH-1:0] data_in,    //* Data entry
-    output reg  [DATA_WIDTH-1:0] data_out,   //* Data output
-    input  wire                  we,         //* Recording signal
-    input  wire                  re,         //* Read signal
-    output reg                   ready       //* Readiness flag
+/** @note This counter uses synchronous reset which provides 
+better timing closure and predictability. \
+The initial block ensures simulation starts from known state but 
+may not synthesize to hardware initialization in all tools.
+*/
+
+/** @warning If rst_n is not properly synchronized to clk, \
+metastability issues may occur when reset is released near clock edge.
+*/
+
+/**
+@status Verified in simulation
+@author Nikolaenkov Dmitry. Email: dimanik116@gmail.com
+@date 11.11.2025
+*/
+module simple_counter (
+    input wire clk,     //* Clock, signal
+    input wire rst_n,    //* Active-low synchronous reset
+    output reg [3:0] q //* 4-bit counter output
 );
-
-reg [DATA_WIDTH-1:0] cache [0:CACHE_SIZE-1];
-reg [ADDR_WIDTH-1:0] tags_mem [0:CACHE_SIZE-1];
-reg valid [0:CACHE_SIZE-1];
-integer i;
-
-//* @todo Implement more efficient cache mapping (associative)
-//* @status in_progress
 ...
 endmodule
 ```
