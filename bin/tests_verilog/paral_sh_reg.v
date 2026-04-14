@@ -2,7 +2,7 @@
 
 /** @top
 top module
-**/
+*/
 
 module paral_sh_reg #(
     parameter WIDTH = 32, /** Widht **/

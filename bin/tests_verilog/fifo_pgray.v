@@ -3,7 +3,7 @@ module fifo_pgray
 #( parameter DW = 2,  AW = 5, R_EMPTY =0,R_FULL =0,R_DAT =0)
  (clk_r, clk_w, rst, clr, re, we, din, dout, empty, full, diff_rd, diff_wr) ;
 
-localparam  MS =1; //don't change !!! 
+localparam  MS =1; //* don't change !!! 
 
 // ------------ Port declarations --------- //
 input clk_r;
