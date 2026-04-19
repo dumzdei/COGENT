@@ -1,16 +1,26 @@
-#include "Exporter.h"
+п»ї#include "Exporter.h"
 
 #include <string>
-
+#include <algorithm>
+#include <cctype>  
 #include "Colors.hpp"
 
-std::string FormatTextWithLineBreaks(const std::string& text, const std::string& line_break_marker) {
+std::string FormatTextWithLineBreaks(const std::string& text, const std::string& line_break_marker,
+    bool ADOC = false) {
     std::string result = text;
     size_t pos = 0;
-    while ((pos = result.find(line_break_marker, pos)) != std::string::npos) {
-        result.replace(pos, line_break_marker.length(), "<br>");
-        pos += 4; // <br>
+    if (ADOC) {
+        while ((pos = result.find(line_break_marker, pos)) != std::string::npos) {
+            result.replace(pos, line_break_marker.length(), "+\n");
+        }
     }
+    else {
+        while ((pos = result.find(line_break_marker, pos)) != std::string::npos) {
+            result.replace(pos, line_break_marker.length(), "<br>");
+            pos += 4; // <br>
+        }
+    }
+    
     return result;
 }
 
@@ -279,7 +289,7 @@ std::string Exporter::Generate_SVG(const Module& module, bool use_external_style
     int module_x = svg_width / 4;
     int module_y = 10;
 
-    // Важно: указываем viewBox для правильного масштабирования
+    // Р’Р°Р¶РЅРѕ: СѓРєР°Р·С‹РІР°РµРј viewBox РґР»СЏ РїСЂР°РІРёР»СЊРЅРѕРіРѕ РјР°СЃС€С‚Р°Р±РёСЂРѕРІР°РЅРёСЏ
     svg << "<svg width=\"" << svg_width << "\" height=\"" << svg_height
         << "\" viewBox=\"0 0 " << svg_width << " " << svg_height
         << "\" xmlns=\"http://www.w3.org/2000/svg\">\n";
@@ -351,122 +361,246 @@ std::string Exporter::Generate_SVG(const Module& module, bool use_external_style
 }
 
 // coming soon
+// coming soon
 int Exporter::Export_to_MD(std::vector<Module>& modules) {
-    std::ofstream md("report.md");
+    std::ofstream md("README.md");
 
     if (!md.is_open())
     {
-        std::cerr << FORMAT_ERROR "could not open report.md for writing.\n";
+        std::cerr << FORMAT_ERROR "could not open README.md for writing.\n";
         return 2;
     }
 
-    bool inTopModule = false;
-    const Module* top = nullptr;
+    // Document header with table of contents
+    md << "# Module Documentation\n\n";
+    md << "## Table of Contents\n\n";
 
     for (const auto& module : modules)
     {
+        std::string anchor = module.name;
+        std::replace(anchor.begin(), anchor.end(), ' ', '-');
+        std::transform(anchor.begin(), anchor.end(), anchor.begin(), ::tolower);
+
+        // Check if this is the top module
+        bool isTop = false;
         for (const auto& cmt : module.comments)
         {
             if (cmt.tag == "@top" && !cmt.text.empty())
             {
-                top = &module;
+                isTop = true;
                 break;
             }
         }
-        if (top)
-            break;
+
+        md << "- [" << module.name << "](#" << anchor << ")";
+        if (isTop)
+            md << " <sup><code>TOP</code></sup>";
+        md << "\n";
     }
+    md << "\n---\n\n";
 
-    if (!top)
-        if (modules.size() == 1)
-            top = &modules[0];
-        else {
-            std::cerr << FORMAT_ERROR "didn't find the top module.\n";
-            return 3;
-        }
-
-    md << "<h2>Module: " << top->name << "</h2>\n";
-    md << "<h3>File: " << top->filename << "</h3>\n";
-
-    md << "\n";
-    md << Generate_SVG(*top, false);
-    md << "\n\n";
-
-
-    for (const auto& cmt : top->comments)
+    // Process all modules
+    for (size_t idx = 0; idx < modules.size(); ++idx)
     {
-        if (cmt.tag == "@top" && !cmt.text.empty())
+        const auto& module = modules[idx];
+
+        // Module header with anchor
+        std::string anchor = module.name;
+        std::replace(anchor.begin(), anchor.end(), ' ', '-');
+        std::transform(anchor.begin(), anchor.end(), anchor.begin(), ::tolower);
+
+        md << "<a name=\"" << anchor << "\"></a>\n";
+        md << "# " << module.name;
+
+        // Add TOP badge if this is the top module
+        bool isTop = false;
+        for (const auto& cmt : module.comments)
         {
-            //md << "#" << top->name << "\n\n";
-            //md << cmt.text[0] << "\n\n";
-            continue;
+            if (cmt.tag == "@top" && !cmt.text.empty())
+            {
+                isTop = true;
+                break;
+            }
         }
-        if (cmt.tag == "@status" && !cmt.text.empty())
+        if (isTop)
+            md << " <sup><code>TOP</code></sup>";
+        md << "\n\n";
+
+        md << "**File:** `" << module.filename << "`\n\n";
+        md << "---\n\n";
+
+        // SVG Diagram
+        md << "## Module Diagram\n\n";
+        md << "<div align=\"center\">\n\n";
+        md << Generate_SVG(module, false);
+        md << "\n\n</div>\n\n";
+        md << "---\n\n";
+
+        // Metadata table
+        bool hasMetadata = false;
+        std::stringstream metadataStream;
+
+        metadataStream << "| Property | Value |\n";
+        metadataStream << "|----------|-------|\n";
+
+        for (const auto& cmt : module.comments)
         {
-            md << "### Status: " << cmt.text[0] << "\n\n";
-            continue;
+            if (cmt.tag == "@status" && !cmt.text.empty())
+            {
+                std::string statusText = cmt.text;
+                std::string Text = statusText;
+                std::transform(statusText.begin(), statusText.end(), statusText.begin(), [](unsigned char c) {
+                    return std::tolower(c);
+                    });
+                std::string statusBadge;
+                if (statusText.find("complete") != std::string::npos ||
+                    statusText.find("done") != std::string::npos ||
+                    statusText.find("verified in simulation") != std::string::npos)
+                    statusBadge = "**[COMPLETE]** ";
+                else if (statusText.find("progress") != std::string::npos)
+                    statusBadge = "**[IN PROGRESS]** ";
+                else
+                    statusBadge = "**[PENDING]** ";
+                metadataStream << "| **Status** | " << statusBadge << Text << " |\n";
+                hasMetadata = true;
+            }
+            if (cmt.tag == "@date" && !cmt.text.empty())
+            {
+                metadataStream << "| **Date** | " << FormatTextWithLineBreaks(cmt.text, "\\") << " |\n";
+                hasMetadata = true;
+            }
+            if (cmt.tag == "@author" && !cmt.text.empty())
+            {
+                metadataStream << "| **Author** | " << FormatTextWithLineBreaks(cmt.text, "\\") << " |\n";
+                hasMetadata = true;
+            }
         }
-        if (cmt.tag == "@date" && !cmt.text.empty())
+
+        if (hasMetadata)
         {
-            md << "### Date: " << cmt.text[0] << "\n";
-            continue;
+            md << "## Module Information\n\n";
+            md << metadataStream.str();
+            md << "\n---\n\n";
         }
-        if (cmt.tag == "@brief" && !cmt.text.empty())
+
+        // Description
+        for (const auto& cmt : module.comments)
         {
-            md << "### Description\n\n";
-            if (!cmt.text.empty())
-                md << cmt.text << "<br/>\n";
-            md << "\n\n";
-            continue;
+            if (cmt.tag == "@brief" && !cmt.text.empty())
+            {
+                md << "## Description\n\n";
+                md << FormatTextWithLineBreaks(cmt.text, "\\") << "\n\n";
+                md << "---\n\n";
+            }
         }
-        if (cmt.tag == "@note" && !cmt.text.empty())
+
+        // Parameters table
+        if (!module.params.empty())
         {
-            md << "### Note\n\n";
-            for (const auto& text : cmt.text)
-                md << text << "<br/>\n";
-            md << "\n";
-            continue;
+            md << "## Parameters\n\n";
+            md << "| Name | ";
+            if (module.ShowParamType)
+                md << "Type | ";
+            if (module.ShowParamDataType)
+                md << "Data Type | ";
+            md << "Default | Description |\n";
+
+            md << "|------|";
+            if (module.ShowParamType)
+                md << "------|";
+            if (module.ShowParamDataType)
+                md << "-----------|";
+            md << "---------|-------------|\n";
+
+            for (const auto& param : module.params)
+            {
+                md << "| `" << param.name << "` | ";
+                if (module.ShowParamType)
+                    md << param.type << " | ";
+                if (module.ShowParamDataType)
+                    md << param.data_type << " | ";
+                md << "`" << param.value << "` | " << param.description << " |\n";
+            }
+            md << "\n---\n\n";
         }
-        if (cmt.tag == "@warning" && !cmt.text.empty())
+
+        // Ports table
+        if (!module.ports.empty())
         {
-            md << "### Warning\n\n";
-            for (const auto& text : cmt.text)
-                md << text << "<br/>\n";
-            md << "\n";
-            continue;
+            md << "## Ports\n\n";
+            md << "| Name | Direction | Type | Width | Description |\n";
+            md << "|------|-----------|------|-------|-------------|\n";
+
+            for (const auto& port : module.ports)
+            {
+                std::string dirIcon;
+                if (port.direction == "input" || port.direction == "in")
+                    dirIcon = "-> ";
+                else if (port.direction == "output" || port.direction == "out")
+                    dirIcon = "<- ";
+                else
+                    dirIcon = "<-> ";
+
+                md << "| `" << port.name << "` | " << dirIcon << port.direction << " | "
+                    << port.type << " | " << port.width << " | " << port.description << " |\n";
+            }
+            md << "\n---\n\n";
         }
-        if (cmt.tag == "@error" && !cmt.text.empty())
+
+        // Additional sections
+        for (const auto& cmt : module.comments)
         {
-            md << "### Error\n\n";
-            for (const auto& text : cmt.text)
-                md << text << "<br/>\n";
-            md << "\n";
-            continue;
+            if (cmt.tag == "@note" && !cmt.text.empty())
+            {
+                md << "## Notes\n\n";
+                md << "> **Note:** " << FormatTextWithLineBreaks(cmt.text, "\\") << "\n\n";
+                md << "---\n\n";
+            }
+            if (cmt.tag == "@warning" && !cmt.text.empty())
+            {
+                md << "## Warnings\n\n";
+                md << "> **Warning:** " << FormatTextWithLineBreaks(cmt.text, "\\") << "\n\n";
+                md << "---\n\n";
+            }
+            if (cmt.tag == "@error" && !cmt.text.empty())
+            {
+                md << "## Errors\n\n";
+                md << "> **Error:** " << FormatTextWithLineBreaks(cmt.text, "\\") << "\n\n";
+                md << "---\n\n";
+            }
+            if (cmt.tag == "@todo" && !cmt.text.empty())
+            {
+                md << "## TODO\n\n";
+                std::string todoText = FormatTextWithLineBreaks(cmt.text, "\\");
+                std::stringstream ss(todoText);
+                std::string token;
+                while (std::getline(ss, token, '\n')) {
+                    if (!token.empty())
+                        md << "- [ ] " << token << "\n";
+                }
+                md << "\n---\n\n";
+            }
+            if (cmt.tag == "@example" && !cmt.text.empty())
+            {
+                md << "## Example\n\n";
+                md << "```\n";
+                md << cmt.text;
+                md << "\n```\n\n";
+                md << "---\n\n";
+            }
         }
-        if (cmt.tag == "@todo" && !cmt.text.empty())
-        {
-            md << "### TODO\n\n";
-            for (const auto& text : cmt.text)
-                md << "- " << text << "\n";
-            md << "\n\n";
-            continue;
-        }
-        if (cmt.tag == "@example" && !cmt.text.empty())
-        {
-            md << "### Example\n\n";
-            md << "```v";
-            for (const auto& text : cmt.text)
-                md << text << "\n";
-            md << "```\n\n";
-            continue;
-        }
-        if (cmt.tag == "@author" && !cmt.text.empty())
-            md << "### Author: \n\n" << cmt.text[0] << "\n\n";
+
+        // Add page break between modules (for PDF conversion)
+        if (idx < modules.size() - 1)
+            md << "\n<div style=\"page-break-after: always;\"></div>\n\n";
     }
+
+    // Footer
+    md << "\n---\n\n";
+    md << "*Documentation generated automatically by COGENT*\n";
 
     return 0;
 }
-// coming soon
 int Exporter::Export_to_ADOC(std::vector<Module>& modules) {
     std::ofstream adoc("report.adoc");
 
@@ -476,110 +610,204 @@ int Exporter::Export_to_ADOC(std::vector<Module>& modules) {
         return 2;
     }
 
-    bool inTopModule = false;
-    const Module* top = nullptr;
+    // AsciiDoc header with custom CSS
+    adoc << "= Module Documentation\n";
+    adoc << ":toc: left\n";
+    adoc << ":toclevels: 3\n";
+    adoc << ":toc-title: Table of Contents\n";
+    adoc << ":sectnums:\n";
+    adoc << ":icons: font\n";
+    adoc << ":source-highlighter: rouge\n";
+    adoc << ":sectanchors:\n";
+    adoc << ":linkattrs:\n\n";
 
-    for (const auto& module : modules)
+    adoc << ":stylesheet: " << "default.css\n";
+    adoc << "\n";
+
+    // Process all modules
+    for (size_t idx = 0; idx < modules.size(); ++idx)
     {
+        const auto& module = modules[idx];
+
+        // Create anchor-friendly ID
+        std::string anchor = module.name;
+        std::replace(anchor.begin(), anchor.end(), ' ', '_');
+        std::replace(anchor.begin(), anchor.end(), '(', '_');
+        std::replace(anchor.begin(), anchor.end(), ')', '_');
+        std::replace(anchor.begin(), anchor.end(), '[', '_');
+        std::replace(anchor.begin(), anchor.end(), ']', '_');
+
+        // Module header with anchor
+        adoc << "[#" << anchor << "]\n";
+
+        bool isTop = false;
         for (const auto& cmt : module.comments)
         {
             if (cmt.tag == "@top" && !cmt.text.empty())
             {
-                top = &module;
+                isTop = true;
                 break;
             }
         }
-        if (top)
-            break;
+
+        adoc << "== " << module.name;
+        if (isTop)
+            adoc << " TOP";
+        adoc << "\n\n";
+
+        // Module info sidebar
+        bool hasMetadata = false;
+        std::stringstream sidebarStream;
+
+        sidebarStream << "*File:* `" << module.filename << "`\n\n";
+
+        for (const auto& cmt : module.comments)
+        {
+            if (cmt.tag == "@status" && !cmt.text.empty())
+            {
+                std::string statusText = cmt.text;
+                std::string Text = statusText;
+                std::transform(statusText.begin(), statusText.end(), statusText.begin(), [](unsigned char c) {
+                    return std::tolower(c);
+                    });
+                sidebarStream << "*Status:* ";
+                if (statusText.find("complete") != std::string::npos ||
+                    statusText.find("done") != std::string::npos ||
+                    statusText.find("verified in simulation") != std::string::npos)
+                    sidebarStream << "[+] ";
+                else if (statusText.find("progress") != std::string::npos)
+                    sidebarStream << "[~] ";
+                else
+                    sidebarStream << "[-]#";
+                sidebarStream << Text << "\n\n";
+                hasMetadata = true;
+            }
+            if (cmt.tag == "@date" && !cmt.text.empty())
+            {
+                sidebarStream << "*Date:* " << FormatTextWithLineBreaks(cmt.text, "\\", true) << "\n\n";
+                hasMetadata = true;
+            }
+            if (cmt.tag == "@author" && !cmt.text.empty())
+            {
+                sidebarStream << "*Author:* " << FormatTextWithLineBreaks(cmt.text, "\\", true) << "\n\n";
+                hasMetadata = true;
+            }
+        }
+
+        adoc << ".Module Information\n";
+        adoc << "[sidebar]\n";
+        adoc << "--\n";
+        adoc << sidebarStream.str();
+        adoc << "--\n\n";
+
+        // Module Diagram
+        adoc << "=== Module Diagram\n\n";
+        adoc << "[.text-center]\n";
+        adoc << "++++\n";
+        adoc << Generate_SVG(module, false);
+        adoc << "\n++++\n\n";
+
+        // Parameters
+        if (!module.params.empty())
+        {
+            adoc << "=== Parameters\n\n";
+            adoc << "[options=\"header\",cols=\"2,";
+            if (module.ShowParamType) adoc << "2,";
+            if (module.ShowParamDataType) adoc << "2,";
+            adoc << "2,5\"]\n";
+            adoc << "|===\n";
+            adoc << "|Name ";
+            if (module.ShowParamType) adoc << "|Type ";
+            if (module.ShowParamDataType) adoc << "|Data Type ";
+            adoc << "|Default |Description\n\n";
+
+            for (const auto& param : module.params)
+            {
+                adoc << "|`" << param.name << "` ";
+                if (module.ShowParamType) adoc << "|" << param.type << " ";
+                if (module.ShowParamDataType) adoc << "|" << param.data_type << " ";
+                adoc << "|`" << param.value << "` |" << param.description << "\n";
+            }
+            adoc << "|===\n\n";
+        }
+
+        // Ports
+        if (!module.ports.empty())
+        {
+            adoc << "=== Ports\n\n";
+            adoc << "[options=\"header\",cols=\"3,2,2,2,5\"]\n";
+            adoc << "|===\n";
+            adoc << "|Name |Direction |Type |Width |Description\n\n";
+
+            for (const auto& port : module.ports)
+            {
+                std::string dirAdoc;
+                if (port.direction == "input" || port.direction == "in")
+                    dirAdoc = "&larr; Input";  // в†ђ
+                else if (port.direction == "output" || port.direction == "out")
+                    dirAdoc = "&rarr; Output"; // в†’
+                else
+                    dirAdoc = "&harr; Inout";  // в†”
+
+                adoc << "|`" << port.name << "` |" << dirAdoc << " |"
+                    << port.type << " |" << port.width << " |" << port.description << "\n";
+            }
+            adoc << "|===\n\n";
+        }
+
+        // Documentation sections
+        for (const auto& cmt : module.comments)
+        {
+            if (cmt.tag == "@brief" && !cmt.text.empty())
+            {
+                adoc << "=== Description\n\n";
+                adoc << FormatTextWithLineBreaks(cmt.text, "\\", true) << "\n\n";
+            }
+            else if (cmt.tag == "@note" && !cmt.text.empty())
+            {
+                adoc << "=== Notes\n\n";
+                adoc << "NOTE: " << FormatTextWithLineBreaks(cmt.text, "\\", true) << "\n\n";
+            }
+            else if (cmt.tag == "@warning" && !cmt.text.empty())
+            {
+                adoc << "=== Warnings\n\n";
+                adoc << "WARNING: " << FormatTextWithLineBreaks(cmt.text, "\\", true) << "\n\n";
+            }
+            else if (cmt.tag == "@error" && !cmt.text.empty())
+            {
+                adoc << "=== Errors\n\n";
+                adoc << "CAUTION: " << FormatTextWithLineBreaks(cmt.text, "\\", true) << "\n\n";
+            }
+            else if (cmt.tag == "@todo" && !cmt.text.empty())
+            {
+                adoc << "=== TODO\n\n";
+                std::string todoText = FormatTextWithLineBreaks(cmt.text, "\\", true);
+                std::stringstream ss(todoText);
+                std::string token;
+                while (std::getline(ss, token, '\n')) {
+                    if (!token.empty())
+                        adoc << "* [ ] " << token << "\n";
+                }
+                adoc << "\n";
+            }
+            else if (cmt.tag == "@example" && !cmt.text.empty())
+            {
+                adoc << "=== Example\n\n";
+                adoc << "[source,verilog]\n";
+                adoc << "----\n";
+                adoc << cmt.text;
+                adoc << "\n----\n\n";
+            }
+        }
+
+        // Page break between modules
+        if (idx < modules.size() - 1)
+            adoc << "<<<\n\n";
     }
 
-    if (!top)
-        if (modules.size() == 1)
-            top = &modules[0];
-        else {
-            std::cerr << FORMAT_ERROR "didn't find the top module.\n";
-            return 3;
-        }
-
-    adoc << "== Module: " << top->name << "\n\n";
-    adoc << "== File: " << top->filename << "\n\n";
-
-    adoc << "\n++++\n";
-    adoc << Generate_SVG(*top, false);
-    adoc << "\n++++\n\n";
-
-
-    for (const auto& cmt : top->comments)
-    {
-        if (cmt.tag == "@top" && !cmt.text.empty())
-        {
-            //adoc << "#" << top->name << "\n\n";
-            //adoc << cmt.text[0] << "\n\n";
-            continue;
-        }
-        if (cmt.tag == "@status" && !cmt.text.empty())
-        {
-            adoc << "=== Status: " << cmt.text[0] << "\n\n";
-            continue;
-        }
-        if (cmt.tag == "@date" && !cmt.text.empty())
-        {
-            adoc << "=== Date: " << cmt.text[0] << "\n";
-            continue;
-        }
-        if (cmt.tag == "@brief" && !cmt.text.empty())
-        {
-            adoc << "=== Description\n\n";
-            if (!cmt.text.empty())
-                adoc << cmt.text << "<br/>\n";
-            adoc << "\n\n";
-            continue;
-        }
-        if (cmt.tag == "@note" && !cmt.text.empty())
-        {
-            adoc << "=== Note\n\n";
-            for (const auto& text : cmt.text)
-                adoc << text << "<br/>\n";
-            adoc << "\n";
-            continue;
-        }
-        if (cmt.tag == "@warning" && !cmt.text.empty())
-        {
-            adoc << "=== Warning\n\n";
-            for (const auto& text : cmt.text)
-                adoc << text << "<br/>\n";
-            adoc << "\n";
-            continue;
-        }
-        if (cmt.tag == "@error" && !cmt.text.empty())
-        {
-            adoc << "=== Error\n\n";
-            for (const auto& text : cmt.text)
-                adoc << text << "<br/>\n";
-            adoc << "\n";
-            continue;
-        }
-        if (cmt.tag == "@todo" && !cmt.text.empty())
-        {
-            adoc << "=== TODO\n\n";
-            for (const auto& text : cmt.text)
-                adoc << "* " << text << "\n";
-            adoc << "\n\n";
-            continue;
-        }
-        if (cmt.tag == "@example" && !cmt.text.empty())
-        {
-            adoc << "=== Example\n\n";
-            adoc << "[source,verilog]\n";
-            adoc << "....";
-            for (const auto& text : cmt.text)
-                adoc << text << "\n";
-            adoc << "....\n\n";
-            continue;
-        }
-        if (cmt.tag == "@author" && !cmt.text.empty())
-            adoc << "=== Author: \n\n" << cmt.text[0] << "\n\n";
-    }
+    // Footer
+    adoc << "\n'''\n\n";
+    adoc << "Documentation generated automatically | _Last updated: {docdate}_\n";
 
     return 0;
 }

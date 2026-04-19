@@ -5,7 +5,7 @@ top module
 */
 
 module paral_sh_reg #(
-    parameter WIDTH = 32, /** Widht **/
+    parameter WIDTH = 32, /** Widht */
     parameter IN_WIDTH = 4
 )
 (
