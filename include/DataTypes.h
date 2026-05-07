@@ -81,28 +81,28 @@ struct Token {
     }
 };
 
+struct Comment_block
+{
+    std::string text;
+    std::string tag;
+};
+
 struct Port
 {
     std::string name;
     std::string direction;
     std::string type;
-    std::string description;
     std::string width;
+    std::vector<Comment_block> comments;
 };
 
 struct Param
 {
     std::string name;
-    std::string description;
     std::string value;
     std::string data_type;
     std::string type;
-};
-
-struct Comment_block
-{
-    std::string text;
-    std::string tag;
+    std::vector<Comment_block> comments;
 };
 
 struct Module

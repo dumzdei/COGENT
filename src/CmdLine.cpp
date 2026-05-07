@@ -19,12 +19,14 @@ CmdLine::CmdLine(int _argc, char *_argv[]) {
 		if (strcmp(_argv[i], "--path") == 0 || (strcmp(_argv[i], "-p") == 0)) {
 			if (i < _argc - 1) {
 				if (!path.empty())
-					std::cerr << FORMAT_WARNING "the path to the source files will be overwritten from '" << path << "' to '" << _argv[i + 1] << "'" << std::endl;
+					std::cerr << FORMAT_WARNING "the path to the source files will be overwritten from '" <<
+					path << "' to '" << _argv[i + 1] << "'" << std::endl;
 				path = _argv[++i];
 				continue;
 			}
 			else {
-				std::cerr << FORMAT_ERROR "the '" << _argv[i] << "' should be followed by a path to the input files." << std::endl;
+				std::cerr << FORMAT_ERROR "the '" << _argv[i] <<
+					"' should be followed by a path to the input files." << std::endl;
 				argsOk		= false;
 				shouldStop	= true;
 				return;
@@ -34,7 +36,8 @@ CmdLine::CmdLine(int _argc, char *_argv[]) {
 			if (i < _argc - 1) {
 				themeName = _argv[++i];
 				if (themeName != "dark" && themeName != "lite") {
-					std::cerr << FORMAT_WARNING "the style '" << _argv[i] << "' is not supported. The default value of 'dark' will be used." << std::endl;
+					std::cerr << FORMAT_WARNING "the style '" << _argv[i] <<
+						"' is not supported. The default value of 'dark' will be used." << std::endl;
 					themeName = "dark";
 				}
 				continue;
@@ -46,11 +49,16 @@ CmdLine::CmdLine(int _argc, char *_argv[]) {
 				return;
 			}
 		}
+		if (strcmp(_argv[i], "--portlist") == 0 || (strcmp(_argv[i], "-pl") == 0)) {
+			portlist = true;
+			continue;
+		}
 		if (strcmp(_argv[i], "--format") == 0 || (strcmp(_argv[i], "-f") == 0)) {
 			if (i < _argc - 1) {
 				++i;
 				if (!strcmp(_argv[i], "html")) {
-					std::cerr << FORMAT_WARNING "HTML is the default output format, no need to specify it." << std::endl;
+					std::cerr << FORMAT_WARNING "HTML is the default output format, no need to specify it." <<
+						std::endl;
 					continue;
 				}
 				if (!strcmp(_argv[i], "markdown") || !strcmp(_argv[i], "md")) {
@@ -66,7 +74,8 @@ CmdLine::CmdLine(int _argc, char *_argv[]) {
 				continue;
 			}
 			else {
-				std::cerr << FORMAT_ERROR "the '" << _argv[i] << "' should be followed by the output format name." << std::endl;
+				std::cerr << FORMAT_ERROR "the '" << _argv[i] << "' should be followed by the output format name." <<
+					std::endl;
 				argsOk		= false;
 				shouldStop	= true;
 				return;
@@ -81,6 +90,15 @@ CmdLine::CmdLine(int _argc, char *_argv[]) {
 
 		std::cerr << FORMAT_ERROR "unknown option: " << _argv[i] << ". Use '-h' or '--help'.\n";
 		return;
+	}
+	if (portlist) {
+		if (format != OutputFormat::asciidoc) {
+			std::cout << FORMAT_WARNING "portlist export is only supported for Asciidoc. Ignoring --portlist.\n";
+			portlist = false;
+		}
+		else {
+			std::cout << FORMAT_INFO "Separate port list export enabled\n";
+		}
 	}
 	// Проверяем, что все необходимые аргументы были заданы
 	// По факту он такой один - путь к файлам для обработки

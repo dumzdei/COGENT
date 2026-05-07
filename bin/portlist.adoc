@@ -1,0 +1,130 @@
+= Port List
+
+:toc: left
+:icons: font
+
+== simple_counter (`tests_verilog\counter.v`)
+
+[options="header",cols="5*"]
+|===
+|Name |Width |Direction |Clock |Description
+
+|`clk` |1 |&larr; Input |100MHZ |Clock, signal
+|`rst_n` |1 |&larr; Input |- |Active-low synchronous reset
+|`q` |3:0 |&rarr; Output |- |4-bit counter output
+|===
+
+== fifo_gray_p2p (`tests_verilog\fifo_gray_p2p.v`)
+
+[options="header",cols="3*"]
+|===
+|Name |Width |Direction
+
+|`clk_r` |1 |&larr; Input
+|`clk_w` |1 |&larr; Input
+|`clr` |1 |&larr; Input
+|`re` |1 |&larr; Input
+|`rst` |1 |&larr; Input
+|`we` |1 |&larr; Input
+|`din` |DW-1:0 |&larr; Input
+|`empty` |1 |&rarr; Output
+|`full` |1 |&rarr; Output
+|`diff_rd` |AWg:0 |&rarr; Output
+|`diff_wr` |AWg:0 |&rarr; Output
+|`dout` |DW-1:0 |&rarr; Output
+|===
+
+== fifo_pgray (`tests_verilog\fifo_pgray.v`)
+
+[options="header",cols="3*"]
+|===
+|Name |Width |Direction
+
+|`clk_r` |1 |&larr; Input
+|`clk_w` |1 |&larr; Input
+|`clr` |1 |&larr; Input
+|`re` |1 |&larr; Input
+|`rst` |1 |&larr; Input
+|`we` |1 |&larr; Input
+|`din` |DW-1:0 |&larr; Input
+|`empty` |1 |&rarr; Output
+|`full` |1 |&rarr; Output
+|`diff_rd` |AW:0 |&rarr; Output
+|`diff_wr` |AW:0 |&rarr; Output
+|`dout` |DW-1:0 |&rarr; Output
+|`b` |AW:0 |&larr; Input
+|`g` |AW:0 |&larr; Input
+|===
+
+== fifo_s (`tests_verilog\fifo_s.v`)
+
+[options="header",cols="3*"]
+|===
+|Name |Width |Direction
+
+|`clk` |1 |&larr; Input
+|`rst_n` |1 |&larr; Input
+|`clr` |1 |&larr; Input
+|`re` |1 |&larr; Input
+|`we` |1 |&larr; Input
+|`din` |1 |&larr; Input
+|`dout` |1 |&larr; Input
+|`empty` |1 |&larr; Input
+|`full` |1 |&larr; Input
+|`diff` |1 |&larr; Input
+|`clk` |1 |&larr; Input
+|`rst_n` |1 |&larr; Input
+|`clr` |1 |&larr; Input
+|`din` |DW-1:0 |&larr; Input
+|`dout` |DW-1:0 |&rarr; Output
+|`we` |1 |&larr; Input
+|`re` |1 |&larr; Input
+|`full` |1 |&rarr; Output
+|`empty` |1 |&rarr; Output
+|`diff` |AW:0 |&rarr; Output
+|`b` |AW:0 |&larr; Input
+|`b` |AW:0 |&larr; Input
+|===
+
+== paral_sh_reg (`tests_verilog\paral_sh_reg.v`)
+
+[options="header",cols="3*"]
+|===
+|Name |Width |Direction
+
+|`clk` |1 |&larr; Input
+|`Sclk` |1 |&larr; Input
+|`reset` |1 |&larr; Input
+|`signal` |1 |&larr; Input
+|`out0` |1 |&rarr; Output
+|`out1` |1 |&rarr; Output
+|`out2` |1 |&rarr; Output
+|`out3` |1 |&rarr; Output
+|`error` |1 |&rarr; Output
+|`data_out` |WIDTH-1:0 |&rarr; Output
+|`b` |1 |&larr; Input
+|===
+
+== sh_reg (`tests_verilog\sh_reg.v`)
+
+[options="header",cols="3*"]
+|===
+|Name |Width |Direction
+
+|`clk` |1 |&larr; Input
+|`rst` |1 |&larr; Input
+|`signal` |1 |&larr; Input
+|`out0` |1 |&rarr; Output
+|`out1` |1 |&rarr; Output
+|`out2` |1 |&rarr; Output
+|`out3` |1 |&rarr; Output
+|`error` |1 |&rarr; Output
+|`reg_data` |3:0 |&rarr; Output
+|===
+
+
+---
+
+_Port list generated automatically by COGENT_
+
+https://github.com/dumzdei/COGENT

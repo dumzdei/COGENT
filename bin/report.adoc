@@ -101,9 +101,9 @@
 |===
 |Name |Direction |Type |Width |Description
 
-|`clk` |&larr; Input |wire |1 | Clock, signal
-|`rst_n` |&larr; Input |wire |1 | Active-low synchronous reset
-|`q` |&rarr; Output |reg |3:0 | 4-bit counter output
+|`clk` |&larr; Input |wire |1 |Clock, signal
+|`rst_n` |&larr; Input |wire |1 |Active-low synchronous reset
+|`q` |&rarr; Output |reg |3:0 |4-bit counter output
 |===
 
 === Description
@@ -121,6 +121,18 @@ NOTE: This counter uses synchronous reset which provides  better timing closure 
 
 WARNING: If rst_n is not properly synchronized to clk, +
  metastability issues may occur when reset is released near clock edge.
+
+=== Description
+
+Clock, signal
+
+=== Description
+
+Active-low synchronous reset
+
+=== Description
+
+4-bit counter output
 
 <<<
 
@@ -752,7 +764,7 @@ test
 |===
 |Name |Type |Default |Description
 
-|`WIDTH` |parameter |`32` | Widht 
+|`WIDTH` |parameter |`32` |Widht
 |`IN_WIDTH` |parameter |`4` |
 |===
 

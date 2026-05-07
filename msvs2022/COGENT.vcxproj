@@ -107,6 +107,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>C:\COGENT\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -130,17 +131,13 @@
   <ItemGroup>
     <ClCompile Include="..\src\CmdLine.cpp" />
     <ClCompile Include="..\src\Exporter.cpp" />
+    <ClCompile Include="..\src\Exporter_ADOC.cpp" />
+    <ClCompile Include="..\src\Exporter_HTML.cpp" />
+    <ClCompile Include="..\src\Exporter_MD.cpp" />
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\Parser.cpp" />
     <ClCompile Include="..\src\Parser_SystemVerilog.cpp" />
     <ClCompile Include="..\src\Parser_VHDL.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\src\CmdLine.hpp" />
-    <ClInclude Include="..\src\Colors.hpp" />
-    <ClInclude Include="..\src\DataTypes.h" />
-    <ClInclude Include="..\src\Exporter.h" />
-    <ClInclude Include="..\src\Parser.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\bin\templates\script.js" />
@@ -152,6 +149,13 @@
     <None Include="..\bin\templates\template_lite.htm">
       <DeploymentContent>true</DeploymentContent>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\CmdLine.hpp" />
+    <ClInclude Include="..\include\Colors.hpp" />
+    <ClInclude Include="..\include\DataTypes.h" />
+    <ClInclude Include="..\include\Exporter.h" />
+    <ClInclude Include="..\include\Parser.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

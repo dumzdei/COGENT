@@ -3,6 +3,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LocalDebuggerWorkingDirectory>..\bin</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>-f adoc -p "tests_verilog" -s lite</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-p "tests_verilog" -s lite -pl -f adoc</LocalDebuggerCommandArguments>
   </PropertyGroup>
 </Project>

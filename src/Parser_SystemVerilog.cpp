@@ -201,8 +201,13 @@ bool Parser_SystemVerilog::ParsePortList(size_t& token_index, Module& module) {
         // Port description
         else if (tok.type == TokenType::COMMENT_DOC_SINGLE ||
             tok.type == TokenType::COMMENT_DOC_MULTI) {
-            if (!module.ports.empty())
-                module.ports.back().description = tok.value;
+            if (!module.ports.empty()) {
+                std::vector<Comment_block> blocks = ParseCommentText(tok.value);
+                module.ports.back().comments.insert(module.ports.back().comments.end(),
+                    blocks.begin(), blocks.end());
+            }
+            NextToken(token_index);
+            continue;
         }
         // End of port list
         if (tok.type == TokenType::OP_RPAREN ||
@@ -242,8 +247,13 @@ bool Parser_SystemVerilog::ParseParameterList(size_t& token_index, Module& modul
         }
         else if (tok.type == TokenType::COMMENT_DOC_SINGLE ||
             tok.type == TokenType::COMMENT_DOC_MULTI) {
-            if (!module.params.empty())
-                module.params.back().description = tok.value;
+            if (!module.params.empty()) {
+                std::vector<Comment_block> blocks = ParseCommentText(tok.value);
+                module.params.back().comments.insert(module.params.back().comments.end(),
+                    blocks.begin(), blocks.end());
+            }
+            NextToken(token_index);
+            continue;
         }
         // Parameter name
         else if (tok.type == TokenType::IDENTIFIER) {

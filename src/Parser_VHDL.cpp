@@ -142,9 +142,11 @@ bool Parser_VHDL::ParsePortList(size_t& token_index, Module& module) {
 
         // --*
         else if (tok.type == TokenType::COMMENT_DOC_SINGLE) {
-            if (module.ports.back().description.empty())
-                module.ports.back().description = tok.value;
-            description = tok.value;
+            if (!module.params.empty()) {
+                std::vector<Comment_block> blocks = ParseCommentText(tok.value);
+                module.params.back().comments.insert(module.params.back().comments.end(),
+                    blocks.begin(), blocks.end());
+            }
             NextToken(token_index);
             continue;
         }
@@ -187,7 +189,7 @@ bool Parser_VHDL::ParseGenericList(size_t& token_index, Module& module) {
 
     std::string data_type = "std_logic";
     std::string current_name;
-    std::string pending_description;
+    std::string description;
     bool reading_names = true;
 
     while (token_index < tokens.size()) {
@@ -224,8 +226,8 @@ bool Parser_VHDL::ParseGenericList(size_t& token_index, Module& module) {
             CurrentToken(token_index - 1).value == ":") {
             std::string default_value = ParseVHDLDefault(token_index);
             if (!current_name.empty()) {
-                AddVHDLGeneric(module, current_name, data_type, default_value, pending_description);
-                pending_description.clear();
+                AddVHDLGeneric(module, current_name, data_type, default_value, description);
+                description.clear();
                 current_name.clear();
                 data_type = "std_logic";
                 default_value.clear();
@@ -237,7 +239,7 @@ bool Parser_VHDL::ParseGenericList(size_t& token_index, Module& module) {
 
         // --*
         if (tok.type == TokenType::COMMENT_DOC_SINGLE) {
-            module.params.back().description = tok.value;
+            module.params.back().comments = ParseCommentText(tok.value);
             NextToken(token_index);
             continue;
         }
@@ -396,7 +398,7 @@ void Parser_VHDL::AddVHDLPort(Module& module, const std::string& name,
     p.direction = direction;
     p.type = type;
     p.width = width;
-    p.description = description;
+    p.comments = ParseCommentText(description);
     module.ports.push_back(p);
 }
 
@@ -409,6 +411,6 @@ void Parser_VHDL::AddVHDLGeneric(Module& module, const std::string& name,
     p.data_type = type;
     p.value = value;
     p.type = "generic";
-    p.description = description;
+    p.comments = ParseCommentText(description);
     module.params.push_back(p);
 }

@@ -11,7 +11,7 @@ protected:
     std::string current_filename;
     std::vector<Token> tokens;
     std::vector<std::string> tags =
-    { "@brief" , "@todo" , "@description" , "@note" , "@warning" ,
+	{ "@brief" , "@todo" , "@description" , "@note" , "@warning" , "@clock" ,
       "@error" , "@author" , "@date" , "@example" , "@status" , "@top" };
 
     // ========== LEXICAL ANALYSIS ==========

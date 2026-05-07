@@ -21,9 +21,9 @@ metastability issues may occur when reset is released near clock edge.
 @date 11.11.2025
 */
 module simple_counter (
-    input wire clk,     //* Clock, signal
-    input wire rst_n,    //* Active-low synchronous reset
-    output reg [3:0] q //* 4-bit counter output
+    input wire clk,     //* @clock 100MHZ @brief Clock, signal
+    input wire rst_n,    //* @brief Active-low synchronous reset
+    output reg [3:0] q //* @brief 4-bit counter output
 );
     
     initial begin

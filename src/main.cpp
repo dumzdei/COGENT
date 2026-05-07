@@ -8,8 +8,7 @@
 #include "CmdLine.hpp"
 #include "Colors.hpp"
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
     std::cout << "Parsing command line ..." << std::endl;
     CmdLine cmdLine(argc, argv);
     if (!cmdLine.ok())
@@ -18,24 +17,21 @@ int main(int argc, char* argv[])
         return 0;
     std::cout << std::endl;
 
-    Parser     *parser = nullptr;
-    Exporter    exporter;
+    Parser     *parser   = nullptr;
+    Exporter   *exporter = nullptr;
 
     std::vector<Module> modules;
 
     std::cout << "Reading input file(s) ..." << std::endl;
-    try
-    {
+    try {
         std::filesystem::path path = cmdLine.getPath();
 
-        if (!std::filesystem::exists(path))
-        {
+        if (!std::filesystem::exists(path)) {
             std::cerr << FORMAT_ERROR "path \"" << path.string() << "\" does not exist.\n";
             return 3;
         }
 
-        if (!std::filesystem::is_directory(path))
-        {
+        if (!std::filesystem::is_directory(path)) {
             std::cerr << FORMAT_ERROR "the specified path \"" << path.string() << "\" is not a directory.\n";
             return 3;
         }
@@ -71,16 +67,27 @@ int main(int argc, char* argv[])
     std::cout << std::endl;
 
     std::cout << "Writing output..." << std::endl;
-    switch (cmdLine.getOutputFormat()) {
-        case OutputFormat::html:
-            exporter.Export_to_HTML(modules, cmdLine.getThemeName());
-            break;
-        case OutputFormat::markdown:
-            exporter.Export_to_MD(modules);
-            break;
-        case OutputFormat::asciidoc:
-            exporter.Export_to_ADOC(modules);
-            break;
+    std::string theme_name = cmdLine.getThemeName();
+    exporter = GetExporter(cmdLine.getOutputFormat());
+    if (!exporter) {
+        std::cerr << FORMAT_ERROR "unsupported output format\n";
+        return 4;
+	}
+	int export_result = exporter->Export(modules, theme_name);
+    if (export_result != 0) {
+        std::cerr << FORMAT_ERROR "export failed with code " << export_result << "\n";
+        return export_result;
+	}
+    if (cmdLine.getOutputFormat() == OutputFormat::asciidoc && cmdLine.PrintPortList()) {
+        auto* adoc_exp = dynamic_cast<Exporter_ADOC*>(exporter);
+        if (adoc_exp) {
+            int pl_result = adoc_exp->ExportPortList(modules);
+            if (pl_result != 0) {
+                std::cerr << FORMAT_ERROR "port list export failed with code " << pl_result << "\n";
+                return pl_result;
+            }
+            std::cout << FORMAT_INFO "Port list saved to 'portlist.adoc'\n";
+        }
     }
     std::cout << "Everything has been done!" << std::endl;
 
