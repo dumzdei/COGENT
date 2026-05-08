@@ -130,10 +130,10 @@ void CmdLine::printHelpMessage() {
 		)";
 	std::cout << "\033[0m\n";
 	std::cout << "Options:\n";
-	std::cout << std::left << std::setw(32) << "  -p, --path <path>"	<< "[required] the path to the input files\n";
-	std::cout << std::left << std::setw(32) << "  -s, --style <style>"	<< "[optional] the style of the theme, possible values are: 'light' and 'dark'\n";
-	std::cout << std::left << std::setw(32) << ""						<< "           the 'dark' theme is used by default\n";
-	std::cout << std::left << std::setw(32) << "  -f, --format <format>"<< "[optional] the format of the result document\n";
-	std::cout << std::left << std::setw(32) << ""						<< "           by now only the 'html' format is supported\n";
-	std::cout << std::left << std::setw(32) << "  -h, --help"			<< "[optional] show this message\n";
+	std::cout << std::left << std::setw(32) << "  -p,   --path <path>"	    << "[required] the path to the input files\n";
+	std::cout << std::left << std::setw(32) << "  -s,   --style <style>"	<< "[optional] the style of the theme, possible values are: 'light' and 'dark'\n";
+	std::cout << std::left << std::setw(32) << ""						    << "           the 'dark' theme is used by default\n";
+	std::cout << std::left << std::setw(32) << "  -f,   --format <format>"  << "[optional] the format of the result document\n";
+	std::cout << std::left << std::setw(32) << "  -pl,  --portlist"         << "[optional] the output of a separate portlist\n";
+	std::cout << std::left << std::setw(32) << "  -h,   --help"			    << "[optional] show this message\n";
 }
