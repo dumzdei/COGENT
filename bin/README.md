@@ -23,52 +23,6 @@
 <div align="center">
 
 <svg width="800" height="330" viewBox="0 0 800 330" xmlns="http://www.w3.org/2000/svg">
-<style>
-.module-box {
-    fill: #ffffff;
-    stroke: #bcc4cc;
-    stroke-width: 1.5;
-}
-.module-name {
-    fill: #0066cc;
-    font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 14;
-    font-weight: 500;
-    letter-spacing: 0.5;
-}
-.input-port {
-    stroke: #0099ff;
-    stroke-width: 1.5;
-}
-.output-port {
-    stroke: #0066cc;
-    stroke-width: 1.5;
-}
-.inout-port {
-    stroke: #cc7a00;
-    stroke-width: 1.5;
-}
-.port-text {
-    font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 9;
-}
-.input-port-text {
-    fill: #0099ff;
-}
-.output-port-text {
-    fill: #0066cc;
-}
-.inout-port-text {
-    fill: #cc7a00;
-}
-.port-type-text {
-    fill: #8a9aaa;
-    font-size: 8;
-}
-.port-circle {
-    stroke-width: 1;
-}
-</style>
 <rect class="module-box" x="200" y="10" width="400" height="300"/>
 <text class="module-name" x="400" y="40" text-anchor="middle">simple_counter</text>
 <line class="input-port" x1="200" y1="60" x2="180" y2="60"/>
@@ -106,13 +60,31 @@
 
 ---
 
+## Description
+
+Clock, signal
+
+---
+
+## Description
+
+Active-low synchronous reset
+
+---
+
+## Description
+
+4-bit counter output
+
+---
+
 ## Ports
 
 | Name | Direction | Type | Width | Description |
 |------|-----------|------|-------|-------------|
-| `clk` | -> input | wire | 1 |  Clock, signal |
-| `rst_n` | -> input | wire | 1 |  Active-low synchronous reset |
-| `q` | <- output | reg | 3:0 |  4-bit counter output |
+| `clk` | -> input | wire | 1 | Clock, signal |
+| `rst_n` | -> input | wire | 1 | Active-low synchronous reset |
+| `q` | <- output | reg | 3:0 | 4-bit counter output |
 
 ---
 
@@ -143,52 +115,6 @@
 <div align="center">
 
 <svg width="800" height="330" viewBox="0 0 800 330" xmlns="http://www.w3.org/2000/svg">
-<style>
-.module-box {
-    fill: #ffffff;
-    stroke: #bcc4cc;
-    stroke-width: 1.5;
-}
-.module-name {
-    fill: #0066cc;
-    font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 14;
-    font-weight: 500;
-    letter-spacing: 0.5;
-}
-.input-port {
-    stroke: #0099ff;
-    stroke-width: 1.5;
-}
-.output-port {
-    stroke: #0066cc;
-    stroke-width: 1.5;
-}
-.inout-port {
-    stroke: #cc7a00;
-    stroke-width: 1.5;
-}
-.port-text {
-    font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 9;
-}
-.input-port-text {
-    fill: #0099ff;
-}
-.output-port-text {
-    fill: #0066cc;
-}
-.inout-port-text {
-    fill: #cc7a00;
-}
-.port-type-text {
-    fill: #8a9aaa;
-    font-size: 8;
-}
-.port-circle {
-    stroke-width: 1;
-}
-</style>
 <rect class="module-box" x="200" y="10" width="400" height="300"/>
 <text class="module-name" x="400" y="40" text-anchor="middle">fifo_gray_p2p</text>
 <line class="input-port" x1="200" y1="60" x2="180" y2="60"/>
@@ -296,52 +222,6 @@ test
 <div align="center">
 
 <svg width="800" height="360" viewBox="0 0 800 360" xmlns="http://www.w3.org/2000/svg">
-<style>
-.module-box {
-    fill: #ffffff;
-    stroke: #bcc4cc;
-    stroke-width: 1.5;
-}
-.module-name {
-    fill: #0066cc;
-    font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 14;
-    font-weight: 500;
-    letter-spacing: 0.5;
-}
-.input-port {
-    stroke: #0099ff;
-    stroke-width: 1.5;
-}
-.output-port {
-    stroke: #0066cc;
-    stroke-width: 1.5;
-}
-.inout-port {
-    stroke: #cc7a00;
-    stroke-width: 1.5;
-}
-.port-text {
-    font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 9;
-}
-.input-port-text {
-    fill: #0099ff;
-}
-.output-port-text {
-    fill: #0066cc;
-}
-.inout-port-text {
-    fill: #cc7a00;
-}
-.port-type-text {
-    fill: #8a9aaa;
-    font-size: 8;
-}
-.port-circle {
-    stroke-width: 1;
-}
-</style>
 <rect class="module-box" x="200" y="10" width="400" height="330"/>
 <text class="module-name" x="400" y="40" text-anchor="middle">fifo_pgray</text>
 <line class="input-port" x1="200" y1="60" x2="180" y2="60"/>
@@ -456,52 +336,6 @@ test
 <div align="center">
 
 <svg width="800" height="630" viewBox="0 0 800 630" xmlns="http://www.w3.org/2000/svg">
-<style>
-.module-box {
-    fill: #ffffff;
-    stroke: #bcc4cc;
-    stroke-width: 1.5;
-}
-.module-name {
-    fill: #0066cc;
-    font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 14;
-    font-weight: 500;
-    letter-spacing: 0.5;
-}
-.input-port {
-    stroke: #0099ff;
-    stroke-width: 1.5;
-}
-.output-port {
-    stroke: #0066cc;
-    stroke-width: 1.5;
-}
-.inout-port {
-    stroke: #cc7a00;
-    stroke-width: 1.5;
-}
-.port-text {
-    font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 9;
-}
-.input-port-text {
-    fill: #0099ff;
-}
-.output-port-text {
-    fill: #0066cc;
-}
-.inout-port-text {
-    fill: #cc7a00;
-}
-.port-type-text {
-    fill: #8a9aaa;
-    font-size: 8;
-}
-.port-circle {
-    stroke-width: 1;
-}
-</style>
 <rect class="module-box" x="200" y="10" width="400" height="600"/>
 <text class="module-name" x="400" y="40" text-anchor="middle">fifo_s</text>
 <line class="input-port" x1="200" y1="60" x2="180" y2="60"/>
@@ -653,52 +487,6 @@ test
 <div align="center">
 
 <svg width="800" height="330" viewBox="0 0 800 330" xmlns="http://www.w3.org/2000/svg">
-<style>
-.module-box {
-    fill: #ffffff;
-    stroke: #bcc4cc;
-    stroke-width: 1.5;
-}
-.module-name {
-    fill: #0066cc;
-    font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 14;
-    font-weight: 500;
-    letter-spacing: 0.5;
-}
-.input-port {
-    stroke: #0099ff;
-    stroke-width: 1.5;
-}
-.output-port {
-    stroke: #0066cc;
-    stroke-width: 1.5;
-}
-.inout-port {
-    stroke: #cc7a00;
-    stroke-width: 1.5;
-}
-.port-text {
-    font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 9;
-}
-.input-port-text {
-    fill: #0099ff;
-}
-.output-port-text {
-    fill: #0066cc;
-}
-.inout-port-text {
-    fill: #cc7a00;
-}
-.port-type-text {
-    fill: #8a9aaa;
-    font-size: 8;
-}
-.port-circle {
-    stroke-width: 1;
-}
-</style>
 <rect class="module-box" x="200" y="10" width="400" height="300"/>
 <text class="module-name" x="400" y="40" text-anchor="middle">paral_sh_reg</text>
 <line class="input-port" x1="200" y1="60" x2="180" y2="60"/>
@@ -756,7 +544,7 @@ test
 
 | Name | Type | Default | Description |
 |------|------|---------|-------------|
-| `WIDTH` | parameter | `32` |  Widht  |
+| `WIDTH` | parameter | `32` | Widht |
 | `IN_WIDTH` | parameter | `4` |  |
 
 ---
@@ -794,52 +582,6 @@ test
 <div align="center">
 
 <svg width="800" height="330" viewBox="0 0 800 330" xmlns="http://www.w3.org/2000/svg">
-<style>
-.module-box {
-    fill: #ffffff;
-    stroke: #bcc4cc;
-    stroke-width: 1.5;
-}
-.module-name {
-    fill: #0066cc;
-    font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 14;
-    font-weight: 500;
-    letter-spacing: 0.5;
-}
-.input-port {
-    stroke: #0099ff;
-    stroke-width: 1.5;
-}
-.output-port {
-    stroke: #0066cc;
-    stroke-width: 1.5;
-}
-.inout-port {
-    stroke: #cc7a00;
-    stroke-width: 1.5;
-}
-.port-text {
-    font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 9;
-}
-.input-port-text {
-    fill: #0099ff;
-}
-.output-port-text {
-    fill: #0066cc;
-}
-.inout-port-text {
-    fill: #cc7a00;
-}
-.port-type-text {
-    fill: #8a9aaa;
-    font-size: 8;
-}
-.port-circle {
-    stroke-width: 1;
-}
-</style>
 <rect class="module-box" x="200" y="10" width="400" height="300"/>
 <text class="module-name" x="400" y="40" text-anchor="middle">sh_reg</text>
 <line class="input-port" x1="200" y1="60" x2="180" y2="60"/>

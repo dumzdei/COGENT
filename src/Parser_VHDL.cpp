@@ -255,7 +255,7 @@ bool Parser_VHDL::ParseGenericList(size_t& token_index, Module& module) {
     return true;
 }
 
-bool Parser_VHDL::ParseEntity(size_t token_index, Module& module) {
+bool Parser_VHDL::ParseEntity(size_t& token_index, Module& module) {
     NextToken(token_index);
 
     if (!IsAtToken(token_index, TokenType::IDENTIFIER)) {

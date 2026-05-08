@@ -69,7 +69,7 @@ TokenType Parser_SystemVerilog::KeywordToTokenType(const std::string& keyword) {
     return (it != keywords.end()) ? it->second : TokenType::IDENTIFIER;
 }
 
-bool Parser_SystemVerilog::ParseModule(size_t token_index, Module& module) {
+bool Parser_SystemVerilog::ParseModule(size_t& token_index, Module& module) {
     // Skipping 'module'
     NextToken(token_index);
 
