@@ -68,7 +68,7 @@ int Exporter_MD::Export(std::vector<Module>& modules, std::string theme_name) {
         // SVG Diagram
         md << "## Module Diagram\n\n";
         md << "<div align=\"center\">\n\n";
-        md << Generate_SVG(module, false);
+        md << Generate_SVG(module, true);
         md << "\n\n</div>\n\n";
         md << "---\n\n";
 

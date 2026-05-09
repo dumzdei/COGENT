@@ -140,67 +140,83 @@ std::string Exporter::Generate_SVG(const Module& module, bool use_external_style
     int module_x = svg_width / 4;
     int module_y = 10;
 
+    std::string theme = theme_name;
+    std::transform(theme.begin(), theme.end(), theme.begin(), ::tolower);
+    std::string bg_sec, acc_pri, acc_sec, acc_warn, txt_ter, bord_bri;
+    if (theme.find("dark") != std::string::npos) {
+        bg_sec = "#111822"; acc_pri = "#00e5ff"; acc_sec = "#0099ff";
+        acc_warn = "#ffb300"; txt_ter = "#4a5a72"; bord_bri = "#2a3a4a";
+    }
+    else {
+        bg_sec = "#ffffff"; acc_pri = "#0066cc"; acc_sec = "#0099ff";
+        acc_warn = "#cc7a00"; txt_ter = "#8a9aaa"; bord_bri = "#bcc4cc";
+    }
+
     svg << "<svg width=\"" << svg_width << "\" height=\"" << svg_height
         << "\" viewBox=\"0 0 " << svg_width << " " << svg_height
         << "\" xmlns=\"http://www.w3.org/2000/svg\">\n";
 
-    if (!use_external_styles)
+    // Если нужны внешние стили (HTML) -> вставляем <style>
+    if (!use_external_styles) {
         svg << Print_CSS_for_SVG(theme_name);
+    }
+    // Иначе (Markdown/AsciiDoc) -> используем только инлайн-стили
 
-    svg << "<rect class=\"module-box\" x=\"" << module_x << "\" y=\"" << module_y
-        << "\" width=\"" << module_width << "\" height=\"" << module_height << "\"/>\n";
+    // Module box
+    svg << "<rect x=\"" << module_x << "\" y=\"" << module_y
+        << "\" width=\"" << module_width << "\" height=\"" << module_height
+        << "\" style=\"fill:" << bg_sec << ";stroke:" << bord_bri << ";stroke-width:1.5\"/>\n";
 
-    svg << "<text class=\"module-name\" x=\"" << (module_x + module_width / 2)
-        << "\" y=\"" << (module_y + 30) << "\" text-anchor=\"middle\">"
+    // Module name
+    svg << "<text x=\"" << (module_x + module_width / 2) << "\" y=\"" << (module_y + 30)
+        << "\" text-anchor=\"middle\" style=\"fill:" << acc_pri << ";font-family:inherit;font-size:14px;font-weight:500;letter-spacing:0.05em\">"
         << module.name << "</text>\n";
 
     int input_y = module_y + 50;
     int output_y = module_y + 50;
-
     int inout_start_x = module_x + (module_width - (inout_count - 1) * inout_spacing) / 2;
     int inout_y = module_y + module_height;
 
-    for (const auto& port : module.ports)
-    {
-        if (port.direction == "input" || port.direction == "in")
-        {
-            svg << "<line class=\"input-port\" x1=\"" << module_x << "\" y1=\"" << input_y
-                << "\" x2=\"" << (module_x - 20) << "\" y2=\"" << input_y << "\"/>\n";
-            svg << "<circle class=\"port-circle input-port\" cx=\"" << (module_x - 20)
-                << "\" cy=\"" << input_y << "\" r=\"3\" fill=\"#0099ff\"/>\n";
-            svg << "<text class=\"port-text input-port-text\" x=\"" << (module_x - 25)
-                << "\" y=\"" << (input_y - 5) << "\" text-anchor=\"end\">"
+    for (const auto& port : module.ports) {
+        if (port.direction == "input" || port.direction == "in") {
+            svg << "<line x1=\"" << module_x << "\" y1=\"" << input_y
+                << "\" x2=\"" << (module_x - 20) << "\" y2=\"" << input_y
+                << "\" style=\"stroke:" << acc_sec << ";stroke-width:1.5\"/>\n";
+            svg << "<circle cx=\"" << (module_x - 20) << "\" cy=\"" << input_y
+                << "\" r=\"3\" style=\"fill:" << acc_sec << ";stroke:none\"/>\n";
+            svg << "<text x=\"" << (module_x - 25) << "\" y=\"" << (input_y - 5)
+                << "\" text-anchor=\"end\" style=\"fill:" << acc_sec << ";font-family:inherit;font-size:9px;letter-spacing:0.03em\">"
                 << port.name << "</text>\n";
-            svg << "<text class=\"port-text port-type-text\" x=\"" << (module_x + 5)
-                << "\" y=\"" << (input_y + 4) << "\">"
+            svg << "<text x=\"" << (module_x + 5) << "\" y=\"" << (input_y + 4)
+                << "\" style=\"fill:" << txt_ter << ";font-family:inherit;font-size:8px\">"
                 << port.width << " " << port.type << "</text>\n";
             input_y += 30;
         }
-        else if (port.direction == "output" || port.direction == "out")
-        {
-            svg << "<line class=\"output-port\" x1=\"" << (module_x + module_width) << "\" y1=\"" << output_y
-                << "\" x2=\"" << (module_x + module_width + 20) << "\" y2=\"" << output_y << "\"/>\n";
-            svg << "<circle class=\"port-circle output-port\" cx=\"" << (module_x + module_width + 20)
-                << "\" cy=\"" << output_y << "\" r=\"3\" fill=\"#0066cc\"/>\n";
-            svg << "<text class=\"port-text output-port-text\" x=\"" << (module_x + module_width + 25)
-                << "\" y=\"" << (output_y - 5) << "\" text-anchor=\"start\">"
+        else if (port.direction == "output" || port.direction == "out") {
+            svg << "<line x1=\"" << (module_x + module_width) << "\" y1=\"" << output_y
+                << "\" x2=\"" << (module_x + module_width + 20) << "\" y2=\"" << output_y
+                << "\" style=\"stroke:" << acc_pri << ";stroke-width:1.5\"/>\n";
+            svg << "<circle cx=\"" << (module_x + module_width + 20) << "\" cy=\"" << output_y
+                << "\" r=\"3\" style=\"fill:" << acc_pri << ";stroke:none\"/>\n";
+            svg << "<text x=\"" << (module_x + module_width + 25) << "\" y=\"" << (output_y - 5)
+                << "\" text-anchor=\"start\" style=\"fill:" << acc_pri << ";font-family:inherit;font-size:9px;letter-spacing:0.03em\">"
                 << port.name << "</text>\n";
-            svg << "<text class=\"port-text port-type-text\" x=\"" << (module_x + module_width - 5)
-                << "\" y=\"" << (output_y + 4) << "\" text-anchor=\"end\">"
+            svg << "<text x=\"" << (module_x + module_width - 5) << "\" y=\"" << (output_y + 4)
+                << "\" text-anchor=\"end\" style=\"fill:" << txt_ter << ";font-family:inherit;font-size:8px\">"
                 << port.width << " " << port.type << "</text>\n";
             output_y += 30;
         }
-        else
-        {
-            svg << "<line class=\"inout-port\" x1=\"" << inout_start_x << "\" y1=\"" << inout_y
-                << "\" x2=\"" << inout_start_x << "\" y2=\"" << (inout_y + 20) << "\"/>\n";
-            svg << "<circle class=\"port-circle inout-port\" cx=\"" << inout_start_x
-                << "\" cy=\"" << inout_y + 20 << "\" r=\"3\" fill=\"#cc7a00\"/>\n";
-            svg << "<text class=\"port-text inout-port-text\" x=\"" << inout_start_x
-                << "\" y=\"" << (inout_y + 35) << "\" text-anchor=\"middle\">"
+        else {
+            svg << "<line x1=\"" << inout_start_x << "\" y1=\"" << inout_y
+                << "\" x2=\"" << inout_start_x << "\" y2=\"" << (inout_y + 20)
+                << "\" style=\"stroke:" << acc_warn << ";stroke-width:1.5\"/>\n";
+            svg << "<circle cx=\"" << inout_start_x << "\" cy=\"" << (inout_y + 20)
+                << "\" r=\"3\" style=\"fill:" << acc_warn << ";stroke:none\"/>\n";
+            svg << "<text x=\"" << inout_start_x << "\" y=\"" << (inout_y + 35)
+                << "\" text-anchor=\"middle\" style=\"fill:" << acc_warn << ";font-family:inherit;font-size:9px;letter-spacing:0.03em\">"
                 << port.name << "</text>\n";
-            svg << "<text class=\"port-text port-type-text\" x=\"" << inout_start_x
-                << "\" y=\"" << (inout_y - 4) << "\" text-anchor=\"middle\">"
+            svg << "<text x=\"" << inout_start_x << "\" y=\"" << (inout_y - 4)
+                << "\" text-anchor=\"middle\" style=\"fill:" << txt_ter << ";font-family:inherit;font-size:8px\">"
                 << port.width << " " << port.type << "</text>\n";
             inout_start_x += inout_spacing;
         }
