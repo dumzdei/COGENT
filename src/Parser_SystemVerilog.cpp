@@ -116,6 +116,16 @@ bool Parser_SystemVerilog::ParseModule(size_t& token_index, Module& module) {
             break;
         }
     }
+
+    if (IsAtToken(token_index, TokenType::COMMENT_DOC_MULTI) || IsAtToken(token_index, TokenType::COMMENT_DOC_SINGLE)) {
+        std::vector<Comment_block> blocks = ParseCommentText(CurrentToken(token_index).value);
+        size_t block_count = blocks.size();
+        for (int i = 0; i < block_count; i++) {
+            module.comments.push_back(blocks[i]);
+        }
+        NextToken(token_index);
+    }
+
     return false;
 }
 
@@ -406,6 +416,8 @@ std::vector<Module> Parser_SystemVerilog::ParseFromTokens() {
             module.id = module.name + std::to_string(file_hash).substr(0, 4);
 
             ParseModule(token_index, module);
+            if (!module.name.empty())
+                modules.push_back(module);
             NextToken(token_index);
         }
         else if (tok.type == TokenType::COMMENT_DOC_MULTI || tok.type == TokenType::COMMENT_DOC_SINGLE) {
@@ -416,14 +428,7 @@ std::vector<Module> Parser_SystemVerilog::ParseFromTokens() {
             }
             NextToken(token_index);
         }
-        else if (tok.type == TokenType::KW_ENDMODULE) {
-            modules.push_back(module);
-            NextToken(token_index);
-        }
-        else {
-            NextToken(token_index);
-        }
+        else NextToken(token_index);
     }
-
     return modules;
 }

@@ -37,57 +37,79 @@ std::string Exporter::FormatTextWithLineBreaks(const std::string& text, const st
     return result;
 }
 
-std::string Exporter::Print_CSS_for_SVG() {
-    return "\
-<style>\n\
-.module-box {\n\
-    fill: #ffffff;\n\
-    stroke: #bcc4cc;\n\
-    stroke-width: 1.5;\n\
-}\n\
-.module-name {\n\
-    fill: #0066cc;\n\
-    font-family: 'JetBrains Mono', 'Consolas', monospace;\n\
-    font-size: 14;\n\
-    font-weight: 500;\n\
-    letter-spacing: 0.5;\n\
-}\n\
-.input-port {\n\
-    stroke: #0099ff;\n\
-    stroke-width: 1.5;\n\
-}\n\
-.output-port {\n\
-    stroke: #0066cc;\n\
-    stroke-width: 1.5;\n\
-}\n\
-.inout-port {\n\
-    stroke: #cc7a00;\n\
-    stroke-width: 1.5;\n\
-}\n\
-.port-text {\n\
-    font-family: 'JetBrains Mono', 'Consolas', monospace;\n\
-    font-size: 9;\n\
-}\n\
-.input-port-text {\n\
-    fill: #0099ff;\n\
-}\n\
-.output-port-text {\n\
-    fill: #0066cc;\n\
-}\n\
-.inout-port-text {\n\
-    fill: #cc7a00;\n\
-}\n\
-.port-type-text {\n\
-    fill: #8a9aaa;\n\
-    font-size: 8;\n\
-}\n\
-.port-circle {\n\
-    stroke-width: 1;\n\
-}\n\
-</style>\n";
+std::string Exporter::Print_CSS_for_SVG(std::string theme_name) {
+    std::string theme = theme_name;
+    std::transform(theme.begin(), theme.end(), theme.begin(), ::tolower);
+
+    std::string bg_sec, acc_pri, acc_sec, acc_warn, txt_ter, bord_bri;
+
+    if (theme.find("dark") != std::string::npos) {
+        bg_sec = "#111822";
+        acc_pri = "#00e5ff";
+        acc_sec = "#0099ff";
+        acc_warn = "#ffb300";
+        txt_ter = "#4a5a72";
+        bord_bri = "#2a3a4a";
+    }
+    else {
+        bg_sec = "#ffffff";
+        acc_pri = "#0066cc";
+        acc_sec = "#0099ff";
+        acc_warn = "#cc7a00";
+        txt_ter = "#8a9aaa";
+        bord_bri = "#bcc4cc";
+    }
+
+    return "<style>\n"
+        ".module-box {\n"
+        "    fill: " + bg_sec + ";\n"
+        "    stroke: " + bord_bri + ";\n"
+        "    stroke-width: 1.5;\n"
+        "}\n"
+        ".module-name {\n"
+        "    fill: " + acc_pri + ";\n"
+        "    font-family: inherit;\n"
+        "    font-size: 14px;\n"
+        "    font-weight: 500;\n"
+        "    letter-spacing: 0.05em;\n"
+        "}\n"
+        ".input-port {\n"
+        "    stroke: " + acc_sec + ";\n"
+        "    stroke-width: 1.5;\n"
+        "}\n"
+        ".output-port {\n"
+        "    stroke: " + acc_pri + ";\n"
+        "    stroke-width: 1.5;\n"
+        "}\n"
+        ".inout-port {\n"
+        "    stroke: " + acc_warn + ";\n"
+        "    stroke-width: 1.5;\n"
+        "}\n"
+        ".port-text {\n"
+        "    font-family: inherit;\n"
+        "    font-size: 9px;\n"
+        "    letter-spacing: 0.03em;\n"
+        "}\n"
+        ".input-port-text {\n"
+        "    fill: " + acc_sec + ";\n"
+        "}\n"
+        ".output-port-text {\n"
+        "    fill: " + acc_pri + ";\n"
+        "}\n"
+        ".inout-port-text {\n"
+        "    fill: " + acc_warn + ";\n"
+        "}\n"
+        ".port-type-text {\n"
+        "    fill: " + txt_ter + ";\n"
+        "    font-size: 8px;\n"
+        "}\n"
+        ".port-circle {\n"
+        "    stroke-width: 1;\n"
+        "}\n"
+        "</style>\n";
 }
 
-std::string Exporter::Generate_SVG(const Module& module, bool use_external_styles)
+std::string Exporter::Generate_SVG(const Module& module, bool use_external_styles, std::string theme_name)
 {
     std::stringstream svg;
 
@@ -123,7 +145,7 @@ std::string Exporter::Generate_SVG(const Module& module, bool use_external_style
         << "\" xmlns=\"http://www.w3.org/2000/svg\">\n";
 
     if (!use_external_styles)
-        svg << Print_CSS_for_SVG();
+        svg << Print_CSS_for_SVG(theme_name);
 
     svg << "<rect class=\"module-box\" x=\"" << module_x << "\" y=\"" << module_y
         << "\" width=\"" << module_width << "\" height=\"" << module_height << "\"/>\n";
@@ -186,6 +208,17 @@ std::string Exporter::Generate_SVG(const Module& module, bool use_external_style
 
     svg << "</svg>\n";
     return svg.str();
+}
+
+std::vector<std::string> Exporter::CollectDynamicTags(const std::vector<Comment_block>& comments) {
+    std::vector<std::string> tags;
+    for (const auto& cmt : comments) {
+        if (cmt.tag.empty() || cmt.tag == "@brief" || cmt.tag == " ") continue;
+        if (std::find(tags.begin(), tags.end(), cmt.tag) == tags.end()) {
+            tags.push_back(cmt.tag);
+        }
+    }
+    return tags;
 }
 
 void FreeExporter(Exporter** exporter) {

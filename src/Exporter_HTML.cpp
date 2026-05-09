@@ -139,49 +139,62 @@ int Exporter_HTML::Export(std::vector<Module>& modules, std::string theme_name) 
                     }
                 }
 
-                if (!module.params.empty())
-                {
-                    html << "<h3>Parameters</h3>\n";
-                    html << "<table>\n<tr><th>Name</th>";
-                    if (module.ShowParamType)
-                        html << "<th>Type</th>";
-                    if (module.ShowParamDataType)
-                        html << "<th>Data Type</th>";
-                    html << "<th>Value</th><th>Description</th></tr>\n";
-                    for (const auto& param : module.params)
-                    {
-                        std::string description;
+                // PARAMETERS
+                if (!module.params.empty()) {
+                    std::vector<std::string> dynTags;
+                    for (const auto& param : module.params) {
                         for (const auto& cmt : param.comments) {
-                            if ((cmt.tag == "@brief" || cmt.tag == "") && !cmt.text.empty()) {
-                                description = cmt.text;
-                                break;
-                            }
+                            if (!cmt.tag.empty() && std::find(dynTags.begin(), dynTags.end(), cmt.tag) == dynTags.end()) dynTags.push_back(cmt.tag);
                         }
+                    }
+                    html << "<h3>Parameters</h3>\n<table>\n<tr><th>Name</th>";
+                    if (module.ShowParamType) html << "<th>Type</th>";
+                    if (module.ShowParamDataType) html << "<th>Data Type</th>";
+                    html << "<th>Default</th>";
+                    for (const auto& tag : dynTags) {
+                        if (tag == "@brief") html << "<th>Description</th>";
+                        else if (tag == "@clock") html << "<th>Clock</th>";
+                        else html << "<th>" << tag << "</th>";
+                    }
+                    html << "</tr>\n";
+                    for (const auto& param : module.params) {
                         html << "<tr><td>" << param.name << "</td>";
-                        if (module.ShowParamType)
-                            html << "<td>" << param.type << "</td>";
-                        if (module.ShowParamDataType)
-                            html << "<td>" << param.data_type << "</td>";
-                        html << "<td>" << param.value << "</td><td>" << description << "</td></tr>\n";
+                        if (module.ShowParamType) html << "<td>" << param.type << "</td>";
+                        if (module.ShowParamDataType) html << "<td>" << param.data_type << "</td>";
+                        html << "<td>" << param.value << "</td>";
+                        for (const auto& tag : dynTags) {
+                            std::string value = "-";
+                            for (const auto& cmt : param.comments) if (cmt.tag == tag && !cmt.text.empty()) { value = cmt.text; break; }
+                            html << "<td>" << value << "</td>";
+                        }
+                        html << "</tr>\n";
                     }
                     html << "</table>\n";
                 }
 
-                if (!module.ports.empty())
-                {
-                    html << "<h3>Ports</h3>\n";
-                    html << "<table>\n<tr><th>Name</th><th>Direction</th><th>Type</th>\
-                        <th>Width</th><th>Description</th></tr>\n";
+                // PORTS (Dynamic)
+                if (!module.ports.empty()) {
+                    std::vector<std::string> dynTags;
                     for (const auto& port : module.ports) {
-                        std::string description;
                         for (const auto& cmt : port.comments) {
-                            if ((cmt.tag == "@brief" || cmt.tag == "") && !cmt.text.empty()) {
-                                description = cmt.text;
-                                break;
-                            }
+                            if (!cmt.tag.empty() && std::find(dynTags.begin(), dynTags.end(), cmt.tag) == dynTags.end()) dynTags.push_back(cmt.tag);
                         }
-                        html << "<tr><td>" << port.name << "</td><td>" << port.direction << "</td><td>" <<
-                            port.type << "</td><td>" << port.width << "</td><td>" << description << "</td></tr>\n";
+                    }
+                    html << "<h3>Ports</h3>\n<table>\n<tr><th>Name</th><th>Direction</th><th>Type</th><th>Width</th>";
+                    for (const auto& tag : dynTags) {
+                        if (tag == "@brief") html << "<th>Description</th>";
+                        else if (tag == "@clock") html << "<th>Clock</th>";
+                        else html << "<th>" << tag << "</th>";
+                    }
+                    html << "</tr>\n";
+                    for (const auto& port : module.ports) {
+                        html << "<tr><td>" << port.name << "</td><td>" << port.direction << "</td><td>" << port.type << "</td><td>" << port.width << "</td>";
+                        for (const auto& tag : dynTags) {
+                            std::string value = "-";
+                            for (const auto& cmt : port.comments) if (cmt.tag == tag && !cmt.text.empty()) { value = cmt.text; break; }
+                            html << "<td>" << value << "</td>";
+                        }
+                        html << "</tr>\n";
                     }
                     html << "</table>\n";
                 }

@@ -30,10 +30,9 @@ int Exporter_MD::Export(std::vector<Module>& modules, std::string theme_name) {
             }
         }
 
-        md << "- [" << module.name << "](#" << anchor << ")";
-        if (isTop)
-            md << " <sup><code>TOP</code></sup>";
-        md << "\n";
+        md << "- [" << module.name;
+        if (isTop) md << " <sup><code>TOP</code></sup>";
+        md << "](#" << anchor << ")\n";
     }
     md << "\n---\n\n";
 
@@ -47,7 +46,7 @@ int Exporter_MD::Export(std::vector<Module>& modules, std::string theme_name) {
         std::replace(anchor.begin(), anchor.end(), ' ', '-');
         std::transform(anchor.begin(), anchor.end(), anchor.begin(), ::tolower);
 
-        md << "<a name=\"" << anchor << "\"></a>\n";
+        md << "<a id=\"" << anchor << "\"></a>\n";
         md << "# " << module.name;
 
         // Add TOP badge if this is the top module
@@ -60,8 +59,7 @@ int Exporter_MD::Export(std::vector<Module>& modules, std::string theme_name) {
                 break;
             }
         }
-        if (isTop)
-            md << " <sup><code>TOP</code></sup>";
+        if (isTop) md << " <sup><code>TOP</code></sup>";
         md << "\n\n";
 
         md << "**File:** `" << module.filename << "`\n\n";
@@ -70,7 +68,7 @@ int Exporter_MD::Export(std::vector<Module>& modules, std::string theme_name) {
         // SVG Diagram
         md << "## Module Diagram\n\n";
         md << "<div align=\"center\">\n\n";
-        md << Generate_SVG(module, true);
+        md << Generate_SVG(module, false);
         md << "\n\n</div>\n\n";
         md << "---\n\n";
 
@@ -93,7 +91,7 @@ int Exporter_MD::Export(std::vector<Module>& modules, std::string theme_name) {
                 std::string statusBadge;
                 if (statusText.find("complete") != std::string::npos ||
                     statusText.find("done") != std::string::npos ||
-                    statusText.find("verified in simulation") != std::string::npos)
+                    statusText.find("verified") != std::string::npos)
                     statusBadge = "**[COMPLETE]** ";
                 else if (statusText.find("progress") != std::string::npos)
                     statusBadge = "**[IN PROGRESS]** ";
@@ -132,69 +130,78 @@ int Exporter_MD::Export(std::vector<Module>& modules, std::string theme_name) {
             }
         }
 
-        // Parameters table
-        if (!module.params.empty())
-        {
-            md << "## Parameters\n\n";
-            md << "| Name | ";
-            if (module.ShowParamType)
-                md << "Type | ";
-            if (module.ShowParamDataType)
-                md << "Data Type | ";
-            md << "Default | Description |\n";
-
-            md << "|------|";
-            if (module.ShowParamType)
-                md << "------|";
-            if (module.ShowParamDataType)
-                md << "-----------|";
-            md << "---------|-------------|\n";
-
-            for (const auto& param : module.params)
-            {
-                std::string description;
+        // PARAMETERS
+        if (!module.params.empty()) {
+            std::vector<std::string> dynTags;
+            for (const auto& param : module.params) {
                 for (const auto& cmt : param.comments) {
-                    if ((cmt.tag == "@brief" || cmt.tag == "") && !cmt.text.empty()) {
-                        description = cmt.text;
-                        break;
-                    }
+                    if (!cmt.tag.empty() && std::find(dynTags.begin(), dynTags.end(), cmt.tag) == dynTags.end()) dynTags.push_back(cmt.tag);
                 }
+            }
+            md << "## Parameters\n\n| Name | ";
+            if (module.ShowParamType) md << "Type | ";
+            if (module.ShowParamDataType) md << "Data Type | ";
+            md << "Default | ";
+            for (const auto& tag : dynTags) {
+                if (tag == "@brief") md << "Description | ";
+                else if (tag == "@clock") md << "Clock | ";
+                else md << tag << " | ";
+            }
+            md << "\n|";
+            int colCount = 2 + (module.ShowParamType ? 1 : 0) + (module.ShowParamDataType ? 1 : 0) + dynTags.size();
+            for (int i = 0; i < colCount; ++i) md << "------|";
+            md << "\n";
+
+            for (const auto& param : module.params) {
                 md << "| `" << param.name << "` | ";
-                if (module.ShowParamType)
-                    md << param.type << " | ";
-                if (module.ShowParamDataType)
-                    md << param.data_type << " | ";
-                md << "`" << param.value << "` | " << description << " |\n";
+                if (module.ShowParamType) md << param.type << " | ";
+                if (module.ShowParamDataType) md << param.data_type << " | ";
+                md << "`" << param.value << "` | ";
+                for (const auto& tag : dynTags) {
+                    std::string value = "-";
+                    for (const auto& cmt : param.comments) if (cmt.tag == tag && !cmt.text.empty()) { value = cmt.text; break; }
+                    md << " " << value << " | ";
+                }
+                md << "\n";
             }
             md << "\n---\n\n";
         }
 
-        // Ports table
-        if (!module.ports.empty())
-        {
-            md << "## Ports\n\n";
-            md << "| Name | Direction | Type | Width | Description |\n";
-            md << "|------|-----------|------|-------|-------------|\n";
-
-            for (const auto& port : module.ports)
-            {
-                std::string description;
+        // PORTS
+        if (!module.ports.empty()) {
+            std::vector<std::string> dynTags;
+            for (const auto& port : module.ports) {
                 for (const auto& cmt : port.comments) {
-                    if ((cmt.tag == "@brief" || cmt.tag == "") && !cmt.text.empty()) {
-                        description = cmt.text;
-                        break;
-                    }
+                    if (!cmt.tag.empty() && std::find(dynTags.begin(), dynTags.end(), cmt.tag) == dynTags.end())
+                        dynTags.push_back(cmt.tag);
                 }
-                std::string dirIcon;
-                if (port.direction == "input" || port.direction == "in")
-                    dirIcon = "-> ";
-                else if (port.direction == "output" || port.direction == "out")
-                    dirIcon = "<- ";
-                else
-                    dirIcon = "<-> ";
+            }
+            md << "## Ports\n\n| Name | Direction | Type | Width | ";
+            for (const auto& tag : dynTags) {
+                if (tag == "@brief") md << "Description | ";
+                else if (tag == "@clock") md << "Clock | ";
+                else md << tag << " | ";
+            }
+            md << "\n|";
+            int colCount = 4 + dynTags.size();
+            for (int i = 0; i < colCount; ++i) md << "------|";
+            md << "\n";
 
-                md << "| `" << port.name << "` | " << dirIcon << port.direction << " | "
-                    << port.type << " | " << port.width << " | " << description << " |\n";
+            for (const auto& port : module.ports) {
+                md << "| `" << port.name << "` | ";
+                std::string dirIcon = (port.direction == "input" || port.direction == "in ") ? "-> " :
+                    (port.direction == "output" || port.direction == "out") ? " <-" : " <-> ";
+                md << dirIcon << " " << port.direction << " | " << port.type << " | " << port.width << " | ";
+                for (const auto& tag : dynTags) {
+                    std::string value = "-";
+                    for (const auto& cmt : port.comments) {
+                        if (cmt.tag == tag && !cmt.text.empty()) {
+                            value = cmt.text; break;
+                        }
+                    }
+                    md << " " << value << " | ";
+                }
+                md << "\n";
             }
             md << "\n---\n\n";
         }

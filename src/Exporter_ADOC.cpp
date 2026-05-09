@@ -73,7 +73,7 @@ int Exporter_ADOC::Export(std::vector<Module>& modules, std::string theme_name) 
                 sidebarStream << "*Status:* ";
                 if (statusText.find("complete") != std::string::npos ||
                     statusText.find("done") != std::string::npos ||
-                    statusText.find("verified in simulation") != std::string::npos)
+                    statusText.find("verified") != std::string::npos)
                     sidebarStream << "[+] ";
                 else if (statusText.find("progress") != std::string::npos)
                     sidebarStream << "[~] ";
@@ -104,67 +104,86 @@ int Exporter_ADOC::Export(std::vector<Module>& modules, std::string theme_name) 
         adoc << "=== Module Diagram\n\n";
         adoc << "[.text-center]\n";
         adoc << "++++\n";
-        adoc << Generate_SVG(module, false);
+        adoc << Generate_SVG(module, false, "lite");
         adoc << "\n++++\n\n";
 
-        // Parameters
-        if (!module.params.empty())
-        {
+        // PARAMETERS
+        if (!module.params.empty()) {
+            std::vector<std::string> dynTags;
+            for (const auto& param : module.params) {
+                for (const auto& cmt : param.comments) {
+                    if (!cmt.tag.empty() && std::find(dynTags.begin(), dynTags.end(), cmt.tag) == dynTags.end())
+                        dynTags.push_back(cmt.tag);
+                }
+            }
+
             adoc << "=== Parameters\n\n";
-            adoc << "[options=\"header\",cols=\"2,";
-            if (module.ShowParamType) adoc << "2,";
-            if (module.ShowParamDataType) adoc << "2,";
-            adoc << "2,5\"]\n";
-            adoc << "|===\n";
+            int fixedCols = 2; // Name, Default
+            if (module.ShowParamType) fixedCols++;
+            if (module.ShowParamDataType) fixedCols++;
+            adoc << "[options=\"header\",cols=\"" << (fixedCols + dynTags.size()) << "*\"]\n|===\n";
             adoc << "|Name ";
             if (module.ShowParamType) adoc << "|Type ";
             if (module.ShowParamDataType) adoc << "|Data Type ";
-            adoc << "|Default |Description\n\n";
+            adoc << "|Default ";
+            for (const auto& col : dynTags) {
+                if (col == "@brief") adoc << "|Description ";
+                else if (col == "@clock") adoc << "|Clock ";
+                else adoc << "|" << col << " ";
+            }
+            adoc << "\n\n";
 
-            for (const auto& param : module.params)
-            {
-                std::string description;
-                for (const auto& cmt : param.comments) {
-                    if ((cmt.tag == "@brief" || cmt.tag == "") && !cmt.text.empty()) {
-                        description = cmt.text;
-                        break;
-                    }
-                }
+            for (const auto& param : module.params) {
                 adoc << "|`" << param.name << "` ";
                 if (module.ShowParamType) adoc << "|" << param.type << " ";
                 if (module.ShowParamDataType) adoc << "|" << param.data_type << " ";
-                adoc << "|`" << param.value << "` |" << description << "\n";
+                adoc << "|`" << param.value << "` ";
+                for (const auto& tag : dynTags) {
+                    std::string value = "-";
+                    for (const auto& cmt : param.comments) {
+                        if (cmt.tag == tag && !cmt.text.empty()) { value = cmt.text; break; }
+                    }
+                    adoc << "|" << value << " ";
+                }
+                adoc << "\n";
             }
             adoc << "|===\n\n";
         }
 
-        // Ports
-        if (!module.ports.empty())
-        {
-            adoc << "=== Ports\n\n";
-            adoc << "[options=\"header\",cols=\"3,2,2,2,5\"]\n";
-            adoc << "|===\n";
-            adoc << "|Name |Direction |Type |Width |Description\n\n";
-
-            for (const auto& port : module.ports)
-            {
-                std::string description;
+        // PORTS
+        if (!module.ports.empty()) {
+            std::vector<std::string> dynTags;
+            for (const auto& port : module.ports) {
                 for (const auto& cmt : port.comments) {
-                    if ((cmt.tag == "@brief" || cmt.tag == "") && !cmt.text.empty()) {
-                        description = cmt.text;
-                        break;
-                    }
+                    if (!cmt.tag.empty() && std::find(dynTags.begin(), dynTags.end(), cmt.tag) == dynTags.end())
+                        dynTags.push_back(cmt.tag);
                 }
-                std::string dirAdoc;
-                if (port.direction == "input" || port.direction == "in")
-                    dirAdoc = "&larr; Input";  // ←
-                else if (port.direction == "output" || port.direction == "out")
-                    dirAdoc = "&rarr; Output"; // →
-                else
-                    dirAdoc = "&harr; Inout";  // ↔
+            }
 
-                adoc << "|`" << port.name << "` |" << dirAdoc << " |"
-                    << port.type << " |" << port.width << " |" << description << "\n";
+            adoc << "=== Ports\n\n";
+            int fixedCols = 4; // Name, Direction, Type, Width
+            adoc << "[options=\"header\",cols=\"" << (fixedCols + dynTags.size()) << "*\"]\n|===\n";
+            adoc << "|Name |Direction |Type |Width ";
+            for (const auto& col : dynTags) {
+                if (col == "@brief") adoc << "|Description ";
+                else if (col == "@clock") adoc << "|Clock ";
+                else adoc << "|" << col << " ";
+            }
+            adoc << "\n\n";
+
+            for (const auto& port : module.ports) {
+                adoc << "|`" << port.name << "` |";
+                std::string dirAdoc = (port.direction == "input" || port.direction == "in ") ? " &larr; Input " :
+                    (port.direction == "output" || port.direction == "out") ? " &rarr; Output " : " &harr; Inout ";
+                adoc << dirAdoc << " |" << port.type << " |" << port.width;
+                for (const auto& tag : dynTags) {
+                    std::string value = "-";
+                    for (const auto& cmt : port.comments) {
+                        if (cmt.tag == tag && !cmt.text.empty()) { value = cmt.text; break; }
+                    }
+                    adoc << " |" << value;
+                }
+                adoc << "\n";
             }
             adoc << "|===\n\n";
         }
@@ -218,10 +237,8 @@ int Exporter_ADOC::Export(std::vector<Module>& modules, std::string theme_name) 
         if (idx < modules.size() - 1)
             adoc << "<<<\n\n";
     }
-
-    // Footer
-    adoc << "\n'''\n\n";
-    adoc << "Documentation generated automatically | _Last updated: {docdate}_\n";
+    adoc << "\n---\n\n_Documentation generated automatically by COGENT_ | _Last updated: {docdate}_\n";
+    adoc << "\nhttps://github.com/dumzdei/COGENT\n";
 
     return 0;
 }

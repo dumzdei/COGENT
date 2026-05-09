@@ -134,6 +134,8 @@ void CmdLine::printHelpMessage() {
 	std::cout << std::left << std::setw(32) << "  -s,   --style <style>"	<< "[optional] the style of the theme, possible values are: 'light' and 'dark'\n";
 	std::cout << std::left << std::setw(32) << ""						    << "           the 'dark' theme is used by default\n";
 	std::cout << std::left << std::setw(32) << "  -f,   --format <format>"  << "[optional] the format of the result document\n";
+	std::cout << std::left << std::setw(32) << ""						    << "           currently supported formats are 'html', 'markdown' and 'asciidoc'.\n";
 	std::cout << std::left << std::setw(32) << "  -pl,  --portlist"         << "[optional] the output of a separate portlist\n";
+	std::cout << std::left << std::setw(32) << ""                           << "           ñurrently only the 'asciidoc' format supports this option.\n";
 	std::cout << std::left << std::setw(32) << "  -h,   --help"			    << "[optional] show this message\n";
 }

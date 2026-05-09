@@ -6,12 +6,12 @@
 - [fifo_gray_p2p](#fifo_gray_p2p)
 - [fifo_pgray](#fifo_pgray)
 - [fifo_s](#fifo_s)
-- [paral_sh_reg](#paral_sh_reg) <sup><code>TOP</code></sup>
+- [paral_sh_reg <sup><code>TOP</code></sup>](#paral_sh_reg)
 - [sh_reg](#sh_reg)
 
 ---
 
-<a name="simple_counter"></a>
+<a id="simple_counter"></a>
 # simple_counter
 
 **File:** `tests_verilog\counter.v`
@@ -23,6 +23,53 @@
 <div align="center">
 
 <svg width="800" height="330" viewBox="0 0 800 330" xmlns="http://www.w3.org/2000/svg">
+<style>
+.module-box {
+    fill: #111822;
+    stroke: #2a3a4a;
+    stroke-width: 1.5;
+}
+.module-name {
+    fill: #00e5ff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+}
+.input-port {
+    stroke: #0099ff;
+    stroke-width: 1.5;
+}
+.output-port {
+    stroke: #00e5ff;
+    stroke-width: 1.5;
+}
+.inout-port {
+    stroke: #ffb300;
+    stroke-width: 1.5;
+}
+.port-text {
+    font-family: inherit;
+    font-size: 9px;
+    letter-spacing: 0.03em;
+}
+.input-port-text {
+    fill: #0099ff;
+}
+.output-port-text {
+    fill: #00e5ff;
+}
+.inout-port-text {
+    fill: #ffb300;
+}
+.port-type-text {
+    fill: #4a5a72;
+    font-size: 8px;
+}
+.port-circle {
+    stroke-width: 1;
+}
+</style>
 <rect class="module-box" x="200" y="10" width="400" height="300"/>
 <text class="module-name" x="400" y="40" text-anchor="middle">simple_counter</text>
 <line class="input-port" x1="200" y1="60" x2="180" y2="60"/>
@@ -60,31 +107,13 @@
 
 ---
 
-## Description
-
-Clock, signal
-
----
-
-## Description
-
-Active-low synchronous reset
-
----
-
-## Description
-
-4-bit counter output
-
----
-
 ## Ports
 
-| Name | Direction | Type | Width | Description |
-|------|-----------|------|-------|-------------|
-| `clk` | -> input | wire | 1 | Clock, signal |
-| `rst_n` | -> input | wire | 1 | Active-low synchronous reset |
-| `q` | <- output | reg | 3:0 | 4-bit counter output |
+| Name | Direction | Type | Width | Clock | Description | 
+|------|------|------|------|------|------|
+| `clk` |  <->  input | wire | 1 |  100MHZ |  Clock, signal | 
+| `rst_n` |  <->  input | wire | 1 |  - |  Active-low synchronous reset | 
+| `q` |  <->  output | reg | 3:0 |  - |  4-bit counter output | 
 
 ---
 
@@ -103,7 +132,7 @@ Active-low synchronous reset
 
 <div style="page-break-after: always;"></div>
 
-<a name="fifo_gray_p2p"></a>
+<a id="fifo_gray_p2p"></a>
 # fifo_gray_p2p
 
 **File:** `tests_verilog\fifo_gray_p2p.v`
@@ -115,6 +144,53 @@ Active-low synchronous reset
 <div align="center">
 
 <svg width="800" height="330" viewBox="0 0 800 330" xmlns="http://www.w3.org/2000/svg">
+<style>
+.module-box {
+    fill: #111822;
+    stroke: #2a3a4a;
+    stroke-width: 1.5;
+}
+.module-name {
+    fill: #00e5ff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+}
+.input-port {
+    stroke: #0099ff;
+    stroke-width: 1.5;
+}
+.output-port {
+    stroke: #00e5ff;
+    stroke-width: 1.5;
+}
+.inout-port {
+    stroke: #ffb300;
+    stroke-width: 1.5;
+}
+.port-text {
+    font-family: inherit;
+    font-size: 9px;
+    letter-spacing: 0.03em;
+}
+.input-port-text {
+    fill: #0099ff;
+}
+.output-port-text {
+    fill: #00e5ff;
+}
+.inout-port-text {
+    fill: #ffb300;
+}
+.port-type-text {
+    fill: #4a5a72;
+    font-size: 8px;
+}
+.port-circle {
+    stroke-width: 1;
+}
+</style>
 <rect class="module-box" x="200" y="10" width="400" height="300"/>
 <text class="module-name" x="400" y="40" text-anchor="middle">fifo_gray_p2p</text>
 <line class="input-port" x1="200" y1="60" x2="180" y2="60"/>
@@ -180,37 +256,37 @@ test
 
 ## Parameters
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `DW` | parameter | `32` |  |
-| `AWg` | parameter | `4` |  |
-| `AWs` | parameter | `2` |  |
+| Name | Type | Default | 
+|------|------|------|
+| `DW` | parameter | `32` | 
+| `AWg` | parameter | `4` | 
+| `AWs` | parameter | `2` | 
 
 ---
 
 ## Ports
 
-| Name | Direction | Type | Width | Description |
-|------|-----------|------|-------|-------------|
-| `clk_r` | -> input | logic | 1 |  |
-| `clk_w` | -> input | logic | 1 |  |
-| `clr` | -> input | logic | 1 |  |
-| `re` | -> input | logic | 1 |  |
-| `rst` | -> input | logic | 1 |  |
-| `we` | -> input | logic | 1 |  |
-| `din` | -> input | logic | DW-1:0 |  |
-| `empty` | <- output | logic | 1 |  |
-| `full` | <- output | logic | 1 |  |
-| `diff_rd` | <- output | logic | AWg:0 |  |
-| `diff_wr` | <- output | logic | AWg:0 |  |
-| `dout` | <- output | logic | DW-1:0 |  |
+| Name | Direction | Type | Width | 
+|------|------|------|------|
+| `clk_r` |  <->  input | logic | 1 | 
+| `clk_w` |  <->  input | logic | 1 | 
+| `clr` |  <->  input | logic | 1 | 
+| `re` |  <->  input | logic | 1 | 
+| `rst` |  <->  input | logic | 1 | 
+| `we` |  <->  input | logic | 1 | 
+| `din` |  <->  input | logic | DW-1:0 | 
+| `empty` |  <->  output | logic | 1 | 
+| `full` |  <->  output | logic | 1 | 
+| `diff_rd` |  <->  output | logic | AWg:0 | 
+| `diff_wr` |  <->  output | logic | AWg:0 | 
+| `dout` |  <->  output | logic | DW-1:0 | 
 
 ---
 
 
 <div style="page-break-after: always;"></div>
 
-<a name="fifo_pgray"></a>
+<a id="fifo_pgray"></a>
 # fifo_pgray
 
 **File:** `tests_verilog\fifo_pgray.v`
@@ -222,6 +298,53 @@ test
 <div align="center">
 
 <svg width="800" height="360" viewBox="0 0 800 360" xmlns="http://www.w3.org/2000/svg">
+<style>
+.module-box {
+    fill: #111822;
+    stroke: #2a3a4a;
+    stroke-width: 1.5;
+}
+.module-name {
+    fill: #00e5ff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+}
+.input-port {
+    stroke: #0099ff;
+    stroke-width: 1.5;
+}
+.output-port {
+    stroke: #00e5ff;
+    stroke-width: 1.5;
+}
+.inout-port {
+    stroke: #ffb300;
+    stroke-width: 1.5;
+}
+.port-text {
+    font-family: inherit;
+    font-size: 9px;
+    letter-spacing: 0.03em;
+}
+.input-port-text {
+    fill: #0099ff;
+}
+.output-port-text {
+    fill: #00e5ff;
+}
+.inout-port-text {
+    fill: #ffb300;
+}
+.port-type-text {
+    fill: #4a5a72;
+    font-size: 8px;
+}
+.port-circle {
+    stroke-width: 1;
+}
+</style>
 <rect class="module-box" x="200" y="10" width="400" height="330"/>
 <text class="module-name" x="400" y="40" text-anchor="middle">fifo_pgray</text>
 <line class="input-port" x1="200" y1="60" x2="180" y2="60"/>
@@ -289,42 +412,42 @@ test
 
 ## Parameters
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `DW` | parameter | `2` |  |
-| `AW` | parameter | `5` |  |
-| `R_EMPTY` | parameter | `0` |  |
-| `R_FULL` | parameter | `0` |  |
-| `R_DAT` | parameter | `0` |  |
-| `MS` | localparam | `1` |  |
+| Name | Type | Default | 
+|------|------|------|
+| `DW` | parameter | `2` | 
+| `AW` | parameter | `5` | 
+| `R_EMPTY` | parameter | `0` | 
+| `R_FULL` | parameter | `0` | 
+| `R_DAT` | parameter | `0` | 
+| `MS` | localparam | `1` | 
 
 ---
 
 ## Ports
 
-| Name | Direction | Type | Width | Description |
-|------|-----------|------|-------|-------------|
-| `clk_r` | -> input | logic | 1 |  |
-| `clk_w` | -> input | logic | 1 |  |
-| `clr` | -> input | logic | 1 |  |
-| `re` | -> input | logic | 1 |  |
-| `rst` | -> input | logic | 1 |  |
-| `we` | -> input | logic | 1 |  |
-| `din` | -> input | logic | DW-1:0 |  |
-| `empty` | <- output | logic | 1 |  |
-| `full` | <- output | logic | 1 |  |
-| `diff_rd` | <- output | logic | AW:0 |  |
-| `diff_wr` | <- output | logic | AW:0 |  |
-| `dout` | <- output | logic | DW-1:0 |  |
-| `b` | -> input | logic | AW:0 |  |
-| `g` | -> input | logic | AW:0 |  |
+| Name | Direction | Type | Width | 
+|------|------|------|------|
+| `clk_r` |  <->  input | logic | 1 | 
+| `clk_w` |  <->  input | logic | 1 | 
+| `clr` |  <->  input | logic | 1 | 
+| `re` |  <->  input | logic | 1 | 
+| `rst` |  <->  input | logic | 1 | 
+| `we` |  <->  input | logic | 1 | 
+| `din` |  <->  input | logic | DW-1:0 | 
+| `empty` |  <->  output | logic | 1 | 
+| `full` |  <->  output | logic | 1 | 
+| `diff_rd` |  <->  output | logic | AW:0 | 
+| `diff_wr` |  <->  output | logic | AW:0 | 
+| `dout` |  <->  output | logic | DW-1:0 | 
+| `b` |  <->  input | logic | AW:0 | 
+| `g` |  <->  input | logic | AW:0 | 
 
 ---
 
 
 <div style="page-break-after: always;"></div>
 
-<a name="fifo_s"></a>
+<a id="fifo_s"></a>
 # fifo_s
 
 **File:** `tests_verilog\fifo_s.v`
@@ -336,6 +459,53 @@ test
 <div align="center">
 
 <svg width="800" height="630" viewBox="0 0 800 630" xmlns="http://www.w3.org/2000/svg">
+<style>
+.module-box {
+    fill: #111822;
+    stroke: #2a3a4a;
+    stroke-width: 1.5;
+}
+.module-name {
+    fill: #00e5ff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+}
+.input-port {
+    stroke: #0099ff;
+    stroke-width: 1.5;
+}
+.output-port {
+    stroke: #00e5ff;
+    stroke-width: 1.5;
+}
+.inout-port {
+    stroke: #ffb300;
+    stroke-width: 1.5;
+}
+.port-text {
+    font-family: inherit;
+    font-size: 9px;
+    letter-spacing: 0.03em;
+}
+.input-port-text {
+    fill: #0099ff;
+}
+.output-port-text {
+    fill: #00e5ff;
+}
+.inout-port-text {
+    fill: #ffb300;
+}
+.port-type-text {
+    fill: #4a5a72;
+    font-size: 8px;
+}
+.port-circle {
+    stroke-width: 1;
+}
+</style>
 <rect class="module-box" x="200" y="10" width="400" height="600"/>
 <text class="module-name" x="400" y="40" text-anchor="middle">fifo_s</text>
 <line class="input-port" x1="200" y1="60" x2="180" y2="60"/>
@@ -435,47 +605,47 @@ test
 
 ## Parameters
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `DW` | parameter | `32` |  |
-| `AW` | parameter | `4` |  |
-| `R_DAT` | parameter | `0` |  |
+| Name | Type | Default | 
+|------|------|------|
+| `DW` | parameter | `32` | 
+| `AW` | parameter | `4` | 
+| `R_DAT` | parameter | `0` | 
 
 ---
 
 ## Ports
 
-| Name | Direction | Type | Width | Description |
-|------|-----------|------|-------|-------------|
-| `clk` | -> input | logic | 1 |  |
-| `rst_n` | -> input | logic | 1 |  |
-| `clr` | -> input | logic | 1 |  |
-| `re` | -> input | logic | 1 |  |
-| `we` | -> input | logic | 1 |  |
-| `din` | -> input | logic | 1 |  |
-| `dout` | -> input | logic | 1 |  |
-| `empty` | -> input | logic | 1 |  |
-| `full` | -> input | logic | 1 |  |
-| `diff` | -> input | logic | 1 |  |
-| `clk` | -> input | logic | 1 |  |
-| `rst_n` | -> input | logic | 1 |  |
-| `clr` | -> input | logic | 1 |  |
-| `din` | -> input | logic | DW-1:0 |  |
-| `dout` | <- output | logic | DW-1:0 |  |
-| `we` | -> input | logic | 1 |  |
-| `re` | -> input | logic | 1 |  |
-| `full` | <- output | logic | 1 |  |
-| `empty` | <- output | logic | 1 |  |
-| `diff` | <- output | logic | AW:0 |  |
-| `b` | -> input | logic | AW:0 |  |
-| `b` | -> input | logic | AW:0 |  |
+| Name | Direction | Type | Width | 
+|------|------|------|------|
+| `clk` |  <->  input | logic | 1 | 
+| `rst_n` |  <->  input | logic | 1 | 
+| `clr` |  <->  input | logic | 1 | 
+| `re` |  <->  input | logic | 1 | 
+| `we` |  <->  input | logic | 1 | 
+| `din` |  <->  input | logic | 1 | 
+| `dout` |  <->  input | logic | 1 | 
+| `empty` |  <->  input | logic | 1 | 
+| `full` |  <->  input | logic | 1 | 
+| `diff` |  <->  input | logic | 1 | 
+| `clk` |  <->  input | logic | 1 | 
+| `rst_n` |  <->  input | logic | 1 | 
+| `clr` |  <->  input | logic | 1 | 
+| `din` |  <->  input | logic | DW-1:0 | 
+| `dout` |  <->  output | logic | DW-1:0 | 
+| `we` |  <->  input | logic | 1 | 
+| `re` |  <->  input | logic | 1 | 
+| `full` |  <->  output | logic | 1 | 
+| `empty` |  <->  output | logic | 1 | 
+| `diff` |  <->  output | logic | AW:0 | 
+| `b` |  <->  input | logic | AW:0 | 
+| `b` |  <->  input | logic | AW:0 | 
 
 ---
 
 
 <div style="page-break-after: always;"></div>
 
-<a name="paral_sh_reg"></a>
+<a id="paral_sh_reg"></a>
 # paral_sh_reg <sup><code>TOP</code></sup>
 
 **File:** `tests_verilog\paral_sh_reg.v`
@@ -487,6 +657,53 @@ test
 <div align="center">
 
 <svg width="800" height="330" viewBox="0 0 800 330" xmlns="http://www.w3.org/2000/svg">
+<style>
+.module-box {
+    fill: #111822;
+    stroke: #2a3a4a;
+    stroke-width: 1.5;
+}
+.module-name {
+    fill: #00e5ff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+}
+.input-port {
+    stroke: #0099ff;
+    stroke-width: 1.5;
+}
+.output-port {
+    stroke: #00e5ff;
+    stroke-width: 1.5;
+}
+.inout-port {
+    stroke: #ffb300;
+    stroke-width: 1.5;
+}
+.port-text {
+    font-family: inherit;
+    font-size: 9px;
+    letter-spacing: 0.03em;
+}
+.input-port-text {
+    fill: #0099ff;
+}
+.output-port-text {
+    fill: #00e5ff;
+}
+.inout-port-text {
+    fill: #ffb300;
+}
+.port-type-text {
+    fill: #4a5a72;
+    font-size: 8px;
+}
+.port-circle {
+    stroke-width: 1;
+}
+</style>
 <rect class="module-box" x="200" y="10" width="400" height="300"/>
 <text class="module-name" x="400" y="40" text-anchor="middle">paral_sh_reg</text>
 <line class="input-port" x1="200" y1="60" x2="180" y2="60"/>
@@ -542,35 +759,35 @@ test
 
 ## Parameters
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `WIDTH` | parameter | `32` | Widht |
-| `IN_WIDTH` | parameter | `4` |  |
+| Name | Type | Default | 
+|------|------|------|
+| `WIDTH` | parameter | `32` | 
+| `IN_WIDTH` | parameter | `4` | 
 
 ---
 
 ## Ports
 
-| Name | Direction | Type | Width | Description |
-|------|-----------|------|-------|-------------|
-| `clk` | -> input | wire | 1 |  |
-| `Sclk` | -> input | wire | 1 |  |
-| `reset` | -> input | wire | 1 |  |
-| `signal` | -> input | wire | 1 |  |
-| `out0` | <- output | wire | 1 |  |
-| `out1` | <- output | wire | 1 |  |
-| `out2` | <- output | wire | 1 |  |
-| `out3` | <- output | wire | 1 |  |
-| `error` | <- output | wire | 1 |  |
-| `data_out` | <- output | wire | WIDTH-1:0 |  |
-| `b` | -> input | logic | 1 |  |
+| Name | Direction | Type | Width | 
+|------|------|------|------|
+| `clk` |  <->  input | wire | 1 | 
+| `Sclk` |  <->  input | wire | 1 | 
+| `reset` |  <->  input | wire | 1 | 
+| `signal` |  <->  input | wire | 1 | 
+| `out0` |  <->  output | wire | 1 | 
+| `out1` |  <->  output | wire | 1 | 
+| `out2` |  <->  output | wire | 1 | 
+| `out3` |  <->  output | wire | 1 | 
+| `error` |  <->  output | wire | 1 | 
+| `data_out` |  <->  output | wire | WIDTH-1:0 | 
+| `b` |  <->  input | logic | 1 | 
 
 ---
 
 
 <div style="page-break-after: always;"></div>
 
-<a name="sh_reg"></a>
+<a id="sh_reg"></a>
 # sh_reg
 
 **File:** `tests_verilog\sh_reg.v`
@@ -582,6 +799,53 @@ test
 <div align="center">
 
 <svg width="800" height="330" viewBox="0 0 800 330" xmlns="http://www.w3.org/2000/svg">
+<style>
+.module-box {
+    fill: #111822;
+    stroke: #2a3a4a;
+    stroke-width: 1.5;
+}
+.module-name {
+    fill: #00e5ff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+}
+.input-port {
+    stroke: #0099ff;
+    stroke-width: 1.5;
+}
+.output-port {
+    stroke: #00e5ff;
+    stroke-width: 1.5;
+}
+.inout-port {
+    stroke: #ffb300;
+    stroke-width: 1.5;
+}
+.port-text {
+    font-family: inherit;
+    font-size: 9px;
+    letter-spacing: 0.03em;
+}
+.input-port-text {
+    fill: #0099ff;
+}
+.output-port-text {
+    fill: #00e5ff;
+}
+.inout-port-text {
+    fill: #ffb300;
+}
+.port-type-text {
+    fill: #4a5a72;
+    font-size: 8px;
+}
+.port-circle {
+    stroke-width: 1;
+}
+</style>
 <rect class="module-box" x="200" y="10" width="400" height="300"/>
 <text class="module-name" x="400" y="40" text-anchor="middle">sh_reg</text>
 <line class="input-port" x1="200" y1="60" x2="180" y2="60"/>
@@ -629,17 +893,17 @@ test
 
 ## Ports
 
-| Name | Direction | Type | Width | Description |
-|------|-----------|------|-------|-------------|
-| `clk` | -> input | wire | 1 |  |
-| `rst` | -> input | wire | 1 |  |
-| `signal` | -> input | wire | 1 |  |
-| `out0` | <- output | wire | 1 |  |
-| `out1` | <- output | wire | 1 |  |
-| `out2` | <- output | wire | 1 |  |
-| `out3` | <- output | wire | 1 |  |
-| `error` | <- output | reg | 1 |  |
-| `reg_data` | <- output | reg | 3:0 |  |
+| Name | Direction | Type | Width | 
+|------|------|------|------|
+| `clk` |  <->  input | wire | 1 | 
+| `rst` |  <->  input | wire | 1 | 
+| `signal` |  <->  input | wire | 1 | 
+| `out0` |  <->  output | wire | 1 | 
+| `out1` |  <->  output | wire | 1 | 
+| `out2` |  <->  output | wire | 1 | 
+| `out3` |  <->  output | wire | 1 | 
+| `error` |  <->  output | reg | 1 | 
+| `reg_data` |  <->  output | reg | 3:0 | 
 
 ---
 

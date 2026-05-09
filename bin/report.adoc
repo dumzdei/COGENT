@@ -39,10 +39,10 @@
 }
 .module-name {
     fill: #0066cc;
-    font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 14;
+    font-family: inherit;
+    font-size: 14px;
     font-weight: 500;
-    letter-spacing: 0.5;
+    letter-spacing: 0.05em;
 }
 .input-port {
     stroke: #0099ff;
@@ -57,8 +57,9 @@
     stroke-width: 1.5;
 }
 .port-text {
-    font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 9;
+    font-family: inherit;
+    font-size: 9px;
+    letter-spacing: 0.03em;
 }
 .input-port-text {
     fill: #0099ff;
@@ -71,7 +72,7 @@
 }
 .port-type-text {
     fill: #8a9aaa;
-    font-size: 8;
+    font-size: 8px;
 }
 .port-circle {
     stroke-width: 1;
@@ -97,13 +98,13 @@
 
 === Ports
 
-[options="header",cols="3,2,2,2,5"]
+[options="header",cols="6*"]
 |===
-|Name |Direction |Type |Width |Description
+|Name |Direction |Type |Width |Clock |Description 
 
-|`clk` |&larr; Input |wire |1 |Clock, signal
-|`rst_n` |&larr; Input |wire |1 |Active-low synchronous reset
-|`q` |&rarr; Output |reg |3:0 |4-bit counter output
+|`clk` | &larr; Input  |wire |1 |100MHZ |Clock, signal
+|`rst_n` | &larr; Input  |wire |1 |- |Active-low synchronous reset
+|`q` | &rarr; Output  |reg |3:0 |- |4-bit counter output
 |===
 
 === Description
@@ -121,18 +122,6 @@ NOTE: This counter uses synchronous reset which provides  better timing closure 
 
 WARNING: If rst_n is not properly synchronized to clk, +
  metastability issues may occur when reset is released near clock edge.
-
-=== Description
-
-Clock, signal
-
-=== Description
-
-Active-low synchronous reset
-
-=== Description
-
-4-bit counter output
 
 <<<
 
@@ -159,10 +148,10 @@ Active-low synchronous reset
 }
 .module-name {
     fill: #0066cc;
-    font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 14;
+    font-family: inherit;
+    font-size: 14px;
     font-weight: 500;
-    letter-spacing: 0.5;
+    letter-spacing: 0.05em;
 }
 .input-port {
     stroke: #0099ff;
@@ -177,8 +166,9 @@ Active-low synchronous reset
     stroke-width: 1.5;
 }
 .port-text {
-    font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 9;
+    font-family: inherit;
+    font-size: 9px;
+    letter-spacing: 0.03em;
 }
 .input-port-text {
     fill: #0099ff;
@@ -191,7 +181,7 @@ Active-low synchronous reset
 }
 .port-type-text {
     fill: #8a9aaa;
-    font-size: 8;
+    font-size: 8px;
 }
 .port-circle {
     stroke-width: 1;
@@ -253,33 +243,33 @@ Active-low synchronous reset
 
 === Parameters
 
-[options="header",cols="2,2,2,5"]
+[options="header",cols="3*"]
 |===
-|Name |Type |Default |Description
+|Name |Type |Default 
 
-|`DW` |parameter |`32` |
-|`AWg` |parameter |`4` |
-|`AWs` |parameter |`2` |
+|`DW` |parameter |`32` 
+|`AWg` |parameter |`4` 
+|`AWs` |parameter |`2` 
 |===
 
 === Ports
 
-[options="header",cols="3,2,2,2,5"]
+[options="header",cols="4*"]
 |===
-|Name |Direction |Type |Width |Description
+|Name |Direction |Type |Width 
 
-|`clk_r` |&larr; Input |logic |1 |
-|`clk_w` |&larr; Input |logic |1 |
-|`clr` |&larr; Input |logic |1 |
-|`re` |&larr; Input |logic |1 |
-|`rst` |&larr; Input |logic |1 |
-|`we` |&larr; Input |logic |1 |
-|`din` |&larr; Input |logic |DW-1:0 |
-|`empty` |&rarr; Output |logic |1 |
-|`full` |&rarr; Output |logic |1 |
-|`diff_rd` |&rarr; Output |logic |AWg:0 |
-|`diff_wr` |&rarr; Output |logic |AWg:0 |
-|`dout` |&rarr; Output |logic |DW-1:0 |
+|`clk_r` | &larr; Input  |logic |1
+|`clk_w` | &larr; Input  |logic |1
+|`clr` | &larr; Input  |logic |1
+|`re` | &larr; Input  |logic |1
+|`rst` | &larr; Input  |logic |1
+|`we` | &larr; Input  |logic |1
+|`din` | &larr; Input  |logic |DW-1:0
+|`empty` | &rarr; Output  |logic |1
+|`full` | &rarr; Output  |logic |1
+|`diff_rd` | &rarr; Output  |logic |AWg:0
+|`diff_wr` | &rarr; Output  |logic |AWg:0
+|`dout` | &rarr; Output  |logic |DW-1:0
 |===
 
 === Description
@@ -311,10 +301,10 @@ test
 }
 .module-name {
     fill: #0066cc;
-    font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 14;
+    font-family: inherit;
+    font-size: 14px;
     font-weight: 500;
-    letter-spacing: 0.5;
+    letter-spacing: 0.05em;
 }
 .input-port {
     stroke: #0099ff;
@@ -329,8 +319,9 @@ test
     stroke-width: 1.5;
 }
 .port-text {
-    font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 9;
+    font-family: inherit;
+    font-size: 9px;
+    letter-spacing: 0.03em;
 }
 .input-port-text {
     fill: #0099ff;
@@ -343,7 +334,7 @@ test
 }
 .port-type-text {
     fill: #8a9aaa;
-    font-size: 8;
+    font-size: 8px;
 }
 .port-circle {
     stroke-width: 1;
@@ -413,38 +404,38 @@ test
 
 === Parameters
 
-[options="header",cols="2,2,2,5"]
+[options="header",cols="3*"]
 |===
-|Name |Type |Default |Description
+|Name |Type |Default 
 
-|`DW` |parameter |`2` |
-|`AW` |parameter |`5` |
-|`R_EMPTY` |parameter |`0` |
-|`R_FULL` |parameter |`0` |
-|`R_DAT` |parameter |`0` |
-|`MS` |localparam |`1` |
+|`DW` |parameter |`2` 
+|`AW` |parameter |`5` 
+|`R_EMPTY` |parameter |`0` 
+|`R_FULL` |parameter |`0` 
+|`R_DAT` |parameter |`0` 
+|`MS` |localparam |`1` 
 |===
 
 === Ports
 
-[options="header",cols="3,2,2,2,5"]
+[options="header",cols="4*"]
 |===
-|Name |Direction |Type |Width |Description
+|Name |Direction |Type |Width 
 
-|`clk_r` |&larr; Input |logic |1 |
-|`clk_w` |&larr; Input |logic |1 |
-|`clr` |&larr; Input |logic |1 |
-|`re` |&larr; Input |logic |1 |
-|`rst` |&larr; Input |logic |1 |
-|`we` |&larr; Input |logic |1 |
-|`din` |&larr; Input |logic |DW-1:0 |
-|`empty` |&rarr; Output |logic |1 |
-|`full` |&rarr; Output |logic |1 |
-|`diff_rd` |&rarr; Output |logic |AW:0 |
-|`diff_wr` |&rarr; Output |logic |AW:0 |
-|`dout` |&rarr; Output |logic |DW-1:0 |
-|`b` |&larr; Input |logic |AW:0 |
-|`g` |&larr; Input |logic |AW:0 |
+|`clk_r` | &larr; Input  |logic |1
+|`clk_w` | &larr; Input  |logic |1
+|`clr` | &larr; Input  |logic |1
+|`re` | &larr; Input  |logic |1
+|`rst` | &larr; Input  |logic |1
+|`we` | &larr; Input  |logic |1
+|`din` | &larr; Input  |logic |DW-1:0
+|`empty` | &rarr; Output  |logic |1
+|`full` | &rarr; Output  |logic |1
+|`diff_rd` | &rarr; Output  |logic |AW:0
+|`diff_wr` | &rarr; Output  |logic |AW:0
+|`dout` | &rarr; Output  |logic |DW-1:0
+|`b` | &larr; Input  |logic |AW:0
+|`g` | &larr; Input  |logic |AW:0
 |===
 
 <<<
@@ -472,10 +463,10 @@ test
 }
 .module-name {
     fill: #0066cc;
-    font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 14;
+    font-family: inherit;
+    font-size: 14px;
     font-weight: 500;
-    letter-spacing: 0.5;
+    letter-spacing: 0.05em;
 }
 .input-port {
     stroke: #0099ff;
@@ -490,8 +481,9 @@ test
     stroke-width: 1.5;
 }
 .port-text {
-    font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 9;
+    font-family: inherit;
+    font-size: 9px;
+    letter-spacing: 0.03em;
 }
 .input-port-text {
     fill: #0099ff;
@@ -504,7 +496,7 @@ test
 }
 .port-type-text {
     fill: #8a9aaa;
-    font-size: 8;
+    font-size: 8px;
 }
 .port-circle {
     stroke-width: 1;
@@ -606,43 +598,43 @@ test
 
 === Parameters
 
-[options="header",cols="2,2,2,5"]
+[options="header",cols="3*"]
 |===
-|Name |Type |Default |Description
+|Name |Type |Default 
 
-|`DW` |parameter |`32` |
-|`AW` |parameter |`4` |
-|`R_DAT` |parameter |`0` |
+|`DW` |parameter |`32` 
+|`AW` |parameter |`4` 
+|`R_DAT` |parameter |`0` 
 |===
 
 === Ports
 
-[options="header",cols="3,2,2,2,5"]
+[options="header",cols="4*"]
 |===
-|Name |Direction |Type |Width |Description
+|Name |Direction |Type |Width 
 
-|`clk` |&larr; Input |logic |1 |
-|`rst_n` |&larr; Input |logic |1 |
-|`clr` |&larr; Input |logic |1 |
-|`re` |&larr; Input |logic |1 |
-|`we` |&larr; Input |logic |1 |
-|`din` |&larr; Input |logic |1 |
-|`dout` |&larr; Input |logic |1 |
-|`empty` |&larr; Input |logic |1 |
-|`full` |&larr; Input |logic |1 |
-|`diff` |&larr; Input |logic |1 |
-|`clk` |&larr; Input |logic |1 |
-|`rst_n` |&larr; Input |logic |1 |
-|`clr` |&larr; Input |logic |1 |
-|`din` |&larr; Input |logic |DW-1:0 |
-|`dout` |&rarr; Output |logic |DW-1:0 |
-|`we` |&larr; Input |logic |1 |
-|`re` |&larr; Input |logic |1 |
-|`full` |&rarr; Output |logic |1 |
-|`empty` |&rarr; Output |logic |1 |
-|`diff` |&rarr; Output |logic |AW:0 |
-|`b` |&larr; Input |logic |AW:0 |
-|`b` |&larr; Input |logic |AW:0 |
+|`clk` | &larr; Input  |logic |1
+|`rst_n` | &larr; Input  |logic |1
+|`clr` | &larr; Input  |logic |1
+|`re` | &larr; Input  |logic |1
+|`we` | &larr; Input  |logic |1
+|`din` | &larr; Input  |logic |1
+|`dout` | &larr; Input  |logic |1
+|`empty` | &larr; Input  |logic |1
+|`full` | &larr; Input  |logic |1
+|`diff` | &larr; Input  |logic |1
+|`clk` | &larr; Input  |logic |1
+|`rst_n` | &larr; Input  |logic |1
+|`clr` | &larr; Input  |logic |1
+|`din` | &larr; Input  |logic |DW-1:0
+|`dout` | &rarr; Output  |logic |DW-1:0
+|`we` | &larr; Input  |logic |1
+|`re` | &larr; Input  |logic |1
+|`full` | &rarr; Output  |logic |1
+|`empty` | &rarr; Output  |logic |1
+|`diff` | &rarr; Output  |logic |AW:0
+|`b` | &larr; Input  |logic |AW:0
+|`b` | &larr; Input  |logic |AW:0
 |===
 
 <<<
@@ -670,10 +662,10 @@ test
 }
 .module-name {
     fill: #0066cc;
-    font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 14;
+    font-family: inherit;
+    font-size: 14px;
     font-weight: 500;
-    letter-spacing: 0.5;
+    letter-spacing: 0.05em;
 }
 .input-port {
     stroke: #0099ff;
@@ -688,8 +680,9 @@ test
     stroke-width: 1.5;
 }
 .port-text {
-    font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 9;
+    font-family: inherit;
+    font-size: 9px;
+    letter-spacing: 0.03em;
 }
 .input-port-text {
     fill: #0099ff;
@@ -702,7 +695,7 @@ test
 }
 .port-type-text {
     fill: #8a9aaa;
-    font-size: 8;
+    font-size: 8px;
 }
 .port-circle {
     stroke-width: 1;
@@ -760,31 +753,31 @@ test
 
 === Parameters
 
-[options="header",cols="2,2,2,5"]
+[options="header",cols="3*"]
 |===
-|Name |Type |Default |Description
+|Name |Type |Default 
 
-|`WIDTH` |parameter |`32` |Widht
-|`IN_WIDTH` |parameter |`4` |
+|`WIDTH` |parameter |`32` 
+|`IN_WIDTH` |parameter |`4` 
 |===
 
 === Ports
 
-[options="header",cols="3,2,2,2,5"]
+[options="header",cols="4*"]
 |===
-|Name |Direction |Type |Width |Description
+|Name |Direction |Type |Width 
 
-|`clk` |&larr; Input |wire |1 |
-|`Sclk` |&larr; Input |wire |1 |
-|`reset` |&larr; Input |wire |1 |
-|`signal` |&larr; Input |wire |1 |
-|`out0` |&rarr; Output |wire |1 |
-|`out1` |&rarr; Output |wire |1 |
-|`out2` |&rarr; Output |wire |1 |
-|`out3` |&rarr; Output |wire |1 |
-|`error` |&rarr; Output |wire |1 |
-|`data_out` |&rarr; Output |wire |WIDTH-1:0 |
-|`b` |&larr; Input |logic |1 |
+|`clk` | &larr; Input  |wire |1
+|`Sclk` | &larr; Input  |wire |1
+|`reset` | &larr; Input  |wire |1
+|`signal` | &larr; Input  |wire |1
+|`out0` | &rarr; Output  |wire |1
+|`out1` | &rarr; Output  |wire |1
+|`out2` | &rarr; Output  |wire |1
+|`out3` | &rarr; Output  |wire |1
+|`error` | &rarr; Output  |wire |1
+|`data_out` | &rarr; Output  |wire |WIDTH-1:0
+|`b` | &larr; Input  |logic |1
 |===
 
 <<<
@@ -812,10 +805,10 @@ test
 }
 .module-name {
     fill: #0066cc;
-    font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 14;
+    font-family: inherit;
+    font-size: 14px;
     font-weight: 500;
-    letter-spacing: 0.5;
+    letter-spacing: 0.05em;
 }
 .input-port {
     stroke: #0099ff;
@@ -830,8 +823,9 @@ test
     stroke-width: 1.5;
 }
 .port-text {
-    font-family: 'JetBrains Mono', 'Consolas', monospace;
-    font-size: 9;
+    font-family: inherit;
+    font-size: 9px;
+    letter-spacing: 0.03em;
 }
 .input-port-text {
     fill: #0099ff;
@@ -844,7 +838,7 @@ test
 }
 .port-type-text {
     fill: #8a9aaa;
-    font-size: 8;
+    font-size: 8px;
 }
 .port-circle {
     stroke-width: 1;
@@ -894,22 +888,24 @@ test
 
 === Ports
 
-[options="header",cols="3,2,2,2,5"]
+[options="header",cols="4*"]
 |===
-|Name |Direction |Type |Width |Description
+|Name |Direction |Type |Width 
 
-|`clk` |&larr; Input |wire |1 |
-|`rst` |&larr; Input |wire |1 |
-|`signal` |&larr; Input |wire |1 |
-|`out0` |&rarr; Output |wire |1 |
-|`out1` |&rarr; Output |wire |1 |
-|`out2` |&rarr; Output |wire |1 |
-|`out3` |&rarr; Output |wire |1 |
-|`error` |&rarr; Output |reg |1 |
-|`reg_data` |&rarr; Output |reg |3:0 |
+|`clk` | &larr; Input  |wire |1
+|`rst` | &larr; Input  |wire |1
+|`signal` | &larr; Input  |wire |1
+|`out0` | &rarr; Output  |wire |1
+|`out1` | &rarr; Output  |wire |1
+|`out2` | &rarr; Output  |wire |1
+|`out3` | &rarr; Output  |wire |1
+|`error` | &rarr; Output  |reg |1
+|`reg_data` | &rarr; Output  |reg |3:0
 |===
 
 
-'''
+---
 
-Documentation generated automatically | _Last updated: {docdate}_
+_Documentation generated automatically by COGENT_ | _Last updated: {docdate}_
+
+https://github.com/dumzdei/COGENT
