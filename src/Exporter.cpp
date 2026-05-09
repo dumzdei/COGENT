@@ -118,7 +118,6 @@ std::string Exporter::Generate_SVG(const Module& module, bool use_external_style
     int module_x = svg_width / 4;
     int module_y = 10;
 
-    // Важно: указываем viewBox для правильного масштабирования
     svg << "<svg width=\"" << svg_width << "\" height=\"" << svg_height
         << "\" viewBox=\"0 0 " << svg_width << " " << svg_height
         << "\" xmlns=\"http://www.w3.org/2000/svg\">\n";

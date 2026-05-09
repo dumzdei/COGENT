@@ -61,7 +61,7 @@ private:
 
     std::vector<Module> ParseFromTokens() override;
 
-    bool ParseModule(size_t token_index, Module& module);
+    bool ParseModule(size_t& token_index, Module& module);
     bool ParsePortList(size_t& token_index, Module& module);
     bool ParseParameterList(size_t& token_index, Module& module);
 
@@ -78,7 +78,7 @@ private:
 
     std::vector<Module> ParseFromTokens() override;
 
-    bool ParseEntity(size_t token_index, Module& module);
+    bool ParseEntity(size_t& token_index, Module& module);
     bool ParsePortList(size_t& token_index, Module& module);
     bool ParseGenericList(size_t& token_index, Module& module);
 
