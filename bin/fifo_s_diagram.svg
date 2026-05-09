@@ -1,0 +1,92 @@
+<svg width="800" height="630" viewBox="0 0 800 630" xmlns="http://www.w3.org/2000/svg">
+<rect x="200" y="10" width="400" height="600" style="fill:#111822;stroke:#2a3a4a;stroke-width:1.5"/>
+<text x="400" y="40" text-anchor="middle" style="fill:#00e5ff;font-family:inherit;font-size:14px;font-weight:500;letter-spacing:0.05em">fifo_s</text>
+<line x1="200" y1="60" x2="180" y2="60" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="60" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="55" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">clk</text>
+<text x="205" y="64" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 logic</text>
+<line x1="200" y1="90" x2="180" y2="90" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="90" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="85" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">rst_n</text>
+<text x="205" y="94" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 logic</text>
+<line x1="200" y1="120" x2="180" y2="120" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="120" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="115" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">clr</text>
+<text x="205" y="124" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 logic</text>
+<line x1="200" y1="150" x2="180" y2="150" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="150" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="145" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">re</text>
+<text x="205" y="154" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 logic</text>
+<line x1="200" y1="180" x2="180" y2="180" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="180" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="175" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">we</text>
+<text x="205" y="184" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 logic</text>
+<line x1="200" y1="210" x2="180" y2="210" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="210" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="205" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">din</text>
+<text x="205" y="214" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 logic</text>
+<line x1="200" y1="240" x2="180" y2="240" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="240" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="235" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">dout</text>
+<text x="205" y="244" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 logic</text>
+<line x1="200" y1="270" x2="180" y2="270" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="270" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="265" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">empty</text>
+<text x="205" y="274" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 logic</text>
+<line x1="200" y1="300" x2="180" y2="300" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="300" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="295" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">full</text>
+<text x="205" y="304" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 logic</text>
+<line x1="200" y1="330" x2="180" y2="330" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="330" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="325" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">diff</text>
+<text x="205" y="334" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 logic</text>
+<line x1="200" y1="360" x2="180" y2="360" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="360" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="355" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">clk</text>
+<text x="205" y="364" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 logic</text>
+<line x1="200" y1="390" x2="180" y2="390" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="390" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="385" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">rst_n</text>
+<text x="205" y="394" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 logic</text>
+<line x1="200" y1="420" x2="180" y2="420" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="420" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="415" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">clr</text>
+<text x="205" y="424" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 logic</text>
+<line x1="200" y1="450" x2="180" y2="450" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="450" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="445" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">din</text>
+<text x="205" y="454" style="fill:#4a5a72;font-family:inherit;font-size:8px">DW-1:0 logic</text>
+<line x1="600" y1="60" x2="620" y2="60" style="stroke:#00e5ff;stroke-width:1.5"/>
+<circle cx="620" cy="60" r="3" style="fill:#00e5ff;stroke:none"/>
+<text x="625" y="55" text-anchor="start" style="fill:#00e5ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">dout</text>
+<text x="595" y="64" text-anchor="end" style="fill:#4a5a72;font-family:inherit;font-size:8px">DW-1:0 logic</text>
+<line x1="200" y1="480" x2="180" y2="480" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="480" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="475" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">we</text>
+<text x="205" y="484" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 logic</text>
+<line x1="200" y1="510" x2="180" y2="510" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="510" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="505" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">re</text>
+<text x="205" y="514" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 logic</text>
+<line x1="600" y1="90" x2="620" y2="90" style="stroke:#00e5ff;stroke-width:1.5"/>
+<circle cx="620" cy="90" r="3" style="fill:#00e5ff;stroke:none"/>
+<text x="625" y="85" text-anchor="start" style="fill:#00e5ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">full</text>
+<text x="595" y="94" text-anchor="end" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 logic</text>
+<line x1="600" y1="120" x2="620" y2="120" style="stroke:#00e5ff;stroke-width:1.5"/>
+<circle cx="620" cy="120" r="3" style="fill:#00e5ff;stroke:none"/>
+<text x="625" y="115" text-anchor="start" style="fill:#00e5ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">empty</text>
+<text x="595" y="124" text-anchor="end" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 logic</text>
+<line x1="600" y1="150" x2="620" y2="150" style="stroke:#00e5ff;stroke-width:1.5"/>
+<circle cx="620" cy="150" r="3" style="fill:#00e5ff;stroke:none"/>
+<text x="625" y="145" text-anchor="start" style="fill:#00e5ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">diff</text>
+<text x="595" y="154" text-anchor="end" style="fill:#4a5a72;font-family:inherit;font-size:8px">AW:0 logic</text>
+<line x1="200" y1="540" x2="180" y2="540" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="540" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="535" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">b</text>
+<text x="205" y="544" style="fill:#4a5a72;font-family:inherit;font-size:8px">AW:0 logic</text>
+<line x1="200" y1="570" x2="180" y2="570" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="570" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="565" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">b</text>
+<text x="205" y="574" style="fill:#4a5a72;font-family:inherit;font-size:8px">AW:0 logic</text>
+</svg>

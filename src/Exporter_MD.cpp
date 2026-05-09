@@ -66,10 +66,18 @@ int Exporter_MD::Export(std::vector<Module>& modules, std::string theme_name) {
         md << "---\n\n";
 
         // SVG Diagram
+        std::string safe_name = module.name;
+        std::replace(safe_name.begin(), safe_name.end(), ' ', '_');
+        std::replace(safe_name.begin(), safe_name.end(), '(', '_');
+        std::replace(safe_name.begin(), safe_name.end(), ')', '_');
+        std::string svg_filename = safe_name + "_diagram.svg";
+
+        std::ofstream svg_file(svg_filename);
+        svg_file << Generate_SVG(module, true, "dark");
+        svg_file.close();
+
         md << "## Module Diagram\n\n";
-        md << "<div align=\"center\">\n\n";
-        md << Generate_SVG(module, true);
-        md << "\n\n</div>\n\n";
+        md << "![Module Diagram](" << svg_filename << ")\n\n";
         md << "---\n\n";
 
         // Metadata table

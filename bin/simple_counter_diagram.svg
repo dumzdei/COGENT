@@ -1,0 +1,16 @@
+<svg width="800" height="330" viewBox="0 0 800 330" xmlns="http://www.w3.org/2000/svg">
+<rect x="200" y="10" width="400" height="300" style="fill:#111822;stroke:#2a3a4a;stroke-width:1.5"/>
+<text x="400" y="40" text-anchor="middle" style="fill:#00e5ff;font-family:inherit;font-size:14px;font-weight:500;letter-spacing:0.05em">simple_counter</text>
+<line x1="200" y1="60" x2="180" y2="60" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="60" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="55" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">clk</text>
+<text x="205" y="64" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 wire</text>
+<line x1="200" y1="90" x2="180" y2="90" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="90" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="85" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">rst_n</text>
+<text x="205" y="94" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 wire</text>
+<line x1="600" y1="60" x2="620" y2="60" style="stroke:#00e5ff;stroke-width:1.5"/>
+<circle cx="620" cy="60" r="3" style="fill:#00e5ff;stroke:none"/>
+<text x="625" y="55" text-anchor="start" style="fill:#00e5ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">q</text>
+<text x="595" y="64" text-anchor="end" style="fill:#4a5a72;font-family:inherit;font-size:8px">3:0 reg</text>
+</svg>
