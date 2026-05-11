@@ -1,0 +1,12 @@
+# ninja log v6
+75	1420	8002313208414540	CMakeFiles/cogent_core.dir/src/CmdLine.cpp.obj	f1713573d5180b5a
+37	1454	8002313208042353	CMakeFiles/cogent_core.dir/src/Exporter.cpp.obj	b1d38f999c31e49
+47	1462	8002313208127742	CMakeFiles/cogent_core.dir/src/Exporter_HTML.cpp.obj	f6f15aeec8dfb764
+29	1663	8002313207967074	CMakeFiles/cogent_core.dir/src/Parser_VHDL.cpp.obj	dba3cbfbb8fa61fe
+65	1485	8002313208314252	CMakeFiles/cogent_core.dir/src/Exporter_ADOC.cpp.obj	29b75a2168610a2c
+56	1491	8002313208223790	CMakeFiles/cogent_core.dir/src/Exporter_MD.cpp.obj	6964c2d5b1f68c18
+9	1525	8002313207761408	CMakeFiles/cogent_core.dir/src/Parser.cpp.obj	7a232c2ced291354
+21	1768	8002313207881862	CMakeFiles/cogent_core.dir/src/Parser_SystemVerilog.cpp.obj	a245488aa0d29615
+84	1989	8002313208504875	CMakeFiles/cogent-cli.dir/src/main.cpp.obj	432f8214c81aeb97
+1768	2292	8002313225354532	cogent_core.lib	1e9409b366766e30
+2292	2847	8002313230584712	cogent-cli.exe	d3712add7e49a1fa

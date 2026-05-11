@@ -1,0 +1,8 @@
+C:\COGENT\src\Parser.cpp;C:\COGENT\build\cogent_core.dir\Debug\Parser.obj
+C:\COGENT\src\Parser_SystemVerilog.cpp;C:\COGENT\build\cogent_core.dir\Debug\Parser_SystemVerilog.obj
+C:\COGENT\src\Parser_VHDL.cpp;C:\COGENT\build\cogent_core.dir\Debug\Parser_VHDL.obj
+C:\COGENT\src\Exporter.cpp;C:\COGENT\build\cogent_core.dir\Debug\Exporter.obj
+C:\COGENT\src\Exporter_HTML.cpp;C:\COGENT\build\cogent_core.dir\Debug\Exporter_HTML.obj
+C:\COGENT\src\Exporter_MD.cpp;C:\COGENT\build\cogent_core.dir\Debug\Exporter_MD.obj
+C:\COGENT\src\Exporter_ADOC.cpp;C:\COGENT\build\cogent_core.dir\Debug\Exporter_ADOC.obj
+C:\COGENT\src\CmdLine.cpp;C:\COGENT\build\cogent_core.dir\Debug\CmdLine.obj

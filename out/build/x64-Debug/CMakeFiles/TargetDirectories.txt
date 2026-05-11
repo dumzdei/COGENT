@@ -1,0 +1,4 @@
+C:/COGENT/out/build/x64-Debug/CMakeFiles/cogent_core.dir
+C:/COGENT/out/build/x64-Debug/CMakeFiles/cogent-cli.dir
+C:/COGENT/out/build/x64-Debug/CMakeFiles/edit_cache.dir
+C:/COGENT/out/build/x64-Debug/CMakeFiles/rebuild_cache.dir
