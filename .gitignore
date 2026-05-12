@@ -10,3 +10,4 @@ build/*.d
 build/*.o
 
 .vs/
+.claudiaideconfig

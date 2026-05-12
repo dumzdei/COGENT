@@ -1,0 +1,132 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"jsonFile" : "directory-.-Debug-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "COGENT",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "cogent-cli::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-cogent-cli-Debug-dbec498177df05874ec6.json",
+					"name" : "cogent-cli",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "cogent-cli_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-cogent-cli_autogen-Debug-341ba73f1c0647445fa9.json",
+					"name" : "cogent-cli_autogen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "cogent-cli_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-cogent-cli_autogen_timestamp_deps-Debug-136a2d81529b7be9e35d.json",
+					"name" : "cogent-cli_autogen_timestamp_deps",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "cogent-gui::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-cogent-gui-Debug-7642acaa320967f1955b.json",
+					"name" : "cogent-gui",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "cogent-gui_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-cogent-gui_autogen-Debug-933ae0c5b302de0b9b38.json",
+					"name" : "cogent-gui_autogen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "cogent-gui_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-cogent-gui_autogen_timestamp_deps-Debug-a67e691c4eba3960793f.json",
+					"name" : "cogent-gui_autogen_timestamp_deps",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "cogent_core::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-cogent_core-Debug-6581e78bf05c195c6bde.json",
+					"name" : "cogent_core",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "cogent_core_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-cogent_core_autogen-Debug-db6adbf06d8d6e3381b9.json",
+					"name" : "cogent_core_autogen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "cogent_core_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-cogent_core_autogen_timestamp_deps-Debug-0c7ae5224b8d2c91816e.json",
+					"name" : "cogent_core_autogen_timestamp_deps",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "C:/COGENT/out/build/x64-Debug",
+		"source" : "C:/COGENT"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 8
+	}
+}

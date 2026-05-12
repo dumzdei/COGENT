@@ -1,0 +1,8 @@
+set(__QT_DEPLOY_TARGET_cogent_core_FILE C:/COGENT/build/Debug/cogent_core.lib)
+set(__QT_DEPLOY_TARGET_cogent_core_TYPE STATIC_LIBRARY)
+set(__QT_DEPLOY_TARGET_cogent-cli_FILE C:/COGENT/build/Debug/cogent-cli.exe)
+set(__QT_DEPLOY_TARGET_cogent-cli_TYPE EXECUTABLE)
+set(__QT_DEPLOY_TARGET_cogent-cli_RUNTIME_DLLS )
+set(__QT_DEPLOY_TARGET_cogent-gui_FILE C:/COGENT/build/Debug/cogent-gui.exe)
+set(__QT_DEPLOY_TARGET_cogent-gui_TYPE EXECUTABLE)
+set(__QT_DEPLOY_TARGET_cogent-gui_RUNTIME_DLLS C:/Qt/6.11.0/msvc2022_64/bin/Qt6Widgetsd.dll;C:/Qt/6.11.0/msvc2022_64/bin/Qt6Guid.dll;C:/Qt/6.11.0/msvc2022_64/bin/Qt6Cored.dll)

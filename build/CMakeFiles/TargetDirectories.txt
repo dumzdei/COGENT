@@ -1,4 +1,5 @@
 C:/COGENT/build/CMakeFiles/cogent_core.dir
 C:/COGENT/build/CMakeFiles/cogent-cli.dir
+C:/COGENT/build/CMakeFiles/cogent-gui.dir
 C:/COGENT/build/CMakeFiles/ALL_BUILD.dir
 C:/COGENT/build/CMakeFiles/ZERO_CHECK.dir
