@@ -3,7 +3,7 @@
 :toc: left
 :icons: font
 
-== simple_counter (`tests_verilog\counter.v`)
+== simple_counter (`C:/COGENT/bin/tests_verilog\counter.v`)
 
 [options="header",cols="5*"]
 |===
@@ -14,7 +14,7 @@
 |`q` |3:0 |&rarr; Output |- |4-bit counter output
 |===
 
-== fifo_gray_p2p (`tests_verilog\fifo_gray_p2p.v`)
+== fifo_gray_p2p (`C:/COGENT/bin/tests_verilog\fifo_gray_p2p.v`)
 
 [options="header",cols="3*"]
 |===
@@ -34,7 +34,7 @@
 |`dout` |DW-1:0 |&rarr; Output
 |===
 
-== fifo_pgray (`tests_verilog\fifo_pgray.v`)
+== fifo_pgray (`C:/COGENT/bin/tests_verilog\fifo_pgray.v`)
 
 [options="header",cols="3*"]
 |===
@@ -56,7 +56,7 @@
 |`g` |AW:0 |&larr; Input
 |===
 
-== fifo_s (`tests_verilog\fifo_s.v`)
+== fifo_s (`C:/COGENT/bin/tests_verilog\fifo_s.v`)
 
 [options="header",cols="3*"]
 |===
@@ -86,7 +86,7 @@
 |`b` |AW:0 |&larr; Input
 |===
 
-== paral_sh_reg (`tests_verilog\paral_sh_reg.v`)
+== paral_sh_reg (`C:/COGENT/bin/tests_verilog\paral_sh_reg.v`)
 
 [options="header",cols="3*"]
 |===
@@ -105,7 +105,7 @@
 |`b` |1 |&larr; Input
 |===
 
-== sh_reg (`tests_verilog\sh_reg.v`)
+== sh_reg (`C:/COGENT/bin/tests_verilog\sh_reg.v`)
 
 [options="header",cols="3*"]
 |===

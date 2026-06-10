@@ -1,2 +1,4 @@
 C:\COGENT\build\cogent-gui_autogen\mocs_compilation_Debug.cpp;C:\COGENT\build\cogent-gui.dir\Debug\mocs_compilation_Debug.obj
 C:\COGENT\src\gui\main_gui.cpp;C:\COGENT\build\cogent-gui.dir\Debug\main_gui.obj
+C:\COGENT\src\gui\MainWindow.cpp;C:\COGENT\build\cogent-gui.dir\Debug\MainWindow.obj
+C:\COGENT\src\gui\CogentWorker.cpp;C:\COGENT\build\cogent-gui.dir\Debug\CogentWorker.obj

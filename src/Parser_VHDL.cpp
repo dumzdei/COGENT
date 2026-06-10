@@ -329,9 +329,7 @@ std::vector<Module> Parser_VHDL::ParseFromTokens() {
         }
         else if (tok.type == TokenType::KW_END) {
             NextToken(token_index);
-            if (IsAtToken(token_index, TokenType::KW_ENTITY)) {
-                modules.push_back(module);
-            }
+            modules.push_back(module);
         }
         NextToken(token_index);
     }

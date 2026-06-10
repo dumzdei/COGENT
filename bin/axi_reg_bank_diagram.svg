@@ -1,0 +1,88 @@
+<svg width="800" height="450" viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg">
+<rect x="200" y="10" width="400" height="420" style="fill:#111822;stroke:#2a3a4a;stroke-width:1.5"/>
+<text x="400" y="40" text-anchor="middle" style="fill:#00e5ff;font-family:inherit;font-size:14px;font-weight:500;letter-spacing:0.05em">axi_reg_bank</text>
+<line x1="200" y1="60" x2="180" y2="60" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="60" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="55" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">axi_aclk</text>
+<text x="205" y="64" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 std_logic</text>
+<line x1="200" y1="90" x2="180" y2="90" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="90" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="85" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">axi_aresetn</text>
+<text x="205" y="94" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 std_logic</text>
+<line x1="200" y1="120" x2="180" y2="120" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="120" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="115" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">axi_awaddr</text>
+<text x="205" y="124" style="fill:#4a5a72;font-family:inherit;font-size:8px">ADDR_WIDTH-1 downto 0 std_logic_vector</text>
+<line x1="200" y1="150" x2="180" y2="150" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="150" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="145" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">axi_awvalid</text>
+<text x="205" y="154" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 std_logic</text>
+<line x1="600" y1="60" x2="620" y2="60" style="stroke:#00e5ff;stroke-width:1.5"/>
+<circle cx="620" cy="60" r="3" style="fill:#00e5ff;stroke:none"/>
+<text x="625" y="55" text-anchor="start" style="fill:#00e5ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">axi_awready</text>
+<text x="595" y="64" text-anchor="end" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 std_logic</text>
+<line x1="200" y1="180" x2="180" y2="180" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="180" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="175" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">axi_wdata</text>
+<text x="205" y="184" style="fill:#4a5a72;font-family:inherit;font-size:8px">DATA_WIDTH-1 downto 0 std_logic_vector</text>
+<line x1="200" y1="210" x2="180" y2="210" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="210" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="205" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">axi_wstrb</text>
+<text x="205" y="214" style="fill:#4a5a72;font-family:inherit;font-size:8px">DATA_WIDTH/8-1 downto 0 std_logic_vector</text>
+<line x1="200" y1="240" x2="180" y2="240" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="240" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="235" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">axi_wvalid</text>
+<text x="205" y="244" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 std_logic</text>
+<line x1="600" y1="90" x2="620" y2="90" style="stroke:#00e5ff;stroke-width:1.5"/>
+<circle cx="620" cy="90" r="3" style="fill:#00e5ff;stroke:none"/>
+<text x="625" y="85" text-anchor="start" style="fill:#00e5ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">axi_wready</text>
+<text x="595" y="94" text-anchor="end" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 std_logic</text>
+<line x1="600" y1="120" x2="620" y2="120" style="stroke:#00e5ff;stroke-width:1.5"/>
+<circle cx="620" cy="120" r="3" style="fill:#00e5ff;stroke:none"/>
+<text x="625" y="115" text-anchor="start" style="fill:#00e5ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">axi_bresp</text>
+<text x="595" y="124" text-anchor="end" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 downto 0 std_logic_vector</text>
+<line x1="600" y1="150" x2="620" y2="150" style="stroke:#00e5ff;stroke-width:1.5"/>
+<circle cx="620" cy="150" r="3" style="fill:#00e5ff;stroke:none"/>
+<text x="625" y="145" text-anchor="start" style="fill:#00e5ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">axi_bvalid</text>
+<text x="595" y="154" text-anchor="end" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 std_logic</text>
+<line x1="200" y1="270" x2="180" y2="270" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="270" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="265" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">axi_bready</text>
+<text x="205" y="274" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 std_logic</text>
+<line x1="200" y1="300" x2="180" y2="300" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="300" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="295" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">axi_araddr</text>
+<text x="205" y="304" style="fill:#4a5a72;font-family:inherit;font-size:8px">ADDR_WIDTH-1 downto 0 std_logic_vector</text>
+<line x1="200" y1="330" x2="180" y2="330" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="330" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="325" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">axi_arvalid</text>
+<text x="205" y="334" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 std_logic</text>
+<line x1="600" y1="180" x2="620" y2="180" style="stroke:#00e5ff;stroke-width:1.5"/>
+<circle cx="620" cy="180" r="3" style="fill:#00e5ff;stroke:none"/>
+<text x="625" y="175" text-anchor="start" style="fill:#00e5ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">axi_arready</text>
+<text x="595" y="184" text-anchor="end" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 std_logic</text>
+<line x1="600" y1="210" x2="620" y2="210" style="stroke:#00e5ff;stroke-width:1.5"/>
+<circle cx="620" cy="210" r="3" style="fill:#00e5ff;stroke:none"/>
+<text x="625" y="205" text-anchor="start" style="fill:#00e5ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">axi_rdata</text>
+<text x="595" y="214" text-anchor="end" style="fill:#4a5a72;font-family:inherit;font-size:8px">DATA_WIDTH-1 downto 0 std_logic_vector</text>
+<line x1="600" y1="240" x2="620" y2="240" style="stroke:#00e5ff;stroke-width:1.5"/>
+<circle cx="620" cy="240" r="3" style="fill:#00e5ff;stroke:none"/>
+<text x="625" y="235" text-anchor="start" style="fill:#00e5ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">axi_rresp</text>
+<text x="595" y="244" text-anchor="end" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 downto 0 std_logic_vector</text>
+<line x1="600" y1="270" x2="620" y2="270" style="stroke:#00e5ff;stroke-width:1.5"/>
+<circle cx="620" cy="270" r="3" style="fill:#00e5ff;stroke:none"/>
+<text x="625" y="265" text-anchor="start" style="fill:#00e5ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">axi_rvalid</text>
+<text x="595" y="274" text-anchor="end" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 std_logic</text>
+<line x1="200" y1="360" x2="180" y2="360" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="360" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="355" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">axi_rready</text>
+<text x="205" y="364" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 std_logic</text>
+<line x1="200" y1="390" x2="180" y2="390" style="stroke:#0099ff;stroke-width:1.5"/>
+<circle cx="180" cy="390" r="3" style="fill:#0099ff;stroke:none"/>
+<text x="175" y="385" text-anchor="end" style="fill:#0099ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">debug_en</text>
+<text x="205" y="394" style="fill:#4a5a72;font-family:inherit;font-size:8px">1 std_logic</text>
+<line x1="600" y1="300" x2="620" y2="300" style="stroke:#00e5ff;stroke-width:1.5"/>
+<circle cx="620" cy="300" r="3" style="fill:#00e5ff;stroke:none"/>
+<text x="625" y="295" text-anchor="start" style="fill:#00e5ff;font-family:inherit;font-size:9px;letter-spacing:0.03em">debug_data</text>
+<text x="595" y="304" text-anchor="end" style="fill:#4a5a72;font-family:inherit;font-size:8px">31 downto 0 std_logic_vector</text>
+</svg>

@@ -7,6 +7,12 @@
     <ClCompile Include="C:\COGENT\src\gui\main_gui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\COGENT\src\gui\MainWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\COGENT\src\gui\CogentWorker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="C:\COGENT\build\cogent-gui_autogen\mocs_compilation_Release.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -18,9 +24,20 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="C:\COGENT\include\gui\MainWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\COGENT\include\gui\CogentWorker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
     <CustomBuild Include="C:\COGENT\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{B749A18B-E6C7-367F-BAE6-FC0FD86FCE28}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source Files">
       <UniqueIdentifier>{865A5B15-FDAF-3B1F-BFCE-327BA5103CC9}</UniqueIdentifier>
     </Filter>

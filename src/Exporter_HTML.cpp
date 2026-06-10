@@ -10,9 +10,9 @@ int Exporter_HTML::Export(std::vector<Module>& modules, std::string theme_name) 
         return 2;
     }
 
-    if (!html.is_open() || !temp_html.is_open())
+    if (!temp_html.is_open())
     {
-        std::cerr << "Error opening HTML file\n";
+        std::cerr << FORMAT_ERROR "could not open template file.\n";
         return 1;
     }
 
